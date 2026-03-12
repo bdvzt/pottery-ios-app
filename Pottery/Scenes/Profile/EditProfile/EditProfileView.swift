@@ -1,36 +1,23 @@
 import SwiftUI
 
-struct RegistrationView: View {
-    @StateObject var viewModel: RegistrationViewModel
+struct EditProfileView: View {
+    @StateObject var viewModel: EditProfileViewModel
+    @State private var showDeleteAlert = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                Spacer(minLength: 24)
-
-                Text("Регистрация")
-                    .font(.largeTitle)
+                Text("Редактирование профиля")
+                    .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.accentColor)
 
                 VStack(spacing: 12) {
-                    inputField(
-                        title: "Фамилия",
-                        placeholder: "Введите фамилию",
-                        text: $viewModel.lastName
-                    )
+                    inputField(title: "Фамилия", placeholder: "Введите фамилию", text: $viewModel.lastName)
 
-                    inputField(
-                        title: "Имя",
-                        placeholder: "Введите имя",
-                        text: $viewModel.firstName
-                    )
+                    inputField(title: "Имя", placeholder: "Введите имя", text: $viewModel.firstName)
 
-                    inputField(
-                        title: "Отчество",
-                        placeholder: "Введите отчество",
-                        text: $viewModel.middleName
-                    )
+                    inputField(title: "Отчество", placeholder: "Введите отчество", text: $viewModel.middleName)
 
                     inputField(
                         title: "Email",
@@ -38,12 +25,6 @@ struct RegistrationView: View {
                         text: $viewModel.email,
                         keyboardType: .emailAddress,
                         autocapitalization: .never
-                    )
-
-                    secureInputField(
-                        title: "Пароль",
-                        placeholder: "Введите пароль",
-                        text: $viewModel.password
                     )
                 }
 
@@ -56,7 +37,7 @@ struct RegistrationView: View {
 
                 Button {
                     Task {
-                        await viewModel.register()
+                        await viewModel.save()
                     }
                 } label: {
                     if viewModel.isLoading {
@@ -65,7 +46,7 @@ struct RegistrationView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                     } else {
-                        Text("Зарегистрироваться")
+                        Text("Сохранить")
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -77,20 +58,29 @@ struct RegistrationView: View {
                 .disabled(viewModel.isLoading)
 
                 Button {
-                    viewModel.backToLogin()
+                    showDeleteAlert = true
                 } label: {
-                    Text("Войти по логину")
-                        .fontWeight(.medium)
-                        .foregroundStyle(Color.accentColor)
+                    Text("Удалить аккаунт")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
                 }
+                .foregroundStyle(.red)
                 .disabled(viewModel.isLoading)
-
-                Spacer(minLength: 24)
             }
             .padding(24)
         }
         .background(Color(.systemBackground))
-        .dismissKeyboardOnTap()
+        .alert("Удалить аккаунт?", isPresented: $showDeleteAlert) {
+            Button("Удалить", role: .destructive) {
+                Task {
+                    await viewModel.deleteAccount()
+                }
+            }
+
+            Button("Отмена", role: .cancel) {}
+        } message: {
+            Text("Аккаунт будет удалён без возможности восстановления.")
+        }
     }
 
     private func inputField(
@@ -110,25 +100,6 @@ struct RegistrationView: View {
                 .keyboardType(keyboardType)
                 .textInputAutocapitalization(autocapitalization)
                 .autocorrectionDisabled()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-    }
-
-    private func secureInputField(
-        title: String,
-        placeholder: String,
-        text: Binding<String>
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.leading, 10)
-
-            SecureField(placeholder, text: text)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
                 .background(Color(.secondarySystemBackground))

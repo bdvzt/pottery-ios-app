@@ -1,30 +1,53 @@
-//
-//  SceneDelegate.swift
-//  Pottery
-//
-//  Created by Zayata Budaeva on 11.03.2026.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
     var window: UIWindow?
+    var coordinator: AppCoordinator?
 
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowScene = scene as? UIWindowScene else { return }
+
+        let navigationController = NavigationController()
+
+        let tokenStorage = KeychainTokenStorage()
+        let authorizationProvider = AuthorizationProvider(tokenStorage: tokenStorage)
+        let networkTransport = HTTPClient(authorizationProvider: authorizationProvider)
+        let sessionService = SessionService(tokenStorage: tokenStorage)
+        let networkService = NetworkService(
+            networkTransport: networkTransport,
+            sessionService: sessionService
+        )
+
+        let authNetwork = AuthNetwork(
+            networkService: networkService,
+            tokenStorage: tokenStorage
+        )
+
+        let usersNetwork = UsersNetwork(
+            networkService: networkService,
+            tokenStorage: tokenStorage
+        )
+
+        coordinator = AppCoordinator(
+            navigationController: navigationController,
+            authNetwork: authNetwork,
+            usersNetwork: usersNetwork,
+            tokenStorage: tokenStorage
+        )
+
+        coordinator?.start()
 
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = ViewController()
+        window.rootViewController = navigationController
         window.makeKeyAndVisible()
 
         self.window = window
     }
-    
+
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.

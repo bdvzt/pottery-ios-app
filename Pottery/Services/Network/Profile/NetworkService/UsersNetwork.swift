@@ -12,8 +12,7 @@ final class UsersNetwork: UsersNetworkProtocol {
 
     func register(data: RegisterRequest) async throws {
         let endPoint = RegisterEndpoint(body: data)
-        let response = try await networkService.requestDecodable(endPoint, as: String.self)
-        tokenStorage.accessToken = response
+        _ = try await networkService.requestDecodable(endPoint, as: String.self)
     }
 
     func getProfile() async throws -> ProfileResponse {
@@ -22,12 +21,12 @@ final class UsersNetwork: UsersNetworkProtocol {
     }
 
     func editProfile(data: UpdateProfileRequest) async throws {
-        let endPoint = UpdateProfile(bod)
-        return try await networkService.requestDecodable(endPoint, as: UserResponse.self)
+        let endPoint = UpdateProfileEndpoint(body: data)
+        try await networkService.request(endPoint)
     }
 
     func deleteProfile() async throws {
-        let endPoint = GetMyInfoEndPoint()
-        return try await networkService.requestDecodable(endPoint, as: UserResponse.self)
+        let endPoint = DeleteProfileEndpoint()
+        try await networkService.request(endPoint)
     }
 }

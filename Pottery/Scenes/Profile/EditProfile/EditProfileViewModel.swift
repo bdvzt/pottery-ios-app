@@ -2,33 +2,38 @@ import Foundation
 import Combine
 
 @MainActor
-final class RegistrationViewModel: ObservableObject {
-
-    @Published var firstName: String = ""
-    @Published var lastName: String = ""
-    @Published var middleName: String = ""
-    @Published var email: String = ""
-    @Published var password: String = ""
+final class EditProfileViewModel: ObservableObject {
+    @Published var firstName: String
+    @Published var lastName: String
+    @Published var middleName: String
+    @Published var email: String
 
     @Published var isLoading = false
     @Published var errorMessage: String?
 
     private let usersRepository: UsersNetworkProtocol
-    private let onRegistrationSuccess: () -> Void
-    private let onBackToLogin: () -> Void
+    private let authRepository: AuthNetworkProtocol
+    private let onProfileUpdated: () -> Void
+    private let onProfileDeleted: () -> Void
 
     init(
+        profile: ProfileResponse,
         usersRepository: UsersNetworkProtocol,
-        onRegistrationSuccess: @escaping () -> Void,
-        onBackToLogin: @escaping () -> Void
+        authRepository: AuthNetworkProtocol,
+        onProfileUpdated: @escaping () -> Void,
+        onProfileDeleted: @escaping () -> Void
     ) {
+        self.firstName = profile.firstName ?? ""
+        self.lastName = profile.lastName ?? ""
+        self.middleName = profile.middleName ?? ""
+        self.email = profile.email
         self.usersRepository = usersRepository
-        self.onRegistrationSuccess = onRegistrationSuccess
-        self.onBackToLogin = onBackToLogin
+        self.authRepository = authRepository
+        self.onProfileUpdated = onProfileUpdated
+        self.onProfileDeleted = onProfileDeleted
     }
 
-    func register() async {
-
+    func save() async {
         let trimmedFirstName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedLastName = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedMiddleName = middleName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -59,35 +64,45 @@ final class RegistrationViewModel: ObservableObject {
             return
         }
 
-        guard !password.isEmpty else {
-            errorMessage = "Введите пароль"
-            return
-        }
-
         errorMessage = nil
         isLoading = true
         defer { isLoading = false }
 
         do {
-            try await usersRepository.register(
-                data: RegisterRequest(
+            try await usersRepository.editProfile(
+                data: UpdateProfileRequest(
                     firstName: trimmedFirstName,
                     lastName: trimmedLastName,
                     middleName: trimmedMiddleName,
                     email: trimmedEmail,
-                    password: password
+                    password: nil
                 )
             )
 
-            onRegistrationSuccess()
-
+            onProfileUpdated()
         } catch {
-            errorMessage = "Не удалось зарегистрироваться"
+            errorMessage = "Не удалось сохранить изменения"
         }
     }
 
-    func backToLogin() {
-        onBackToLogin()
+    func deleteAccount() async {
+        errorMessage = nil
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await usersRepository.deleteProfile()
+
+            do {
+                try await authRepository.logout()
+            } catch {
+
+            }
+
+            onProfileDeleted()
+        } catch {
+            errorMessage = "Не удалось удалить аккаунт"
+        }
     }
 
     private func isValidEmail(_ email: String) -> Bool {
