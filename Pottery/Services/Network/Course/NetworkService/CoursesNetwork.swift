@@ -1,4 +1,4 @@
-final class CourseNetwork: CourseNetworkProtocol {
+final class CoursesNetwork: CoursesNetworkProtocol {
     private let networkService: NetworkServiceProtocol
 
     init(networkService: NetworkServiceProtocol) {

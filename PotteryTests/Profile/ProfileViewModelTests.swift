@@ -21,7 +21,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: repo,
             authRepository: MockAuthNetwork(),
-            onLogout: {}
+            onLogout: {},
+            onEditProfile: { _ in }
         )
 
         await vm.loadProfile()
@@ -36,7 +37,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: repo,
             authRepository: MockAuthNetwork(),
-            onLogout: {}
+            onLogout: {},
+            onEditProfile: { _ in }
         )
 
         await vm.loadProfile()
@@ -51,7 +53,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: repo,
             authRepository: MockAuthNetwork(),
-            onLogout: {}
+            onLogout: {},
+            onEditProfile: { _ in }
         )
 
         await vm.loadProfile()
@@ -75,7 +78,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: repo,
             authRepository: MockAuthNetwork(),
-            onLogout: {}
+            onLogout: {},
+            onEditProfile: { _ in }
         )
 
         await vm.loadProfile()
@@ -89,7 +93,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: MockUsersNetwork(),
             authRepository: auth,
-            onLogout: {}
+            onLogout: {},
+            onEditProfile: { _ in }
         )
 
         await vm.logout()
@@ -103,7 +108,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: MockUsersNetwork(),
             authRepository: MockAuthNetwork(),
-            onLogout: { called = true }
+            onLogout: { called = true },
+            onEditProfile: { _ in }
         )
 
         await vm.logout()
@@ -127,7 +133,8 @@ final class ProfileViewModelTests: XCTestCase {
         let vm = ProfileViewModel(
             usersRepository: repo,
             authRepository: MockAuthNetwork(),
-            onLogout: {}
+            onLogout: {},
+            onEditProfile: { _ in }
         )
 
         await vm.loadProfile()

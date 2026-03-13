@@ -7,17 +7,20 @@ final class AppCoordinator: Coordinator {
 
     private let authNetwork: AuthNetworkProtocol
     private let usersNetwork: UsersNetworkProtocol
+    private let coursesNetwork: CoursesNetworkProtocol
     private let tokenStorage: TokenStorageProtocol
 
     init(
         navigationController: NavigationController,
         authNetwork: AuthNetworkProtocol,
         usersNetwork: UsersNetworkProtocol,
+        coursesNetwork: CoursesNetworkProtocol,
         tokenStorage: TokenStorageProtocol
     ) {
         self.navigationController = navigationController
         self.authNetwork = authNetwork
         self.usersNetwork = usersNetwork
+        self.coursesNetwork = coursesNetwork
         self.tokenStorage = tokenStorage
     }
 

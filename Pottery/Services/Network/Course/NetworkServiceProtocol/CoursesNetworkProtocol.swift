@@ -1,4 +1,4 @@
-protocol CourseNetworkProtocol {
+protocol CoursesNetworkProtocol {
     func joinCourse(data: JoinCourseRequest) async throws -> CourseShortResponse
     func getMyCourses() async throws -> CoursesResponse
     func getCourseInfo(id: String) async throws -> CourseShortResponse
