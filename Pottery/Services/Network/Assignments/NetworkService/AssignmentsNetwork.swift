@@ -1,5 +1,4 @@
 final class AssignmentsNetwork: AssignmentsNetworkProtocol {
-
     private let networkService: NetworkServiceProtocol
 
     init(networkService: NetworkServiceProtocol) {
@@ -22,6 +21,14 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
         return try await networkService.requestDecodable(
             endPoint,
             as: AssignmentResponse.self
+        )
+    }
+
+    func getMyGrades(id: String) async throws -> [Grade] {
+        let endPoint = GetMyGradesEndpoint(id: id)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: [Grade].self
         )
     }
 }

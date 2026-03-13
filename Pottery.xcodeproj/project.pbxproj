@@ -116,6 +116,8 @@
 		88F98EBD2F64A78900EDC0D2 /* MockCommentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EBC2F64A78900EDC0D2 /* MockCommentsNetwork.swift */; };
 		88F98EBF2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EBE2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift */; };
 		88F98EC12F64A9B300EDC0D2 /* AssignmentDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EC02F64A9B300EDC0D2 /* AssignmentDetailsViewModel.swift */; };
+		88F98EC32F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EC22F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift */; };
+		88F98EC52F64B32700EDC0D2 /* Grade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EC42F64B32300EDC0D2 /* Grade.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -248,6 +250,8 @@
 		88F98EBC2F64A78900EDC0D2 /* MockCommentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCommentsNetwork.swift; sourceTree = "<group>"; };
 		88F98EBE2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailsViewModelTests.swift; sourceTree = "<group>"; };
 		88F98EC02F64A9B300EDC0D2 /* AssignmentDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailsViewModel.swift; sourceTree = "<group>"; };
+		88F98EC22F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMyGradesEndpoint.swift; sourceTree = "<group>"; };
+		88F98EC42F64B32300EDC0D2 /* Grade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grade.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -710,6 +714,7 @@
 		88F98E6F2F64880200EDC0D2 /* Endpoints */ = {
 			isa = PBXGroup;
 			children = (
+				88F98EC22F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift */,
 				88F98E6A2F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift */,
 				88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */,
 			);
@@ -735,6 +740,7 @@
 		88F98E772F64880200EDC0D2 /* Responses */ = {
 			isa = PBXGroup;
 			children = (
+				88F98EC42F64B32300EDC0D2 /* Grade.swift */,
 				88F98E9B2F6494A000EDC0D2 /* AssignmentsResponse.swift */,
 				88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */,
 				88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */,
@@ -1025,6 +1031,7 @@
 				88211AFC2F62C0B10073396D /* RegistrationView.swift in Sources */,
 				88F98E962F64932600EDC0D2 /* CourseDetailsModel.swift in Sources */,
 				88F98E982F64932600EDC0D2 /* CoursesView.swift in Sources */,
+				88F98EC52F64B32700EDC0D2 /* Grade.swift in Sources */,
 				88F98E992F64932600EDC0D2 /* CourseDetailsView.swift in Sources */,
 				88F98E9A2F64932600EDC0D2 /* CoursesViewModel.swift in Sources */,
 				88211ACF2F62A8710073396D /* SessionService.swift in Sources */,
@@ -1047,6 +1054,7 @@
 				88211A9B2F6296780073396D /* AuthorizationProvider.swift in Sources */,
 				88211AC52F62A5AB0073396D /* LoginRequest.swift in Sources */,
 				88211AFA2F62C0A70073396D /* ProfileView.swift in Sources */,
+				88F98EC32F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift in Sources */,
 				88211AEF2F62B6C30073396D /* UsersNetwork.swift in Sources */,
 				88211A9C2F6296780073396D /* HTTPHeaderValue.swift in Sources */,
 				88211A9E2F6296780073396D /* QueryItem.swift in Sources */,

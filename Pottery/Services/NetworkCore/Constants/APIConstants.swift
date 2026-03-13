@@ -39,6 +39,9 @@ enum APIConstants {
         static func getCourseAssignments(id: String) -> String {
             "/api/courses/\(id)/assignments"
         }
+        static func myGrades(id: String) -> String {
+            "/api/courses/\(id)/my-grades"
+        }
     }
 
     // MARK: - Comments
