@@ -47,7 +47,7 @@ enum APIConstants {
             "/api/assignments/\(id)/comments"
         }
         static func editComment(id: String) -> String {
-            "/api/assignments/comments\(id)"
+            "/api/assignments/comments/\(id)"
         }
     }
 }

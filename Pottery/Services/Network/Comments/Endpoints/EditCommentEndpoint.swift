@@ -15,6 +15,6 @@ struct EditCommentEndpoint: EndPoint {
     var baseURL: URL { APIConstants.baseURL }
     var path: String { APIConstants.Comments.editComment(id: id) }
     var method: HTTPMethod { .put }
-    var task: HTTPTask { .request }
+    var task: HTTPTask { .requestBody(body) }
     var authorization: AuthorizationRequirement { .accessToken }
 }

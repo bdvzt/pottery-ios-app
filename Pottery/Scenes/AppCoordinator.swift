@@ -204,7 +204,8 @@ private extension AppCoordinator {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: assignment.id,
             assignmentsRepository: assignmentsNetwork,
-            commentsRepository: commentsNetwork
+            commentsRepository: commentsNetwork,
+            usersRepository: usersNetwork
         )
 
         let view = AssignmentDetailsView(viewModel: viewModel)
