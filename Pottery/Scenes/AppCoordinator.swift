@@ -9,6 +9,7 @@ final class AppCoordinator: Coordinator {
     private let usersNetwork: UsersNetworkProtocol
     private let coursesNetwork: CoursesNetworkProtocol
     private let assignmentsNetwork: AssignmentsNetworkProtocol
+    private let commentsNetwork: CommentsNetworkProtocol
     private let tokenStorage: TokenStorageProtocol
 
     init(
@@ -17,6 +18,7 @@ final class AppCoordinator: Coordinator {
         usersNetwork: UsersNetworkProtocol,
         coursesNetwork: CoursesNetworkProtocol,
         assignmentsNetwork: AssignmentsNetworkProtocol,
+        commentsNetwork: CommentsNetworkProtocol,
         tokenStorage: TokenStorageProtocol
     ) {
         self.navigationController = navigationController
@@ -24,6 +26,7 @@ final class AppCoordinator: Coordinator {
         self.usersNetwork = usersNetwork
         self.coursesNetwork = coursesNetwork
         self.assignmentsNetwork = assignmentsNetwork
+        self.commentsNetwork = commentsNetwork
         self.tokenStorage = tokenStorage
     }
 

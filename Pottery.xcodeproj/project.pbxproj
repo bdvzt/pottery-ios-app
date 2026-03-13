@@ -106,6 +106,14 @@
 		88F98E9A2F64932600EDC0D2 /* CoursesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E942F64932600EDC0D2 /* CoursesViewModel.swift */; };
 		88F98E9C2F6494A000EDC0D2 /* AssignmentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E9B2F6494A000EDC0D2 /* AssignmentsResponse.swift */; };
 		88F98E9E2F64969300EDC0D2 /* AssignmentDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E9D2F64969300EDC0D2 /* AssignmentDetailsView.swift */; };
+		88F98EB02F64A2D000EDC0D2 /* CommentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EAD2F64A2D000EDC0D2 /* CommentRequest.swift */; };
+		88F98EB22F64A2D000EDC0D2 /* CommentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EA72F64A2D000EDC0D2 /* CommentsNetwork.swift */; };
+		88F98EB32F64A2D000EDC0D2 /* EditCommentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EA22F64A2D000EDC0D2 /* EditCommentEndpoint.swift */; };
+		88F98EB52F64A2D000EDC0D2 /* DeleteCommentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EA12F64A2D000EDC0D2 /* DeleteCommentEndpoint.swift */; };
+		88F98EB72F64A2D000EDC0D2 /* CommentsNetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EA52F64A2D000EDC0D2 /* CommentsNetworkProtocol.swift */; };
+		88F98EB82F64A2D000EDC0D2 /* GetCommentsEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E9F2F64A2D000EDC0D2 /* GetCommentsEndpoint.swift */; };
+		88F98EB92F64A2D000EDC0D2 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EAB2F64A2D000EDC0D2 /* Comment.swift */; };
+		88F98EBA2F64A2D000EDC0D2 /* CreateCommentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EA02F64A2D000EDC0D2 /* CreateCommentEndpoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -228,6 +236,14 @@
 		88F98E942F64932600EDC0D2 /* CoursesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesViewModel.swift; sourceTree = "<group>"; };
 		88F98E9B2F6494A000EDC0D2 /* AssignmentsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsResponse.swift; sourceTree = "<group>"; };
 		88F98E9D2F64969300EDC0D2 /* AssignmentDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailsView.swift; sourceTree = "<group>"; };
+		88F98E9F2F64A2D000EDC0D2 /* GetCommentsEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCommentsEndpoint.swift; sourceTree = "<group>"; };
+		88F98EA02F64A2D000EDC0D2 /* CreateCommentEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCommentEndpoint.swift; sourceTree = "<group>"; };
+		88F98EA12F64A2D000EDC0D2 /* DeleteCommentEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteCommentEndpoint.swift; sourceTree = "<group>"; };
+		88F98EA22F64A2D000EDC0D2 /* EditCommentEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCommentEndpoint.swift; sourceTree = "<group>"; };
+		88F98EA52F64A2D000EDC0D2 /* CommentsNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsNetworkProtocol.swift; sourceTree = "<group>"; };
+		88F98EA72F64A2D000EDC0D2 /* CommentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsNetwork.swift; sourceTree = "<group>"; };
+		88F98EAB2F64A2D000EDC0D2 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		88F98EAD2F64A2D000EDC0D2 /* CommentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -333,6 +349,7 @@
 		88211A4D2F6296780073396D /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				88F98EAF2F64A2D000EDC0D2 /* Comments */,
 				88F98E692F6487EB00EDC0D2 /* Assignments */,
 				88F98E2C2F643D2F00EDC0D2 /* Course */,
 				88211AB82F62A4DE0073396D /* Profile */,
@@ -748,6 +765,61 @@
 			path = Courses;
 			sourceTree = "<group>";
 		};
+		88F98EA42F64A2D000EDC0D2 /* Endpoints */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E9F2F64A2D000EDC0D2 /* GetCommentsEndpoint.swift */,
+				88F98EA02F64A2D000EDC0D2 /* CreateCommentEndpoint.swift */,
+				88F98EA12F64A2D000EDC0D2 /* DeleteCommentEndpoint.swift */,
+				88F98EA22F64A2D000EDC0D2 /* EditCommentEndpoint.swift */,
+			);
+			path = Endpoints;
+			sourceTree = "<group>";
+		};
+		88F98EA62F64A2D000EDC0D2 /* NetworkServiceProtocol */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EA52F64A2D000EDC0D2 /* CommentsNetworkProtocol.swift */,
+			);
+			path = NetworkServiceProtocol;
+			sourceTree = "<group>";
+		};
+		88F98EA82F64A2D000EDC0D2 /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EA72F64A2D000EDC0D2 /* CommentsNetwork.swift */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		88F98EAC2F64A2D000EDC0D2 /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EAB2F64A2D000EDC0D2 /* Comment.swift */,
+			);
+			path = Responses;
+			sourceTree = "<group>";
+		};
+		88F98EAE2F64A2D000EDC0D2 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EAD2F64A2D000EDC0D2 /* CommentRequest.swift */,
+			);
+			path = Requests;
+			sourceTree = "<group>";
+		};
+		88F98EAF2F64A2D000EDC0D2 /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EA42F64A2D000EDC0D2 /* Endpoints */,
+				88F98EA62F64A2D000EDC0D2 /* NetworkServiceProtocol */,
+				88F98EA82F64A2D000EDC0D2 /* NetworkService */,
+				88F98EAC2F64A2D000EDC0D2 /* Responses */,
+				88F98EAE2F64A2D000EDC0D2 /* Requests */,
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -893,6 +965,7 @@
 				88F98E9C2F6494A000EDC0D2 /* AssignmentsResponse.swift in Sources */,
 				88211A032F6296610073396D /* NavigationController.swift in Sources */,
 				88211AC32F62A59D0073396D /* RegisterRequest.swift in Sources */,
+				88F98EB02F64A2D000EDC0D2 /* CommentRequest.swift in Sources */,
 				88211AC92F62A6670073396D /* Role.swift in Sources */,
 				88211A052F6296610073396D /* AppDelegate.swift in Sources */,
 				88211A062F6296610073396D /* SceneDelegate.swift in Sources */,
@@ -905,11 +978,13 @@
 				88211AE02F62B0E60073396D /* LoginEndpoint.swift in Sources */,
 				88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */,
 				88211A072F6296610073396D /* ViewController.swift in Sources */,
+				88F98EB92F64A2D000EDC0D2 /* Comment.swift in Sources */,
 				88211A6F2F6296780073396D /* KeychainConstants.swift in Sources */,
 				88211B042F62C5260073396D /* AppCoordinator.swift in Sources */,
 				88211ADD2F62B00B0073396D /* AuthNetwork.swift in Sources */,
 				88F98E412F6441BC00EDC0D2 /* CourseShortResponse.swift in Sources */,
 				88211AC72F62A61D0073396D /* ProfileResponse.swift in Sources */,
+				88F98EB82F64A2D000EDC0D2 /* GetCommentsEndpoint.swift in Sources */,
 				88211AEB2F62B4AD0073396D /* UpdateProfileEndpoint.swift in Sources */,
 				88211A702F6296780073396D /* AuthorizationProvidingProtocol.swift in Sources */,
 				88211A712F6296780073396D /* KeychainTokenStorage.swift in Sources */,
@@ -930,6 +1005,7 @@
 				88211AE52F62B3BF0073396D /* LogoutEndPoint.swift in Sources */,
 				88211AF82F62C0A10073396D /* ProfileViewModel.swift in Sources */,
 				88F98E472F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift in Sources */,
+				88F98EB22F64A2D000EDC0D2 /* CommentsNetwork.swift in Sources */,
 				88F98E9E2F64969300EDC0D2 /* AssignmentDetailsView.swift in Sources */,
 				88211AFC2F62C0B10073396D /* RegistrationView.swift in Sources */,
 				88F98E962F64932600EDC0D2 /* CourseDetailsModel.swift in Sources */,
@@ -943,6 +1019,7 @@
 				88F98E382F643D2F00EDC0D2 /* JoinCourseEndpoint.swift in Sources */,
 				88211AED2F62B4F00073396D /* DeleteProfileEndpoint.swift in Sources */,
 				88211A8E2F6296780073396D /* NetworkError.swift in Sources */,
+				88F98EB52F64A2D000EDC0D2 /* DeleteCommentEndpoint.swift in Sources */,
 				88211A912F6296780073396D /* KeychainStoreFactory.swift in Sources */,
 				88211B132F62CF280073396D /* DismissKeyboardOnTap.swift in Sources */,
 				88211A922F6296780073396D /* NetworkLogger.swift in Sources */,
@@ -972,6 +1049,9 @@
 				88211AAC2F6296780073396D /* NetworkTransport.swift in Sources */,
 				88211AAE2F6296780073396D /* NetworkServiceProtocol.swift in Sources */,
 				88F98E4B2F64477400EDC0D2 /* LeaveCourseEndpoint.swift in Sources */,
+				88F98EB32F64A2D000EDC0D2 /* EditCommentEndpoint.swift in Sources */,
+				88F98EB72F64A2D000EDC0D2 /* CommentsNetworkProtocol.swift in Sources */,
+				88F98EBA2F64A2D000EDC0D2 /* CreateCommentEndpoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

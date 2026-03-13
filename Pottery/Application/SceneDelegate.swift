@@ -40,12 +40,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             networkService: networkService
         )
 
+        let commentsNetwork = CommentsNetwork(
+            networkService: networkService
+        )
+
         coordinator = AppCoordinator(
             navigationController: navigationController,
             authNetwork: authNetwork,
             usersNetwork: usersNetwork,
             coursesNetwork: coursesNetwork,
             assignmentsNetwork: assignmentsNetwork,
+            commentsNetwork: commentsNetwork,
             tokenStorage: tokenStorage
         )
 
