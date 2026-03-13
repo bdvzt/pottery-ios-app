@@ -8,10 +8,13 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
 
     func getCourseAssignments(id: String, page: Int, pageSize: Int) async throws -> [AssignmentResponse] {
         let endPoint = GetCourseAssignmentsEndpoint(id: id, page: page, pageSize: pageSize)
-        return try await networkService.requestDecodable(
+
+        let response = try await networkService.requestDecodable(
             endPoint,
-            as: [AssignmentResponse].self
+            as: AssignmentsResponse.self
         )
+
+        return response.items
     }
 
     func getAssignment(id: String) async throws -> AssignmentResponse {

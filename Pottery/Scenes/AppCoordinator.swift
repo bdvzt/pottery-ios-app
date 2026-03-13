@@ -185,10 +185,25 @@ private extension AppCoordinator {
             onLeaveCourse: {
                 navigation.popViewController(animated: true)
             },
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { [weak self] assignment in
+                self?.showAssignmentDetails(assignment: assignment, navigation: navigation)
+            }
         )
 
         let view = CourseDetailsView(viewModel: viewModel)
+        let controller = UIHostingController(rootView: view)
+
+        navigation.pushViewController(controller, animated: true)
+    }
+
+    func showAssignmentDetails(assignment: AssignmentResponse, navigation: UINavigationController) {
+
+        let viewModel = AssignmentDetailsViewModel(
+            assignmentId: assignment.id,
+            assignmentsRepository: assignmentsNetwork
+        )
+
+        let view = AssignmentDetailsView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
 
         navigation.pushViewController(controller, animated: true)

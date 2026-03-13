@@ -39,6 +39,8 @@ struct CourseDetailsView: View {
                         teachersBlock
                             .padding(.horizontal, 16)
 
+                        assignmentsBlock
+
                         Button {
                             showLeaveAlert = true
                         } label: {
@@ -129,6 +131,82 @@ struct CourseDetailsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+
+    private var assignmentsBlock: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            Text("Задания")
+                .font(.headline)
+                .foregroundStyle(Color.accentColor)
+
+            if viewModel.assignments.isEmpty {
+                Text("Нет заданий")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+
+                VStack(spacing: 12) {
+                    ForEach(viewModel.assignments, id: \.id) { assignment in
+                        assignmentRow(assignment)
+                    }
+                }
+
+            }
+        }
+    }
+
+    private func assignmentRow(_ assignment: AssignmentResponse) -> some View {
+
+        Button {
+            viewModel.openAssignment(assignment)
+        } label: {
+
+            VStack(alignment: .leading, spacing: 8) {
+
+                Text(assignment.title ?? "Без названия")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                if let text = assignment.text {
+                    Text(text)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+
+                HStack {
+
+                    if assignment.requiresSubmission {
+                        Text("Требуется сдача")
+                            .font(.caption2)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.accentColor.opacity(0.15))
+                            .foregroundStyle(Color.accentColor)
+                            .clipShape(Capsule())
+                    }
+
+                    Spacer()
+
+                    if let deadline = assignment.deadline {
+                        let date = deadline
+                            .split(separator: "T").first?
+                            .replacingOccurrences(of: "-", with: ".") ?? ""
+
+                        Text("До \(date)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
 }
