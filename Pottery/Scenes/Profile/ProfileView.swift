@@ -5,7 +5,7 @@ struct ProfileView: View {
     @State private var showLogoutAlert = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(alignment: .leading, spacing: 20) {
             header
 
             if viewModel.isLoading {

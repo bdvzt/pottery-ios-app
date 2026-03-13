@@ -79,14 +79,12 @@
 		88211B162F62D1DD0073396D /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B152F62D1DD0073396D /* EditProfileViewModel.swift */; };
 		88211B182F62D1E40073396D /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B172F62D1E40073396D /* EditProfileView.swift */; };
 		88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E282F643D2F00EDC0D2 /* JoinCourseRequest.swift */; };
-		88F98E312F643D2F00EDC0D2 /* CoursesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E252F643D2F00EDC0D2 /* CoursesResponse.swift */; };
 		88F98E352F643D2F00EDC0D2 /* CoursesNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E212F643D2F00EDC0D2 /* CoursesNetwork.swift */; };
 		88F98E382F643D2F00EDC0D2 /* JoinCourseEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */; };
 		88F98E3C2F643D2F00EDC0D2 /* CoursesNetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E1D2F643D2F00EDC0D2 /* CoursesNetworkProtocol.swift */; };
 		88F98E3F2F643EC700EDC0D2 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E3E2F643EC200EDC0D2 /* Course.swift */; };
 		88F98E412F6441BC00EDC0D2 /* CourseShortResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E402F6441A300EDC0D2 /* CourseShortResponse.swift */; };
 		88F98E432F64442B00EDC0D2 /* Teacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E422F64442600EDC0D2 /* Teacher.swift */; };
-		88F98E452F6444A500EDC0D2 /* TeachersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E442F64449A00EDC0D2 /* TeachersResponse.swift */; };
 		88F98E472F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E462F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift */; };
 		88F98E492F64470100EDC0D2 /* GetCourseInfoEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E482F64470100EDC0D2 /* GetCourseInfoEndpoint.swift */; };
 		88F98E4B2F64477400EDC0D2 /* LeaveCourseEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E4A2F64477400EDC0D2 /* LeaveCourseEndpoint.swift */; };
@@ -94,6 +92,10 @@
 		88F98E5A2F645ACD00EDC0D2 /* MockCourseNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E592F645ACD00EDC0D2 /* MockCourseNetwork.swift */; };
 		88F98E5C2F645AFF00EDC0D2 /* CoursesViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E5B2F645AFF00EDC0D2 /* CoursesViewModelTests.swift */; };
 		88F98E5E2F645B0600EDC0D2 /* CourseDetailsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E5D2F645B0600EDC0D2 /* CourseDetailsViewModelTests.swift */; };
+		88F98E652F64623800EDC0D2 /* CoursesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E632F64623800EDC0D2 /* CoursesViewModel.swift */; };
+		88F98E662F64623800EDC0D2 /* CourseDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E602F64623800EDC0D2 /* CourseDetailsView.swift */; };
+		88F98E672F64623800EDC0D2 /* CourseDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E5F2F64623800EDC0D2 /* CourseDetailsModel.swift */; };
+		88F98E682F64623800EDC0D2 /* CoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E622F64623800EDC0D2 /* CoursesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -191,12 +193,10 @@
 		88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinCourseEndpoint.swift; sourceTree = "<group>"; };
 		88F98E1D2F643D2F00EDC0D2 /* CoursesNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesNetworkProtocol.swift; sourceTree = "<group>"; };
 		88F98E212F643D2F00EDC0D2 /* CoursesNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesNetwork.swift; sourceTree = "<group>"; };
-		88F98E252F643D2F00EDC0D2 /* CoursesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesResponse.swift; sourceTree = "<group>"; };
 		88F98E282F643D2F00EDC0D2 /* JoinCourseRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinCourseRequest.swift; sourceTree = "<group>"; };
 		88F98E3E2F643EC200EDC0D2 /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		88F98E402F6441A300EDC0D2 /* CourseShortResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseShortResponse.swift; sourceTree = "<group>"; };
 		88F98E422F64442600EDC0D2 /* Teacher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Teacher.swift; sourceTree = "<group>"; };
-		88F98E442F64449A00EDC0D2 /* TeachersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeachersResponse.swift; sourceTree = "<group>"; };
 		88F98E462F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMyCoursesEndpoint.swift; sourceTree = "<group>"; };
 		88F98E482F64470100EDC0D2 /* GetCourseInfoEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCourseInfoEndpoint.swift; sourceTree = "<group>"; };
 		88F98E4A2F64477400EDC0D2 /* LeaveCourseEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveCourseEndpoint.swift; sourceTree = "<group>"; };
@@ -204,6 +204,10 @@
 		88F98E592F645ACD00EDC0D2 /* MockCourseNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCourseNetwork.swift; sourceTree = "<group>"; };
 		88F98E5B2F645AFF00EDC0D2 /* CoursesViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesViewModelTests.swift; sourceTree = "<group>"; };
 		88F98E5D2F645B0600EDC0D2 /* CourseDetailsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailsViewModelTests.swift; sourceTree = "<group>"; };
+		88F98E5F2F64623800EDC0D2 /* CourseDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailsModel.swift; sourceTree = "<group>"; };
+		88F98E602F64623800EDC0D2 /* CourseDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailsView.swift; sourceTree = "<group>"; };
+		88F98E622F64623800EDC0D2 /* CoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesView.swift; sourceTree = "<group>"; };
+		88F98E632F64623800EDC0D2 /* CoursesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -524,6 +528,7 @@
 		88211AF12F62C0600073396D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				88F98E642F64623800EDC0D2 /* Courses */,
 				88211B032F62C5260073396D /* AppCoordinator.swift */,
 				88211AF52F62C0900073396D /* Profile */,
 				88211AF42F62C07E0073396D /* Registration */,
@@ -609,11 +614,9 @@
 		88F98E272F643D2F00EDC0D2 /* Responses */ = {
 			isa = PBXGroup;
 			children = (
-				88F98E442F64449A00EDC0D2 /* TeachersResponse.swift */,
 				88F98E422F64442600EDC0D2 /* Teacher.swift */,
 				88F98E402F6441A300EDC0D2 /* CourseShortResponse.swift */,
 				88F98E3E2F643EC200EDC0D2 /* Course.swift */,
-				88F98E252F643D2F00EDC0D2 /* CoursesResponse.swift */,
 			);
 			path = Responses;
 			sourceTree = "<group>";
@@ -644,6 +647,25 @@
 				88F98E5D2F645B0600EDC0D2 /* CourseDetailsViewModelTests.swift */,
 				88F98E5B2F645AFF00EDC0D2 /* CoursesViewModelTests.swift */,
 				88F98E592F645ACD00EDC0D2 /* MockCourseNetwork.swift */,
+			);
+			path = Courses;
+			sourceTree = "<group>";
+		};
+		88F98E612F64623800EDC0D2 /* CourseDetails */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E5F2F64623800EDC0D2 /* CourseDetailsModel.swift */,
+				88F98E602F64623800EDC0D2 /* CourseDetailsView.swift */,
+			);
+			path = CourseDetails;
+			sourceTree = "<group>";
+		};
+		88F98E642F64623800EDC0D2 /* Courses */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E612F64623800EDC0D2 /* CourseDetails */,
+				88F98E622F64623800EDC0D2 /* CoursesView.swift */,
+				88F98E632F64623800EDC0D2 /* CoursesViewModel.swift */,
 			);
 			path = Courses;
 			sourceTree = "<group>";
@@ -796,6 +818,10 @@
 				88211A052F6296610073396D /* AppDelegate.swift in Sources */,
 				88211A062F6296610073396D /* SceneDelegate.swift in Sources */,
 				88211ACB2F62A75F0073396D /* UpdateProfileRequest.swift in Sources */,
+				88F98E652F64623800EDC0D2 /* CoursesViewModel.swift in Sources */,
+				88F98E662F64623800EDC0D2 /* CourseDetailsView.swift in Sources */,
+				88F98E672F64623800EDC0D2 /* CourseDetailsModel.swift in Sources */,
+				88F98E682F64623800EDC0D2 /* CoursesView.swift in Sources */,
 				88211AE02F62B0E60073396D /* LoginEndpoint.swift in Sources */,
 				88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */,
 				88211A072F6296610073396D /* ViewController.swift in Sources */,
@@ -806,7 +832,6 @@
 				88211AC72F62A61D0073396D /* ProfileResponse.swift in Sources */,
 				88211AEB2F62B4AD0073396D /* UpdateProfileEndpoint.swift in Sources */,
 				88211A702F6296780073396D /* AuthorizationProvidingProtocol.swift in Sources */,
-				88F98E452F6444A500EDC0D2 /* TeachersResponse.swift in Sources */,
 				88211A712F6296780073396D /* KeychainTokenStorage.swift in Sources */,
 				88211A752F6296780073396D /* HTTPStatusCode.swift in Sources */,
 				88211A7D2F6296780073396D /* APIConstants.swift in Sources */,
@@ -849,7 +874,6 @@
 				88211A9E2F6296780073396D /* QueryItem.swift in Sources */,
 				88F98E432F64442B00EDC0D2 /* Teacher.swift in Sources */,
 				88F98E3C2F643D2F00EDC0D2 /* CoursesNetworkProtocol.swift in Sources */,
-				88F98E312F643D2F00EDC0D2 /* CoursesResponse.swift in Sources */,
 				88211B002F62C0CB0073396D /* AuthView.swift in Sources */,
 				88211ABC2F62A5270073396D /* UsersNetworkProtocol.swift in Sources */,
 				88211AA52F6296780073396D /* HTTPHeader.swift in Sources */,

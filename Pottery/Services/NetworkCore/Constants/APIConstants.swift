@@ -19,7 +19,7 @@ enum APIConstants {
     // MARK: - Courses
     enum Courses {
         static let joinCourse = "/api/courses/join"
-        static let getMyCourses = "/api/courses/my?filter=Student"
+        static let getMyCourses = "/api/courses/my"
         static func getCourseInfo(id: String) -> String {
             "/api/courses/\(id)"
         }

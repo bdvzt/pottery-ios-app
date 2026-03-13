@@ -11,7 +11,7 @@ struct GetCourseInfoEndpoint: EndPoint {
 
     var baseURL: URL { APIConstants.baseURL }
     var path: String { APIConstants.Courses.getCourseInfo(id: id) }
-    var method: HTTPMethod { .post }
+    var method: HTTPMethod { .get }
     var task: HTTPTask { .request }
     var authorization: AuthorizationRequirement { .accessToken }
 }

@@ -6,7 +6,7 @@ struct EditProfileView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 20) {
                 Text("Редактирование профиля")
                     .font(.title2)
                     .fontWeight(.bold)

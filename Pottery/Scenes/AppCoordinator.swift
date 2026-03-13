@@ -26,7 +26,7 @@ final class AppCoordinator: Coordinator {
 
     func start() {
         if tokenStorage.accessToken != nil {
-            showProfile()
+            showMainTabs()
         } else {
             showLogin()
         }
@@ -37,12 +37,12 @@ private extension AppCoordinator {
     func back() {
         navigationController.popViewController(animated: true)
     }
-    
+
     func showLogin() {
         let viewModel = AuthViewModel(
             authRepository: authNetwork,
             onLoginSuccess: { [weak self] in
-                self?.showProfile()
+                self?.showMainTabs()
             },
             onOpenRegistration: { [weak self] in
                 self?.showRegistration()
@@ -72,6 +72,67 @@ private extension AppCoordinator {
         let controller = UIHostingController(rootView: view)
 
         navigationController.pushViewController(controller, animated: true)
+    }
+
+    func showMainTabs() {
+        let tabBarController = UITabBarController()
+
+        // MARK: Courses
+
+        let coursesNavigation = NavigationController()
+
+        let coursesViewModel = CoursesViewModel(
+            courseRepository: coursesNetwork,
+            onOpenCourse: { [weak self] course in
+                self?.showCourseDetails(course: course, navigation: coursesNavigation)
+            }
+        )
+
+        let coursesView = CoursesView(viewModel: coursesViewModel)
+        let coursesController = UIHostingController(rootView: coursesView)
+
+        coursesNavigation.setViewControllers([coursesController], animated: false)
+
+        coursesNavigation.tabBarItem = UITabBarItem(
+            title: "Курсы",
+            image: UIImage(systemName: "book"),
+            tag: 0
+        )
+
+        // MARK: Profile
+
+        let profileNavigation = NavigationController()
+
+        let profileViewModel = ProfileViewModel(
+            usersRepository: usersNetwork,
+            authRepository: authNetwork,
+            onLogout: { [weak self] in
+                self?.showLogin()
+            },
+            onEditProfile: { [weak self] profile in
+                self?.showEditProfile(profile: profile)
+            }
+        )
+
+        let profileView = ProfileView(viewModel: profileViewModel)
+        let profileController = UIHostingController(rootView: profileView)
+
+        profileNavigation.setViewControllers([profileController], animated: false)
+
+        profileNavigation.tabBarItem = UITabBarItem(
+            title: "Профиль",
+            image: UIImage(systemName: "person"),
+            tag: 1
+        )
+
+        // MARK: TabBar
+
+        tabBarController.viewControllers = [
+            coursesNavigation,
+            profileNavigation
+        ]
+
+        navigationController.setViewControllers([tabBarController], animated: true)
     }
 
     func showProfile() {
@@ -111,5 +172,20 @@ private extension AppCoordinator {
         let controller = UIHostingController(rootView: view)
 
         navigationController.pushViewController(controller, animated: true)
+    }
+
+    func showCourseDetails(course: CourseShortResponse, navigation: UINavigationController) {
+        let viewModel = CourseDetailsViewModel(
+            courseId: course.id,
+            courseRepository: coursesNetwork,
+            onLeaveCourse: {
+                navigation.popViewController(animated: true)
+            }
+        )
+
+        let view = CourseDetailsView(viewModel: viewModel)
+        let controller = UIHostingController(rootView: view)
+
+        navigation.pushViewController(controller, animated: true)
     }
 }

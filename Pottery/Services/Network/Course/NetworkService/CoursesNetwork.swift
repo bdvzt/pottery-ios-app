@@ -13,11 +13,11 @@ final class CoursesNetwork: CoursesNetworkProtocol {
         )
     }
 
-    func getMyCourses() async throws -> CoursesResponse {
+    func getMyCourses() async throws -> [Course] {
         let endPoint = GetMyCoursesEndpoint()
         return try await networkService.requestDecodable(
             endPoint,
-            as: CoursesResponse.self
+            as: [Course].self
         )
     }
 
@@ -34,11 +34,11 @@ final class CoursesNetwork: CoursesNetworkProtocol {
         try await networkService.request(endPoint)
     }
 
-    func getCourseTeachers(id: String) async throws -> TeachersResponse {
+    func getCourseTeachers(id: String) async throws -> [Teacher] {
         let endPoint = GetCourseTeachersEndpoint(id: id)
         return try await networkService.requestDecodable(
             endPoint,
-            as: TeachersResponse.self
+            as: [Teacher].self
         )
     }
 }
