@@ -30,4 +30,14 @@ enum APIConstants {
             "/api/courses/\(id)/teachers"
         }
     }
+
+    // MARK: - Assignments
+    enum Assignments {
+        static func getAssignment(id: String) -> String {
+            "/api/assignments/\(id)"
+        }
+        static func getCourseAssignments(id: String) -> String {
+            "/api/courses/\(id)/assignments"
+        }
+    }
 }

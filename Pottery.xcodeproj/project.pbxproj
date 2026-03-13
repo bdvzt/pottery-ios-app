@@ -96,6 +96,12 @@
 		88F98E662F64623800EDC0D2 /* CourseDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E602F64623800EDC0D2 /* CourseDetailsView.swift */; };
 		88F98E672F64623800EDC0D2 /* CourseDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E5F2F64623800EDC0D2 /* CourseDetailsModel.swift */; };
 		88F98E682F64623800EDC0D2 /* CoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E622F64623800EDC0D2 /* CoursesView.swift */; };
+		88F98E7B2F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E702F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift */; };
+		88F98E7E2F64880200EDC0D2 /* AssignmentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E722F64880200EDC0D2 /* AssignmentsNetwork.swift */; };
+		88F98E802F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E6A2F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift */; };
+		88F98E822F64880200EDC0D2 /* GetAssignmentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */; };
+		88F98E862F6488E300EDC0D2 /* AssignmentFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */; };
+		88F98E882F6488EB00EDC0D2 /* AssignmentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -208,6 +214,12 @@
 		88F98E602F64623800EDC0D2 /* CourseDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailsView.swift; sourceTree = "<group>"; };
 		88F98E622F64623800EDC0D2 /* CoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesView.swift; sourceTree = "<group>"; };
 		88F98E632F64623800EDC0D2 /* CoursesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesViewModel.swift; sourceTree = "<group>"; };
+		88F98E6A2F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCourseAssignmentsEndpoint.swift; sourceTree = "<group>"; };
+		88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAssignmentEndpoint.swift; sourceTree = "<group>"; };
+		88F98E702F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsNetworkProtocol.swift; sourceTree = "<group>"; };
+		88F98E722F64880200EDC0D2 /* AssignmentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsNetwork.swift; sourceTree = "<group>"; };
+		88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentFile.swift; sourceTree = "<group>"; };
+		88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -313,6 +325,7 @@
 		88211A4D2F6296780073396D /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				88F98E692F6487EB00EDC0D2 /* Assignments */,
 				88F98E2C2F643D2F00EDC0D2 /* Course */,
 				88211AB82F62A4DE0073396D /* Profile */,
 			);
@@ -670,6 +683,51 @@
 			path = Courses;
 			sourceTree = "<group>";
 		};
+		88F98E692F6487EB00EDC0D2 /* Assignments */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E6F2F64880200EDC0D2 /* Endpoints */,
+				88F98E712F64880200EDC0D2 /* NetworkServiceProtocol */,
+				88F98E732F64880200EDC0D2 /* NetworkService */,
+				88F98E772F64880200EDC0D2 /* Responses */,
+			);
+			path = Assignments;
+			sourceTree = "<group>";
+		};
+		88F98E6F2F64880200EDC0D2 /* Endpoints */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E6A2F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift */,
+				88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */,
+			);
+			path = Endpoints;
+			sourceTree = "<group>";
+		};
+		88F98E712F64880200EDC0D2 /* NetworkServiceProtocol */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E702F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift */,
+			);
+			path = NetworkServiceProtocol;
+			sourceTree = "<group>";
+		};
+		88F98E732F64880200EDC0D2 /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E722F64880200EDC0D2 /* AssignmentsNetwork.swift */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		88F98E772F64880200EDC0D2 /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */,
+				88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */,
+			);
+			path = Responses;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -822,6 +880,11 @@
 				88F98E662F64623800EDC0D2 /* CourseDetailsView.swift in Sources */,
 				88F98E672F64623800EDC0D2 /* CourseDetailsModel.swift in Sources */,
 				88F98E682F64623800EDC0D2 /* CoursesView.swift in Sources */,
+				88F98E7B2F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift in Sources */,
+				88F98E7E2F64880200EDC0D2 /* AssignmentsNetwork.swift in Sources */,
+				88F98E802F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift in Sources */,
+				88F98E822F64880200EDC0D2 /* GetAssignmentEndpoint.swift in Sources */,
+				88F98E862F6488E300EDC0D2 /* AssignmentFile.swift in Sources */,
 				88211AE02F62B0E60073396D /* LoginEndpoint.swift in Sources */,
 				88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */,
 				88211A072F6296610073396D /* ViewController.swift in Sources */,
@@ -860,6 +923,7 @@
 				88211A912F6296780073396D /* KeychainStoreFactory.swift in Sources */,
 				88211B132F62CF280073396D /* DismissKeyboardOnTap.swift in Sources */,
 				88211A922F6296780073396D /* NetworkLogger.swift in Sources */,
+				88F98E882F6488EB00EDC0D2 /* AssignmentResponse.swift in Sources */,
 				88211A962F6296780073396D /* AuthorizationRequirement.swift in Sources */,
 				88211B022F62C0D10073396D /* AuthViewModel.swift in Sources */,
 				88211A972F6296780073396D /* TokenStorageProtocol.swift in Sources */,

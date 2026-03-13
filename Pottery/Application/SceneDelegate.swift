@@ -36,11 +36,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             networkService: networkService
         )
 
+        let assignmentsNetwork = AssignmentsNetwork(
+            networkService: networkService
+        )
+
         coordinator = AppCoordinator(
             navigationController: navigationController,
             authNetwork: authNetwork,
             usersNetwork: usersNetwork,
             coursesNetwork: coursesNetwork,
+            assignmentsNetwork: assignmentsNetwork,
             tokenStorage: tokenStorage
         )
 
