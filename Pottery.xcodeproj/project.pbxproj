@@ -114,6 +114,8 @@
 		88F98EB82F64A2D000EDC0D2 /* GetCommentsEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E9F2F64A2D000EDC0D2 /* GetCommentsEndpoint.swift */; };
 		88F98EB92F64A2D000EDC0D2 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EAB2F64A2D000EDC0D2 /* Comment.swift */; };
 		88F98EBA2F64A2D000EDC0D2 /* CreateCommentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EA02F64A2D000EDC0D2 /* CreateCommentEndpoint.swift */; };
+		88F98EBD2F64A78900EDC0D2 /* MockCommentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EBC2F64A78900EDC0D2 /* MockCommentsNetwork.swift */; };
+		88F98EBF2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EBE2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -244,6 +246,8 @@
 		88F98EA72F64A2D000EDC0D2 /* CommentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsNetwork.swift; sourceTree = "<group>"; };
 		88F98EAB2F64A2D000EDC0D2 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		88F98EAD2F64A2D000EDC0D2 /* CommentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRequest.swift; sourceTree = "<group>"; };
+		88F98EBC2F64A78900EDC0D2 /* MockCommentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCommentsNetwork.swift; sourceTree = "<group>"; };
+		88F98EBE2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailsViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -328,6 +332,7 @@
 		88211A092F6296650073396D /* PotteryTests */ = {
 			isa = PBXGroup;
 			children = (
+				88F98EBB2F64A78000EDC0D2 /* Assignment */,
 				88F98E582F645ABD00EDC0D2 /* Courses */,
 				88211B0A2F62C8620073396D /* MockError.swift */,
 				88211B052F62C8350073396D /* Profile */,
@@ -683,9 +688,9 @@
 		88F98E582F645ABD00EDC0D2 /* Courses */ = {
 			isa = PBXGroup;
 			children = (
-				88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */,
 				88F98E5D2F645B0600EDC0D2 /* CourseDetailsViewModelTests.swift */,
 				88F98E5B2F645AFF00EDC0D2 /* CoursesViewModelTests.swift */,
+				88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */,
 				88F98E592F645ACD00EDC0D2 /* MockCourseNetwork.swift */,
 			);
 			path = Courses;
@@ -818,6 +823,15 @@
 				88F98EAE2F64A2D000EDC0D2 /* Requests */,
 			);
 			path = Comments;
+			sourceTree = "<group>";
+		};
+		88F98EBB2F64A78000EDC0D2 /* Assignment */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EBE2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift */,
+				88F98EBC2F64A78900EDC0D2 /* MockCommentsNetwork.swift */,
+			);
+			path = Assignment;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1060,11 +1074,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				88211B072F62C8420073396D /* MockAuthNetwork.swift in Sources */,
+				88F98EBF2F64A7A600EDC0D2 /* AssignmentDetailsViewModelTests.swift in Sources */,
 				88F98E8D2F64909200EDC0D2 /* MockAssignmentsNetwork.swift in Sources */,
 				88211B092F62C8500073396D /* MockUsersNetwork.swift in Sources */,
 				88211B0F2F62C8980073396D /* RegistrationViewModelTests.swift in Sources */,
 				88211B0B2F62C8620073396D /* MockError.swift in Sources */,
 				88211B112F62C8AD0073396D /* ProfileViewModelTests.swift in Sources */,
+				88F98EBD2F64A78900EDC0D2 /* MockCommentsNetwork.swift in Sources */,
 				88211B0D2F62C8790073396D /* AuthViewModelTests.swift in Sources */,
 				88F98E5C2F645AFF00EDC0D2 /* CoursesViewModelTests.swift in Sources */,
 				88211A0A2F6296650073396D /* PotteryTests.swift in Sources */,
