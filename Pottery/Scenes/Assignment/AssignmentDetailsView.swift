@@ -130,6 +130,22 @@ struct AssignmentDetailsView: View {
 
             }
 
+            if let grade = viewModel.grade?.grade {
+
+                HStack {
+
+                    Text("Оценка")
+
+                    Spacer()
+
+                    Text("\(grade)")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.accentColor)
+
+                }
+                .font(.caption)
+            }
+
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()

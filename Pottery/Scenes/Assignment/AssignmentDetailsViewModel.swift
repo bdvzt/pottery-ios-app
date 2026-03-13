@@ -14,6 +14,8 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var isSendingComment = false
     @Published var errorMessage: String?
 
+    @Published var grade: Grade?
+
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let commentsRepository: CommentsNetworkProtocol
@@ -42,9 +44,13 @@ final class AssignmentDetailsViewModel: ObservableObject {
             async let assignmentRequest = assignmentsRepository.getAssignment(id: assignmentId)
             async let commentsRequest = commentsRepository.getComments(id: assignmentId)
 
-            assignment = try await assignmentRequest
+            let assignmentResult = try await assignmentRequest
+            assignment = assignmentResult
             comments = try await commentsRequest
 
+            let grades = try await assignmentsRepository.getMyGrades(id: assignmentResult.courseId)
+
+            grade = grades.first { $0.assignmentId == assignmentId }
         } catch {
             errorMessage = "Не удалось загрузить задание"
         }
