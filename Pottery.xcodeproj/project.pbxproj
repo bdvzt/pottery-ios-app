@@ -78,6 +78,19 @@
 		88211B132F62CF280073396D /* DismissKeyboardOnTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B122F62CF280073396D /* DismissKeyboardOnTap.swift */; };
 		88211B162F62D1DD0073396D /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B152F62D1DD0073396D /* EditProfileViewModel.swift */; };
 		88211B182F62D1E40073396D /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B172F62D1E40073396D /* EditProfileView.swift */; };
+		88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E282F643D2F00EDC0D2 /* JoinCourseRequest.swift */; };
+		88F98E312F643D2F00EDC0D2 /* CoursesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E252F643D2F00EDC0D2 /* CoursesResponse.swift */; };
+		88F98E352F643D2F00EDC0D2 /* CourseNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E212F643D2F00EDC0D2 /* CourseNetwork.swift */; };
+		88F98E382F643D2F00EDC0D2 /* JoinCourseEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */; };
+		88F98E3C2F643D2F00EDC0D2 /* CourseNetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E1D2F643D2F00EDC0D2 /* CourseNetworkProtocol.swift */; };
+		88F98E3F2F643EC700EDC0D2 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E3E2F643EC200EDC0D2 /* Course.swift */; };
+		88F98E412F6441BC00EDC0D2 /* CourseShortResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E402F6441A300EDC0D2 /* CourseShortResponse.swift */; };
+		88F98E432F64442B00EDC0D2 /* Teacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E422F64442600EDC0D2 /* Teacher.swift */; };
+		88F98E452F6444A500EDC0D2 /* TeachersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E442F64449A00EDC0D2 /* TeachersResponse.swift */; };
+		88F98E472F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E462F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift */; };
+		88F98E492F64470100EDC0D2 /* GetCourseInfoEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E482F64470100EDC0D2 /* GetCourseInfoEndpoint.swift */; };
+		88F98E4B2F64477400EDC0D2 /* LeaveCourseEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E4A2F64477400EDC0D2 /* LeaveCourseEndpoint.swift */; };
+		88F98E4D2F64487700EDC0D2 /* GetCourseTeachersEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E4C2F64487700EDC0D2 /* GetCourseTeachersEndpoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +185,19 @@
 		88211B122F62CF280073396D /* DismissKeyboardOnTap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissKeyboardOnTap.swift; sourceTree = "<group>"; };
 		88211B152F62D1DD0073396D /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		88211B172F62D1E40073396D /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
+		88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinCourseEndpoint.swift; sourceTree = "<group>"; };
+		88F98E1D2F643D2F00EDC0D2 /* CourseNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseNetworkProtocol.swift; sourceTree = "<group>"; };
+		88F98E212F643D2F00EDC0D2 /* CourseNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseNetwork.swift; sourceTree = "<group>"; };
+		88F98E252F643D2F00EDC0D2 /* CoursesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesResponse.swift; sourceTree = "<group>"; };
+		88F98E282F643D2F00EDC0D2 /* JoinCourseRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinCourseRequest.swift; sourceTree = "<group>"; };
+		88F98E3E2F643EC200EDC0D2 /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
+		88F98E402F6441A300EDC0D2 /* CourseShortResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseShortResponse.swift; sourceTree = "<group>"; };
+		88F98E422F64442600EDC0D2 /* Teacher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Teacher.swift; sourceTree = "<group>"; };
+		88F98E442F64449A00EDC0D2 /* TeachersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeachersResponse.swift; sourceTree = "<group>"; };
+		88F98E462F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMyCoursesEndpoint.swift; sourceTree = "<group>"; };
+		88F98E482F64470100EDC0D2 /* GetCourseInfoEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCourseInfoEndpoint.swift; sourceTree = "<group>"; };
+		88F98E4A2F64477400EDC0D2 /* LeaveCourseEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveCourseEndpoint.swift; sourceTree = "<group>"; };
+		88F98E4C2F64487700EDC0D2 /* GetCourseTeachersEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCourseTeachersEndpoint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -276,6 +302,7 @@
 		88211A4D2F6296780073396D /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				88F98E2C2F643D2F00EDC0D2 /* Course */,
 				88211AB82F62A4DE0073396D /* Profile */,
 			);
 			path = Network;
@@ -419,7 +446,7 @@
 		88211AB82F62A4DE0073396D /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				88211ADE2F62B0D10073396D /* EndPoints */,
+				88211ADE2F62B0D10073396D /* Endpoints */,
 				88211AD52F62AC7C0073396D /* NetworkServiceProtocol */,
 				88211AD32F62AC6A0073396D /* NetworkService */,
 				88211ABF2F62A56B0073396D /* Responses */,
@@ -474,7 +501,7 @@
 			path = NetworkServiceProtocol;
 			sourceTree = "<group>";
 		};
-		88211ADE2F62B0D10073396D /* EndPoints */ = {
+		88211ADE2F62B0D10073396D /* Endpoints */ = {
 			isa = PBXGroup;
 			children = (
 				88211AEC2F62B4F00073396D /* DeleteProfileEndpoint.swift */,
@@ -484,7 +511,7 @@
 				88211AE42F62B3BF0073396D /* LogoutEndPoint.swift */,
 				88211ADF2F62B0E60073396D /* LoginEndpoint.swift */,
 			);
-			path = EndPoints;
+			path = Endpoints;
 			sourceTree = "<group>";
 		};
 		88211AF12F62C0600073396D /* Scenes */ = {
@@ -542,6 +569,66 @@
 				88211B152F62D1DD0073396D /* EditProfileViewModel.swift */,
 			);
 			path = EditProfile;
+			sourceTree = "<group>";
+		};
+		88F98E1C2F643D2F00EDC0D2 /* Endpoints */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E4C2F64487700EDC0D2 /* GetCourseTeachersEndpoint.swift */,
+				88F98E4A2F64477400EDC0D2 /* LeaveCourseEndpoint.swift */,
+				88F98E482F64470100EDC0D2 /* GetCourseInfoEndpoint.swift */,
+				88F98E462F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift */,
+				88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */,
+			);
+			path = Endpoints;
+			sourceTree = "<group>";
+		};
+		88F98E202F643D2F00EDC0D2 /* NetworkServiceProtocol */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E1D2F643D2F00EDC0D2 /* CourseNetworkProtocol.swift */,
+			);
+			path = NetworkServiceProtocol;
+			sourceTree = "<group>";
+		};
+		88F98E242F643D2F00EDC0D2 /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E212F643D2F00EDC0D2 /* CourseNetwork.swift */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		88F98E272F643D2F00EDC0D2 /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E442F64449A00EDC0D2 /* TeachersResponse.swift */,
+				88F98E422F64442600EDC0D2 /* Teacher.swift */,
+				88F98E402F6441A300EDC0D2 /* CourseShortResponse.swift */,
+				88F98E3E2F643EC200EDC0D2 /* Course.swift */,
+				88F98E252F643D2F00EDC0D2 /* CoursesResponse.swift */,
+			);
+			path = Responses;
+			sourceTree = "<group>";
+		};
+		88F98E2B2F643D2F00EDC0D2 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E282F643D2F00EDC0D2 /* JoinCourseRequest.swift */,
+			);
+			path = Requests;
+			sourceTree = "<group>";
+		};
+		88F98E2C2F643D2F00EDC0D2 /* Course */ = {
+			isa = PBXGroup;
+			children = (
+				88F98E1C2F643D2F00EDC0D2 /* Endpoints */,
+				88F98E202F643D2F00EDC0D2 /* NetworkServiceProtocol */,
+				88F98E242F643D2F00EDC0D2 /* NetworkService */,
+				88F98E272F643D2F00EDC0D2 /* Responses */,
+				88F98E2B2F643D2F00EDC0D2 /* Requests */,
+			);
+			path = Course;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -693,13 +780,16 @@
 				88211A062F6296610073396D /* SceneDelegate.swift in Sources */,
 				88211ACB2F62A75F0073396D /* UpdateProfileRequest.swift in Sources */,
 				88211AE02F62B0E60073396D /* LoginEndpoint.swift in Sources */,
+				88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */,
 				88211A072F6296610073396D /* ViewController.swift in Sources */,
 				88211A6F2F6296780073396D /* KeychainConstants.swift in Sources */,
 				88211B042F62C5260073396D /* AppCoordinator.swift in Sources */,
 				88211ADD2F62B00B0073396D /* AuthNetwork.swift in Sources */,
+				88F98E412F6441BC00EDC0D2 /* CourseShortResponse.swift in Sources */,
 				88211AC72F62A61D0073396D /* ProfileResponse.swift in Sources */,
 				88211AEB2F62B4AD0073396D /* UpdateProfileEndpoint.swift in Sources */,
 				88211A702F6296780073396D /* AuthorizationProvidingProtocol.swift in Sources */,
+				88F98E452F6444A500EDC0D2 /* TeachersResponse.swift in Sources */,
 				88211A712F6296780073396D /* KeychainTokenStorage.swift in Sources */,
 				88211A752F6296780073396D /* HTTPStatusCode.swift in Sources */,
 				88211A7D2F6296780073396D /* APIConstants.swift in Sources */,
@@ -708,6 +798,7 @@
 				88211AE72F62B3EE0073396D /* RegisterEndpoint.swift in Sources */,
 				88211AFE2F62C0C10073396D /* RegistrationViewModel.swift in Sources */,
 				88211AE92F62B41E0073396D /* GetProfileEndpoint.swift in Sources */,
+				88F98E352F643D2F00EDC0D2 /* CourseNetwork.swift in Sources */,
 				88211A812F6296780073396D /* EndPoint.swift in Sources */,
 				88211A832F6296780073396D /* KeyValueStoreProtocol.swift in Sources */,
 				88211AD22F62A89C0073396D /* Notification+userDidLogout.swift in Sources */,
@@ -716,10 +807,12 @@
 				88211ACE2F62A8710073396D /* SessionServiceProtocol.swift in Sources */,
 				88211AE52F62B3BF0073396D /* LogoutEndPoint.swift in Sources */,
 				88211AF82F62C0A10073396D /* ProfileViewModel.swift in Sources */,
+				88F98E472F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift in Sources */,
 				88211AFC2F62C0B10073396D /* RegistrationView.swift in Sources */,
 				88211ACF2F62A8710073396D /* SessionService.swift in Sources */,
 				88211A8D2F6296780073396D /* HTTPClient.swift in Sources */,
 				88211B162F62D1DD0073396D /* EditProfileViewModel.swift in Sources */,
+				88F98E382F643D2F00EDC0D2 /* JoinCourseEndpoint.swift in Sources */,
 				88211AED2F62B4F00073396D /* DeleteProfileEndpoint.swift in Sources */,
 				88211A8E2F6296780073396D /* NetworkError.swift in Sources */,
 				88211A912F6296780073396D /* KeychainStoreFactory.swift in Sources */,
@@ -730,20 +823,27 @@
 				88211A972F6296780073396D /* TokenStorageProtocol.swift in Sources */,
 				88211B182F62D1E40073396D /* EditProfileView.swift in Sources */,
 				88211A982F6296780073396D /* URLRequestBuilder.swift in Sources */,
+				88F98E492F64470100EDC0D2 /* GetCourseInfoEndpoint.swift in Sources */,
 				88211A9B2F6296780073396D /* AuthorizationProvider.swift in Sources */,
 				88211AC52F62A5AB0073396D /* LoginRequest.swift in Sources */,
 				88211AFA2F62C0A70073396D /* ProfileView.swift in Sources */,
 				88211AEF2F62B6C30073396D /* UsersNetwork.swift in Sources */,
 				88211A9C2F6296780073396D /* HTTPHeaderValue.swift in Sources */,
 				88211A9E2F6296780073396D /* QueryItem.swift in Sources */,
+				88F98E432F64442B00EDC0D2 /* Teacher.swift in Sources */,
+				88F98E3C2F643D2F00EDC0D2 /* CourseNetworkProtocol.swift in Sources */,
+				88F98E312F643D2F00EDC0D2 /* CoursesResponse.swift in Sources */,
 				88211B002F62C0CB0073396D /* AuthView.swift in Sources */,
 				88211ABC2F62A5270073396D /* UsersNetworkProtocol.swift in Sources */,
 				88211AA52F6296780073396D /* HTTPHeader.swift in Sources */,
+				88F98E4D2F64487700EDC0D2 /* GetCourseTeachersEndpoint.swift in Sources */,
 				88211AAB2F6296780073396D /* KeychainStore.swift in Sources */,
+				88F98E3F2F643EC700EDC0D2 /* Course.swift in Sources */,
 				88211AB62F62A4B90073396D /* ScreenState.swift in Sources */,
 				88211AC12F62A57D0073396D /* TokenResponse.swift in Sources */,
 				88211AAC2F6296780073396D /* NetworkTransport.swift in Sources */,
 				88211AAE2F6296780073396D /* NetworkServiceProtocol.swift in Sources */,
+				88F98E4B2F64477400EDC0D2 /* LeaveCourseEndpoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

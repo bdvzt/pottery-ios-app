@@ -15,4 +15,19 @@ enum APIConstants {
         static let register = "/api/users"
         static let profile = "/api/users/me"
     }
+
+    // MARK: - Courses
+    enum Courses {
+        static let joinCourse = "/api/courses/join"
+        static let getMyCourses = "/api/courses/my?filter=Student"
+        static func getCourseInfo(id: String) -> String {
+            "/api/courses/\(id)"
+        }
+        static func leaveCourse(id: String) -> String {
+            "/api/courses/\(id)/leave"
+        }
+        static func teachers(id: String) -> String {
+            "/api/courses/\(id)/teachers"
+        }
+    }
 }
