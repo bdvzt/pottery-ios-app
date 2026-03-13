@@ -9,22 +9,26 @@ enum TestError: Error {
 final class CourseDetailsViewModelTests: XCTestCase {
 
     func test_loadCourse_success_setsCourse() async {
-        let mock = MockCoursesNetwork()
 
-        let courseShort = CourseShortResponse(
+        let coursesMock = MockCoursesNetwork()
+        let assignmentsMock = MockAssignmentsNetwork()
+
+        let course = CourseShortResponse(
             id: "course-1",
             name: "iOS Development",
-            description: "Swift и UIKit",
+            description: "Swift",
             code: "IOS101",
             isActive: true
         )
 
-        mock.getCourseInfoResult = .success(courseShort)
+        coursesMock.getCourseInfoResult = .success(course)
 
         let viewModel = CourseDetailsViewModel(
             courseId: "course-1",
-            courseRepository: mock,
-            onLeaveCourse: {}
+            courseNetwork: coursesMock,
+            assignmentsNetwork: assignmentsMock,
+            onLeaveCourse: {},
+            onOpenAssignment: { _ in }
         )
 
         await viewModel.loadCourse()
@@ -32,36 +36,37 @@ final class CourseDetailsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.course?.id, "course-1")
     }
 
+
     func test_loadCourse_success_setsTeachers() async {
-        let mock = MockCoursesNetwork()
 
-        mock.getTeachersResult = .success(
-            TeachersResponse(
-                teachers: [
-                    Teacher(
-                        id: "teacher-1",
-                        firstName: "Иван",
-                        lastName: "Иванов",
-                        email: "teacher@test.com"
-                    )
-                ]
-            )
-        )
+        let coursesMock = MockCoursesNetwork()
+        let assignmentsMock = MockAssignmentsNetwork()
 
-        mock.getCourseInfoResult = .success(
+        coursesMock.getCourseInfoResult = .success(
             CourseShortResponse(
                 id: "course-1",
-                name: "iOS Development",
-                description: "Swift и UIKit",
-                code: "IOS101",
+                name: "iOS",
+                description: nil,
+                code: nil,
                 isActive: true
             )
         )
 
+        coursesMock.getTeachersResult = .success([
+            Teacher(
+                id: "teacher-1",
+                firstName: "Иван",
+                lastName: "Иванов",
+                email: "teacher@test.com"
+            )
+        ])
+
         let viewModel = CourseDetailsViewModel(
             courseId: "course-1",
-            courseRepository: mock,
-            onLeaveCourse: {}
+            courseNetwork: coursesMock,
+            assignmentsNetwork: assignmentsMock,
+            onLeaveCourse: {},
+            onOpenAssignment: { _ in }
         )
 
         await viewModel.loadCourse()
@@ -69,14 +74,62 @@ final class CourseDetailsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.teachers.count, 1)
     }
 
-    func test_loadCourse_failure_setsError() async {
-        let mock = MockCoursesNetwork()
-        mock.getCourseInfoResult = .failure(TestError.mock)
+
+    func test_loadCourse_success_setsAssignments() async {
+
+        let coursesMock = MockCoursesNetwork()
+        let assignmentsMock = MockAssignmentsNetwork()
+
+        coursesMock.getCourseInfoResult = .success(
+            CourseShortResponse(
+                id: "course-1",
+                name: "iOS",
+                description: nil,
+                code: nil,
+                isActive: true
+            )
+        )
+
+        assignmentsMock.getAssignmentsResult = .success([
+            AssignmentResponse(
+                id: "assignment-1",
+                courseId: "course-1",
+                title: "Homework",
+                text: nil,
+                requiresSubmission: true,
+                deadline: nil,
+                created: "2024-01-01",
+                files: nil
+            )
+        ])
 
         let viewModel = CourseDetailsViewModel(
-            courseId: "1",
-            courseRepository: mock,
-            onLeaveCourse: {}
+            courseId: "course-1",
+            courseNetwork: coursesMock,
+            assignmentsNetwork: assignmentsMock,
+            onLeaveCourse: {},
+            onOpenAssignment: { _ in }
+        )
+
+        await viewModel.loadCourse()
+
+        XCTAssertEqual(viewModel.assignments.count, 1)
+    }
+
+
+    func test_loadCourse_failure_setsError() async {
+
+        let coursesMock = MockCoursesNetwork()
+        let assignmentsMock = MockAssignmentsNetwork()
+
+        coursesMock.getCourseInfoResult = .failure(TestError.mock)
+
+        let viewModel = CourseDetailsViewModel(
+            courseId: "course-1",
+            courseNetwork: coursesMock,
+            assignmentsNetwork: assignmentsMock,
+            onLeaveCourse: {},
+            onOpenAssignment: { _ in }
         )
 
         await viewModel.loadCourse()
@@ -84,17 +137,22 @@ final class CourseDetailsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.errorMessage, "Не удалось загрузить курс")
     }
 
+
     func test_leaveCourse_success_callsCallback() async {
-        let mock = MockCoursesNetwork()
+
+        let coursesMock = MockCoursesNetwork()
+        let assignmentsMock = MockAssignmentsNetwork()
 
         var called = false
 
         let viewModel = CourseDetailsViewModel(
             courseId: "1",
-            courseRepository: mock,
+            courseNetwork: coursesMock,
+            assignmentsNetwork: assignmentsMock,
             onLeaveCourse: {
                 called = true
-            }
+            },
+            onOpenAssignment: { _ in }
         )
 
         await viewModel.leaveCourse()
@@ -102,14 +160,20 @@ final class CourseDetailsViewModelTests: XCTestCase {
         XCTAssertTrue(called)
     }
 
+
     func test_leaveCourse_failure_setsError() async {
-        let mock = MockCoursesNetwork()
-        mock.leaveCourseResult = .failure(TestError.mock)
+
+        let coursesMock = MockCoursesNetwork()
+        let assignmentsMock = MockAssignmentsNetwork()
+
+        coursesMock.leaveCourseResult = .failure(TestError.mock)
 
         let viewModel = CourseDetailsViewModel(
             courseId: "1",
-            courseRepository: mock,
-            onLeaveCourse: {}
+            courseNetwork: coursesMock,
+            assignmentsNetwork: assignmentsMock,
+            onLeaveCourse: {},
+            onOpenAssignment: { _ in }
         )
 
         await viewModel.leaveCourse()

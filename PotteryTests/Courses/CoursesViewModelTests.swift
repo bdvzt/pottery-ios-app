@@ -16,9 +16,7 @@ final class CoursesViewModelTests: XCTestCase {
             role: .student
         )
 
-        mock.getCoursesResult = .success(
-            CoursesResponse(courses: [course])
-        )
+        mock.getCoursesResult = .success([course])
 
         let viewModel = CoursesViewModel(
             courseRepository: mock,
@@ -76,9 +74,7 @@ final class CoursesViewModelTests: XCTestCase {
     func test_loadCourses_emptyResponse_setsEmptyCourses() async {
         let mock = MockCoursesNetwork()
 
-        mock.getCoursesResult = .success(
-            CoursesResponse(courses: [])
-        )
+        mock.getCoursesResult = .success([])
 
         let viewModel = CoursesViewModel(
             courseRepository: mock,

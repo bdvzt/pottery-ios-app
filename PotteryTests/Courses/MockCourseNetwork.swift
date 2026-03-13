@@ -2,14 +2,14 @@ import XCTest
 @testable import Pottery
 
 final class MockCoursesNetwork: CoursesNetworkProtocol {
-    var getCoursesResult: Result<CoursesResponse, Error> =
-        .success(CoursesResponse(courses: []))
+    var getCoursesResult: Result<[Course], Error> =
+        .success([])
 
     var getCourseInfoResult: Result<CourseShortResponse, Error> =
         .failure(NSError())
 
-    var getTeachersResult: Result<TeachersResponse, Error> =
-        .success(TeachersResponse(teachers: []))
+    var getTeachersResult: Result<[Teacher], Error> =
+        .success([])
 
     var leaveCourseResult: Result<Void, Error> = .success(())
 
@@ -17,7 +17,7 @@ final class MockCoursesNetwork: CoursesNetworkProtocol {
         fatalError()
     }
 
-    func getMyCourses() async throws -> CoursesResponse {
+    func getMyCourses() async throws -> [Course] {
         try getCoursesResult.get()
     }
 
@@ -29,7 +29,7 @@ final class MockCoursesNetwork: CoursesNetworkProtocol {
         try leaveCourseResult.get()
     }
 
-    func getCourseTeachers(id: String) async throws -> TeachersResponse {
+    func getCourseTeachers(id: String) async throws -> [Teacher] {
         try getTeachersResult.get()
     }
 }

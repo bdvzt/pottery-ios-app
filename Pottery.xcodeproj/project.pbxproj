@@ -102,6 +102,7 @@
 		88F98E822F64880200EDC0D2 /* GetAssignmentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */; };
 		88F98E862F6488E300EDC0D2 /* AssignmentFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */; };
 		88F98E882F6488EB00EDC0D2 /* AssignmentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */; };
+		88F98E8D2F64909200EDC0D2 /* MockAssignmentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -220,6 +221,7 @@
 		88F98E722F64880200EDC0D2 /* AssignmentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsNetwork.swift; sourceTree = "<group>"; };
 		88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentFile.swift; sourceTree = "<group>"; };
 		88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentResponse.swift; sourceTree = "<group>"; };
+		88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAssignmentsNetwork.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -657,6 +659,7 @@
 		88F98E582F645ABD00EDC0D2 /* Courses */ = {
 			isa = PBXGroup;
 			children = (
+				88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */,
 				88F98E5D2F645B0600EDC0D2 /* CourseDetailsViewModelTests.swift */,
 				88F98E5B2F645AFF00EDC0D2 /* CoursesViewModelTests.swift */,
 				88F98E592F645ACD00EDC0D2 /* MockCourseNetwork.swift */,
@@ -957,6 +960,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88211B072F62C8420073396D /* MockAuthNetwork.swift in Sources */,
+				88F98E8D2F64909200EDC0D2 /* MockAssignmentsNetwork.swift in Sources */,
 				88211B092F62C8500073396D /* MockUsersNetwork.swift in Sources */,
 				88211B0F2F62C8980073396D /* RegistrationViewModelTests.swift in Sources */,
 				88211B0B2F62C8620073396D /* MockError.swift in Sources */,

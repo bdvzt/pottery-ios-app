@@ -180,10 +180,12 @@ private extension AppCoordinator {
     func showCourseDetails(course: CourseShortResponse, navigation: UINavigationController) {
         let viewModel = CourseDetailsViewModel(
             courseId: course.id,
-            courseRepository: coursesNetwork,
+            courseNetwork: coursesNetwork,
+            assignmentsNetwork: assignmentsNetwork,
             onLeaveCourse: {
                 navigation.popViewController(animated: true)
-            }
+            },
+            onOpenAssignment: { _ in }
         )
 
         let view = CourseDetailsView(viewModel: viewModel)
