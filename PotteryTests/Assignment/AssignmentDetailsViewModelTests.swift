@@ -8,6 +8,7 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
 
         let assignmentsMock = MockAssignmentsNetwork()
         let commentsMock = MockCommentsNetwork()
+        let usersMock = MockUsersNetwork()
 
         let assignment = AssignmentResponse(
             id: "assignment-1",
@@ -25,7 +26,8 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock
+            commentsRepository: commentsMock,
+            usersRepository: usersMock
         )
 
         await viewModel.loadAssignment()
@@ -37,6 +39,7 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
 
         let assignmentsMock = MockAssignmentsNetwork()
         let commentsMock = MockCommentsNetwork()
+        let usersMock = MockUsersNetwork()
 
         assignmentsMock.getAssignmentResult = .success(
             AssignmentResponse(
@@ -65,7 +68,8 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock
+            commentsRepository: commentsMock,
+            usersRepository: usersMock
         )
 
         await viewModel.loadAssignment()
@@ -77,6 +81,7 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
 
         let assignmentsMock = MockAssignmentsNetwork()
         let commentsMock = MockCommentsNetwork()
+        let usersMock = MockUsersNetwork()
 
         let comment = Comment(
             id: "comment-1",
@@ -92,7 +97,8 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock
+            commentsRepository: commentsMock,
+            usersRepository: usersMock
         )
 
         viewModel.commentText = "Hello"
@@ -107,6 +113,7 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
 
         let assignmentsMock = MockAssignmentsNetwork()
         let commentsMock = MockCommentsNetwork()
+        let usersMock = MockUsersNetwork()
 
         let comment = Comment(
             id: "comment-1",
@@ -120,7 +127,8 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock
+            commentsRepository: commentsMock,
+            usersRepository: usersMock
         )
 
         viewModel.comments = [comment]
@@ -134,13 +142,15 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
 
         let assignmentsMock = MockAssignmentsNetwork()
         let commentsMock = MockCommentsNetwork()
+        let usersMock = MockUsersNetwork()
 
         commentsMock.createCommentResult = .failure(TestError.mock)
 
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock
+            commentsRepository: commentsMock,
+            usersRepository: usersMock
         )
 
         viewModel.commentText = "Hello"
@@ -148,5 +158,44 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         await viewModel.sendComment()
 
         XCTAssertEqual(viewModel.errorMessage, "Не удалось отправить комментарий")
+    }
+
+    func test_loadAssignment_success_setsGrade() async {
+
+        let assignmentsMock = MockAssignmentsNetwork()
+        let commentsMock = MockCommentsNetwork()
+        let usersMock = MockUsersNetwork()
+
+        let assignment = AssignmentResponse(
+            id: "assignment-s1",
+            courseId: "course-1",
+            title: "Homework",
+            text: nil,
+            requiresSubmission: false,
+            deadline: nil,
+            created: "2024-01-01",
+            files: nil
+        )
+
+        assignmentsMock.getAssignmentResult = .success(assignment)
+
+        assignmentsMock.getGradesResult = .success([
+            Grade(
+                assignmentId: "assignment-1",
+                assignmentTitle: "Homework",
+                grade: 5
+            )
+        ])
+
+        let viewModel = AssignmentDetailsViewModel(
+            assignmentId: "assignment-1",
+            assignmentsRepository: assignmentsMock,
+            commentsRepository: commentsMock,
+            usersRepository: usersMock
+        )
+
+        await viewModel.loadAssignment()
+
+        XCTAssertEqual(viewModel.grade?.grade, 5)
     }
 }
