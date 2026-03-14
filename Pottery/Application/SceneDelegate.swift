@@ -44,6 +44,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             networkService: networkService
         )
 
+        let submissionsRepository = SubmissionsNetwork(
+            networkService: networkService
+        )
+
         coordinator = AppCoordinator(
             navigationController: navigationController,
             authNetwork: authNetwork,
@@ -51,6 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             coursesNetwork: coursesNetwork,
             assignmentsNetwork: assignmentsNetwork,
             commentsNetwork: commentsNetwork,
+            submissionsRepository: submissionsRepository,
             tokenStorage: tokenStorage
         )
 

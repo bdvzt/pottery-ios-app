@@ -6,4 +6,6 @@ enum HTTPTask {
     case request
     case requestBody(Encodable)
     case requestUrlParameters(Parameters)
+    case uploadMultipart([MultipartFormData])
 }
+

@@ -96,7 +96,6 @@
 		88F98E7E2F64880200EDC0D2 /* AssignmentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E722F64880200EDC0D2 /* AssignmentsNetwork.swift */; };
 		88F98E802F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E6A2F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift */; };
 		88F98E822F64880200EDC0D2 /* GetAssignmentEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */; };
-		88F98E862F6488E300EDC0D2 /* AssignmentFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */; };
 		88F98E882F6488EB00EDC0D2 /* AssignmentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */; };
 		88F98E8D2F64909200EDC0D2 /* MockAssignmentsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */; };
 		88F98E962F64932600EDC0D2 /* CourseDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E902F64932600EDC0D2 /* CourseDetailsModel.swift */; };
@@ -118,6 +117,18 @@
 		88F98EC32F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EC22F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift */; };
 		88F98EC52F64B32700EDC0D2 /* Grade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EC42F64B32300EDC0D2 /* Grade.swift */; };
 		88F98EC72F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EC62F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift */; };
+		88F98ED92F64CCB400EDC0D2 /* SubmissionsNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98ECF2F64CCB400EDC0D2 /* SubmissionsNetwork.swift */; };
+		88F98EDC2F64CCB400EDC0D2 /* SubmissionsNetworkProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98ECD2F64CCB400EDC0D2 /* SubmissionsNetworkProtocol.swift */; };
+		88F98EDF2F64CCD000EDC0D2 /* UploadSubmissionEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EDE2F64CCD000EDC0D2 /* UploadSubmissionEndpoint.swift */; };
+		88F98EE32F64D10100EDC0D2 /* MultipartFormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EE22F64D10100EDC0D2 /* MultipartFormData.swift */; };
+		88F98EE52F64D11500EDC0D2 /* MultipartBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EE42F64D11500EDC0D2 /* MultipartBuilder.swift */; };
+		88F98EE72F64D36900EDC0D2 /* SubmissionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EE62F64D36900EDC0D2 /* SubmissionResponse.swift */; };
+		88F98EE92F64D37C00EDC0D2 /* SubmissionFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EE82F64D37C00EDC0D2 /* SubmissionFile.swift */; };
+		88F98EED2F64D46600EDC0D2 /* GetSubmissionEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EEC2F64D46600EDC0D2 /* GetSubmissionEndpoint.swift */; };
+		88F98EEF2F64D4CE00EDC0D2 /* GetMySubmissionEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EEE2F64D4CE00EDC0D2 /* GetMySubmissionEndpoint.swift */; };
+		88F98EF12F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EF02F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift */; };
+		88F98EF32F64DFD800EDC0D2 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */; };
+		88F98EF52F64E9CD00EDC0D2 /* FileViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EF42F64E9CD00EDC0D2 /* FileViewer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -230,7 +241,6 @@
 		88F98E6B2F64880200EDC0D2 /* GetAssignmentEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAssignmentEndpoint.swift; sourceTree = "<group>"; };
 		88F98E702F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsNetworkProtocol.swift; sourceTree = "<group>"; };
 		88F98E722F64880200EDC0D2 /* AssignmentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsNetwork.swift; sourceTree = "<group>"; };
-		88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentFile.swift; sourceTree = "<group>"; };
 		88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentResponse.swift; sourceTree = "<group>"; };
 		88F98E8C2F64909200EDC0D2 /* MockAssignmentsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAssignmentsNetwork.swift; sourceTree = "<group>"; };
 		88F98E902F64932600EDC0D2 /* CourseDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailsModel.swift; sourceTree = "<group>"; };
@@ -252,6 +262,18 @@
 		88F98EC22F64B2E000EDC0D2 /* GetMyGradesEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMyGradesEndpoint.swift; sourceTree = "<group>"; };
 		88F98EC42F64B32300EDC0D2 /* Grade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grade.swift; sourceTree = "<group>"; };
 		88F98EC62F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailsViewModel.swift; sourceTree = "<group>"; };
+		88F98ECD2F64CCB400EDC0D2 /* SubmissionsNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionsNetworkProtocol.swift; sourceTree = "<group>"; };
+		88F98ECF2F64CCB400EDC0D2 /* SubmissionsNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionsNetwork.swift; sourceTree = "<group>"; };
+		88F98EDE2F64CCD000EDC0D2 /* UploadSubmissionEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadSubmissionEndpoint.swift; sourceTree = "<group>"; };
+		88F98EE22F64D10100EDC0D2 /* MultipartFormData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipartFormData.swift; sourceTree = "<group>"; };
+		88F98EE42F64D11500EDC0D2 /* MultipartBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipartBuilder.swift; sourceTree = "<group>"; };
+		88F98EE62F64D36900EDC0D2 /* SubmissionResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionResponse.swift; sourceTree = "<group>"; };
+		88F98EE82F64D37C00EDC0D2 /* SubmissionFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionFile.swift; sourceTree = "<group>"; };
+		88F98EEC2F64D46600EDC0D2 /* GetSubmissionEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetSubmissionEndpoint.swift; sourceTree = "<group>"; };
+		88F98EEE2F64D4CE00EDC0D2 /* GetMySubmissionEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMySubmissionEndpoint.swift; sourceTree = "<group>"; };
+		88F98EF02F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteSubmissionFilesEndpoint.swift; sourceTree = "<group>"; };
+		88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
+		88F98EF42F64E9CD00EDC0D2 /* FileViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -359,6 +381,7 @@
 			isa = PBXGroup;
 			children = (
 				88F98EAF2F64A2D000EDC0D2 /* Comments */,
+				88F98ED52F64CCB400EDC0D2 /* Submissions */,
 				88F98E692F6487EB00EDC0D2 /* Assignments */,
 				88F98E2C2F643D2F00EDC0D2 /* Course */,
 				88211AB82F62A4DE0073396D /* Profile */,
@@ -380,6 +403,8 @@
 		88211A5B2F6296780073396D /* EndPoint */ = {
 			isa = PBXGroup;
 			children = (
+				88F98EE42F64D11500EDC0D2 /* MultipartBuilder.swift */,
+				88F98EE22F64D10100EDC0D2 /* MultipartFormData.swift */,
 				88211A532F6296780073396D /* AuthorizationProvider.swift */,
 				88211A542F6296780073396D /* AuthorizationProvidingProtocol.swift */,
 				88211A552F6296780073396D /* AuthorizationRequirement.swift */,
@@ -743,7 +768,6 @@
 				88F98EC42F64B32300EDC0D2 /* Grade.swift */,
 				88F98E9B2F6494A000EDC0D2 /* AssignmentsResponse.swift */,
 				88F98E872F6488EB00EDC0D2 /* AssignmentResponse.swift */,
-				88F98E852F6488E300EDC0D2 /* AssignmentFile.swift */,
 			);
 			path = Responses;
 			sourceTree = "<group>";
@@ -751,6 +775,8 @@
 		88F98E8F2F64932600EDC0D2 /* Assignment */ = {
 			isa = PBXGroup;
 			children = (
+				88F98EF42F64E9CD00EDC0D2 /* FileViewer.swift */,
+				88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */,
 				88F98EC62F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift */,
 				88F98E9D2F64969300EDC0D2 /* AssignmentDetailsView.swift */,
 			);
@@ -838,6 +864,53 @@
 				88F98EBC2F64A78900EDC0D2 /* MockCommentsNetwork.swift */,
 			);
 			path = Assignment;
+			sourceTree = "<group>";
+		};
+		88F98ECC2F64CCB400EDC0D2 /* Endpoints */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EF02F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift */,
+				88F98EEE2F64D4CE00EDC0D2 /* GetMySubmissionEndpoint.swift */,
+				88F98EEC2F64D46600EDC0D2 /* GetSubmissionEndpoint.swift */,
+				88F98EDE2F64CCD000EDC0D2 /* UploadSubmissionEndpoint.swift */,
+			);
+			path = Endpoints;
+			sourceTree = "<group>";
+		};
+		88F98ECE2F64CCB400EDC0D2 /* NetworkServiceProtocol */ = {
+			isa = PBXGroup;
+			children = (
+				88F98ECD2F64CCB400EDC0D2 /* SubmissionsNetworkProtocol.swift */,
+			);
+			path = NetworkServiceProtocol;
+			sourceTree = "<group>";
+		};
+		88F98ED02F64CCB400EDC0D2 /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				88F98ECF2F64CCB400EDC0D2 /* SubmissionsNetwork.swift */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		88F98ED22F64CCB400EDC0D2 /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				88F98EE82F64D37C00EDC0D2 /* SubmissionFile.swift */,
+				88F98EE62F64D36900EDC0D2 /* SubmissionResponse.swift */,
+			);
+			path = Responses;
+			sourceTree = "<group>";
+		};
+		88F98ED52F64CCB400EDC0D2 /* Submissions */ = {
+			isa = PBXGroup;
+			children = (
+				88F98ECC2F64CCB400EDC0D2 /* Endpoints */,
+				88F98ECE2F64CCB400EDC0D2 /* NetworkServiceProtocol */,
+				88F98ED02F64CCB400EDC0D2 /* NetworkService */,
+				88F98ED22F64CCB400EDC0D2 /* Responses */,
+			);
+			path = Submissions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -982,7 +1055,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				88211A022F6296610073396D /* Coordinator.swift in Sources */,
+				88F98EE92F64D37C00EDC0D2 /* SubmissionFile.swift in Sources */,
 				88F98E9C2F6494A000EDC0D2 /* AssignmentsResponse.swift in Sources */,
+				88F98EDC2F64CCB400EDC0D2 /* SubmissionsNetworkProtocol.swift in Sources */,
 				88211A032F6296610073396D /* NavigationController.swift in Sources */,
 				88211AC32F62A59D0073396D /* RegisterRequest.swift in Sources */,
 				88F98EB02F64A2D000EDC0D2 /* CommentRequest.swift in Sources */,
@@ -993,8 +1068,9 @@
 				88F98E7B2F64880200EDC0D2 /* AssignmentsNetworkProtocol.swift in Sources */,
 				88F98E7E2F64880200EDC0D2 /* AssignmentsNetwork.swift in Sources */,
 				88F98E802F64880200EDC0D2 /* GetCourseAssignmentsEndpoint.swift in Sources */,
+				88F98EE52F64D11500EDC0D2 /* MultipartBuilder.swift in Sources */,
 				88F98E822F64880200EDC0D2 /* GetAssignmentEndpoint.swift in Sources */,
-				88F98E862F6488E300EDC0D2 /* AssignmentFile.swift in Sources */,
+				88F98EED2F64D46600EDC0D2 /* GetSubmissionEndpoint.swift in Sources */,
 				88211AE02F62B0E60073396D /* LoginEndpoint.swift in Sources */,
 				88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */,
 				88211A072F6296610073396D /* ViewController.swift in Sources */,
@@ -1015,16 +1091,21 @@
 				88211AE72F62B3EE0073396D /* RegisterEndpoint.swift in Sources */,
 				88211AFE2F62C0C10073396D /* RegistrationViewModel.swift in Sources */,
 				88211AE92F62B41E0073396D /* GetProfileEndpoint.swift in Sources */,
+				88F98EF12F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift in Sources */,
 				88F98E352F643D2F00EDC0D2 /* CoursesNetwork.swift in Sources */,
 				88211A812F6296780073396D /* EndPoint.swift in Sources */,
 				88211A832F6296780073396D /* KeyValueStoreProtocol.swift in Sources */,
 				88211AD22F62A89C0073396D /* Notification+userDidLogout.swift in Sources */,
 				88211A8A2F6296780073396D /* HTTPTask.swift in Sources */,
+				88F98EF52F64E9CD00EDC0D2 /* FileViewer.swift in Sources */,
+				88F98EEF2F64D4CE00EDC0D2 /* GetMySubmissionEndpoint.swift in Sources */,
 				88F98EC72F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift in Sources */,
 				88211ABA2F62A4EC0073396D /* AuthNetworkProtocol.swift in Sources */,
 				88211ACE2F62A8710073396D /* SessionServiceProtocol.swift in Sources */,
+				88F98EE72F64D36900EDC0D2 /* SubmissionResponse.swift in Sources */,
 				88211AE52F62B3BF0073396D /* LogoutEndPoint.swift in Sources */,
 				88211AF82F62C0A10073396D /* ProfileViewModel.swift in Sources */,
+				88F98ED92F64CCB400EDC0D2 /* SubmissionsNetwork.swift in Sources */,
 				88F98E472F6446C100EDC0D2 /* GetMyCoursesEndpoint.swift in Sources */,
 				88F98EB22F64A2D000EDC0D2 /* CommentsNetwork.swift in Sources */,
 				88F98E9E2F64969300EDC0D2 /* AssignmentDetailsView.swift in Sources */,
@@ -1045,6 +1126,8 @@
 				88211B132F62CF280073396D /* DismissKeyboardOnTap.swift in Sources */,
 				88211A922F6296780073396D /* NetworkLogger.swift in Sources */,
 				88F98E882F6488EB00EDC0D2 /* AssignmentResponse.swift in Sources */,
+				88F98EDF2F64CCD000EDC0D2 /* UploadSubmissionEndpoint.swift in Sources */,
+				88F98EF32F64DFD800EDC0D2 /* CameraPicker.swift in Sources */,
 				88211A962F6296780073396D /* AuthorizationRequirement.swift in Sources */,
 				88211B022F62C0D10073396D /* AuthViewModel.swift in Sources */,
 				88211A972F6296780073396D /* TokenStorageProtocol.swift in Sources */,
@@ -1069,6 +1152,7 @@
 				88211AB62F62A4B90073396D /* ScreenState.swift in Sources */,
 				88211AC12F62A57D0073396D /* TokenResponse.swift in Sources */,
 				88211AAC2F6296780073396D /* NetworkTransport.swift in Sources */,
+				88F98EE32F64D10100EDC0D2 /* MultipartFormData.swift in Sources */,
 				88211AAE2F6296780073396D /* NetworkServiceProtocol.swift in Sources */,
 				88F98E4B2F64477400EDC0D2 /* LeaveCourseEndpoint.swift in Sources */,
 				88F98EB32F64A2D000EDC0D2 /* EditCommentEndpoint.swift in Sources */,

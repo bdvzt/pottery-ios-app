@@ -10,6 +10,7 @@ final class AppCoordinator: Coordinator {
     private let coursesNetwork: CoursesNetworkProtocol
     private let assignmentsNetwork: AssignmentsNetworkProtocol
     private let commentsNetwork: CommentsNetworkProtocol
+    private let submissionsRepository: SubmissionsNetworkProtocol
     private let tokenStorage: TokenStorageProtocol
 
     init(
@@ -19,6 +20,7 @@ final class AppCoordinator: Coordinator {
         coursesNetwork: CoursesNetworkProtocol,
         assignmentsNetwork: AssignmentsNetworkProtocol,
         commentsNetwork: CommentsNetworkProtocol,
+        submissionsRepository: SubmissionsNetworkProtocol,
         tokenStorage: TokenStorageProtocol
     ) {
         self.navigationController = navigationController
@@ -27,6 +29,7 @@ final class AppCoordinator: Coordinator {
         self.coursesNetwork = coursesNetwork
         self.assignmentsNetwork = assignmentsNetwork
         self.commentsNetwork = commentsNetwork
+        self.submissionsRepository = submissionsRepository
         self.tokenStorage = tokenStorage
     }
 
@@ -205,7 +208,8 @@ private extension AppCoordinator {
             assignmentId: assignment.id,
             assignmentsRepository: assignmentsNetwork,
             commentsRepository: commentsNetwork,
-            usersRepository: usersNetwork
+            usersRepository: usersNetwork,
+            submissionsRepository: submissionsRepository
         )
 
         let view = AssignmentDetailsView(viewModel: viewModel)

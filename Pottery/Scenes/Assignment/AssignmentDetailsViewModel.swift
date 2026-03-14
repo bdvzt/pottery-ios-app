@@ -1,9 +1,16 @@
 import Foundation
+import UIKit
 import Combine
 
 @MainActor
 final class AssignmentDetailsViewModel: ObservableObject {
     @Published var profile: ProfileResponse?
+
+    @Published var selectedImages: [UIImage] = []
+    @Published var isSubmitting = false
+    @Published var mySubmission: SubmissionResponse?
+    @Published var showCamera = false
+    @Published var showGallery = false
 
     @Published var assignment: AssignmentResponse?
     @Published var comments: [Comment] = []
@@ -20,17 +27,20 @@ final class AssignmentDetailsViewModel: ObservableObject {
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let commentsRepository: CommentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
+    private let submissionsRepository: SubmissionsNetworkProtocol
 
     init(
         assignmentId: String,
         assignmentsRepository: AssignmentsNetworkProtocol,
         commentsRepository: CommentsNetworkProtocol,
-        usersRepository: UsersNetworkProtocol
+        usersRepository: UsersNetworkProtocol,
+        submissionsRepository: SubmissionsNetworkProtocol,
     ) {
         self.assignmentId = assignmentId
         self.assignmentsRepository = assignmentsRepository
         self.commentsRepository = commentsRepository
         self.usersRepository = usersRepository
+        self.submissionsRepository = submissionsRepository
     }
 
     func loadAssignment() async {
@@ -48,9 +58,38 @@ final class AssignmentDetailsViewModel: ObservableObject {
             assignment = assignmentResult
             comments = try await commentsRequest
 
+            do {
+                let submission = try await submissionsRepository.getMySubmission(
+                    assignmentId: assignmentId
+                )
+
+                if ((submission?.files.isEmpty) != nil) {
+                    mySubmission = nil
+                } else {
+                    mySubmission = submission
+                }
+            } catch let error as NetworkError {
+                switch error {
+                case .serverError(let code, _):
+                    if code == 404 {
+                        mySubmission = nil
+                    } else {
+                        throw error
+                    }
+                default:
+                    throw error
+                }
+            }
+
             let grades = try await assignmentsRepository.getMyGrades(id: assignmentResult.courseId)
 
-            grade = grades.first { $0.assignmentId == assignmentId }
+            let uniqueGrades = Dictionary(
+                grouping: grades,
+                by: { $0.assignmentId }
+            ).compactMap { $0.value.first }
+
+            grade = uniqueGrades.first { $0.assignmentId == assignmentId }
+
         } catch {
             errorMessage = "Не удалось загрузить задание"
         }
@@ -115,6 +154,67 @@ final class AssignmentDetailsViewModel: ObservableObject {
             profile = try await usersRepository.getProfile()
         } catch {
             errorMessage = "Не удалось загрузить профиль"
+        }
+    }
+
+    func addImage(_ image: UIImage) {
+        selectedImages.append(image)
+    }
+
+    func submitSolution() async {
+
+        guard !selectedImages.isEmpty else { return }
+
+        isSubmitting = true
+        defer { isSubmitting = false }
+
+        do {
+
+            let files: [MultipartFormData] = selectedImages.compactMap { image in
+
+                guard let data = image.jpegData(compressionQuality: 0.8) else {
+                    return nil
+                }
+
+                return MultipartFormData(
+                    name: "files",
+                    filename: UUID().uuidString + ".jpg",
+                    mimeType: "image/jpeg",
+                    data: data
+                )
+            }
+
+            _ = try await submissionsRepository.uploadFiles(
+                assignmentId: assignmentId,
+                files: files
+            )
+
+            selectedImages.removeAll()
+
+            await loadAssignment()
+
+        } catch {
+            errorMessage = "Не удалось отправить решение"
+        }
+    }
+
+    func deleteSubmission() async {
+
+        guard let submission = mySubmission else { return }
+
+        let fileIds = submission.files.map { $0.id }
+
+         do {
+
+             try await submissionsRepository.deleteSubmissionFiles(
+                 submissionId: submission.id,
+                 fileIds: fileIds
+             )
+
+            mySubmission = nil
+
+        } catch {
+            errorMessage = "Не удалось удалить решение"
         }
     }
 }

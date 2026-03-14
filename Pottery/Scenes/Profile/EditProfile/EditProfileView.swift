@@ -11,6 +11,7 @@ struct EditProfileView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
                 VStack(spacing: 12) {
                     inputField(title: "Фамилия", placeholder: "Введите фамилию", text: $viewModel.lastName)

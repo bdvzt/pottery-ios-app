@@ -5,17 +5,21 @@ struct CoursesView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(spacing: 20) {
 
                 Text("Мои курсы")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
                 if viewModel.isLoading {
                     ProgressView()
-                        .tint(Color.accentColor)
+                        .progressViewStyle(CircularProgressViewStyle(tint: .accentColor))
+                        .scaleEffect(1.5)
+                        .padding(.top, 40)
                 }
+
                 else if let error = viewModel.errorMessage {
                     VStack(spacing: 12) {
                         Text(error)
@@ -25,12 +29,22 @@ struct CoursesView: View {
                         Button("Обновить") {
                             Task { await viewModel.loadCourses() }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.accentColor.opacity(0.15))
+                        .foregroundStyle(Color.accentColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .padding(.top, 20)
                 }
+
                 else if viewModel.courses.isEmpty {
                     Text("У вас пока нет курсов")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .padding(.top, 20)
                 }
+
                 else {
                     VStack(spacing: 12) {
                         ForEach(viewModel.courses, id: \.id) { course in
@@ -39,14 +53,15 @@ struct CoursesView: View {
                     }
                 }
             }
-            .padding(24)
-        }
-        .background(Color(.systemBackground))
-        .task {
-            await viewModel.loadCourses()
+            .padding()
+            .background(Color(.systemBackground))
+            .task {
+                await viewModel.loadCourses()
+            }
         }
     }
 
+    // MARK: - Карточка курса
     private func courseCard(_ course: Course) -> some View {
         Button {
             viewModel.openCourse(
@@ -59,7 +74,6 @@ struct CoursesView: View {
                 )
             )
         } label: {
-
             VStack(alignment: .leading, spacing: 8) {
 
                 Text(course.name ?? "Без названия")
@@ -75,29 +89,19 @@ struct CoursesView: View {
 
                 HStack {
                     Spacer()
-
-                    if course.isActive {
-                        Text("Активен")
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.accentColor.opacity(0.15))
-                            .foregroundStyle(Color.accentColor)
-                            .clipShape(Capsule())
-                    } else {
-                        Text("Не активен")
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.accentColor.opacity(0.15))
-                            .foregroundStyle(Color.accentColor)
-                            .clipShape(Capsule())
-                    }
+                    Text(course.isActive ? "Активен" : "Не активен")
+                        .font(.caption2)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(course.isActive ? Color.green.opacity(0.15) : Color.gray.opacity(0.15))
+                        .foregroundStyle(course.isActive ? Color.green : Color.gray)
+                        .clipShape(Capsule())
                 }
             }
             .padding()
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 14))
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         }
     }
 }

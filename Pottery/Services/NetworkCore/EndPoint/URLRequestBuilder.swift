@@ -44,6 +44,22 @@ enum URLRequestBuilder {
 
         case .requestUrlParameters(let parameters):
             request.url = try addQuery(parameters, to: request.url)
+
+        case .uploadMultipart(let parts):
+
+            let boundary = UUID().uuidString
+
+            request.setValue(
+                "multipart/form-data; boundary=\(boundary)",
+                forHTTPHeaderField: HTTPHeader.contentType
+            )
+
+            let body = MultipartBuilder.buildBody(
+                parts: parts,
+                boundary: boundary
+            )
+
+            request.httpBody = body
         }
 
         return request

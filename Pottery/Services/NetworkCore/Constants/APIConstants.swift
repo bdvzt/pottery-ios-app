@@ -53,4 +53,20 @@ enum APIConstants {
             "/api/assignments/comments/\(id)"
         }
     }
+
+    // MARK: - Submissions
+    enum Submissions {
+        static func uploadFiles(assignmentId: String) -> String {
+            "/api/submissions/\(assignmentId)/files"
+        }
+        static func deleteFiles(submissionId: String) -> String {
+            "/api/submissions/\(submissionId)/files"
+        }
+        static func getSubmission(id: String) -> String {
+            "/api/submissions/\(id)"
+        }
+        static func getMySubmission(assignmentId: String) -> String {
+            "/assignments/\(assignmentId)/my-submission"
+        }
+    }
 }

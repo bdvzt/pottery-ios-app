@@ -25,21 +25,21 @@ struct ProfileView: View {
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
-
-            Button {
-                Task {
-                    await viewModel.loadProfile()
+            if let errorMessage = viewModel.errorMessage {
+                Button {
+                    Task {
+                        await viewModel.loadProfile()
+                    }
+                } label: {
+                    Text("Обновить")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
                 }
-            } label: {
-                Text("Обновить")
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
+                .foregroundStyle(Color.accentColor)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .disabled(viewModel.isLoading)
             }
-            .foregroundStyle(Color.accentColor)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .disabled(viewModel.isLoading)
-
             Button {
                 showLogoutAlert = true
             } label: {
