@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CoursesView: View {
     @StateObject var viewModel: CoursesViewModel
+    @State private var isJoinSheetPresented = false
 
     var body: some View {
         ScrollView {
@@ -12,6 +13,18 @@ struct CoursesView: View {
                     .fontWeight(.bold)
                     .foregroundStyle(Color.accentColor)
                     .frame(maxWidth: .infinity, alignment: .center)
+
+                Button {
+                    isJoinSheetPresented = true
+                } label: {
+                    Label("Зачислиться по коду", systemImage: "plus.circle.fill")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .background(Color.accentColor)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 if viewModel.isLoading {
                     ProgressView()
@@ -59,6 +72,14 @@ struct CoursesView: View {
                 await viewModel.loadCourses()
             }
         }
+        .sheet(isPresented: $isJoinSheetPresented, onDismiss: {
+            viewModel.clearJoinState()
+        }) {
+            JoinCourseSheet(
+                viewModel: viewModel,
+                isPresented: $isJoinSheetPresented
+            )
+        }
     }
 
     // MARK: - Карточка курса
@@ -102,6 +123,70 @@ struct CoursesView: View {
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        }
+    }
+}
+
+private struct JoinCourseSheet: View {
+    @ObservedObject var viewModel: CoursesViewModel
+    @Binding var isPresented: Bool
+    @State private var courseCode = ""
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Введите код курса")
+                    .font(.headline)
+
+                TextField("Например: IOS-2026", text: $courseCode)
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled()
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                if let joinErrorMessage = viewModel.joinErrorMessage {
+                    Text(joinErrorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                }
+
+                Spacer()
+            }
+            .padding(20)
+            .navigationTitle("Зачисление")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Отмена") {
+                        isPresented = false
+                    }
+                    .disabled(viewModel.isJoiningCourse)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Task {
+                            let joined = await viewModel.joinCourse(code: courseCode)
+                            if joined {
+                                isPresented = false
+                            }
+                        }
+                    } label: {
+                        if viewModel.isJoiningCourse {
+                            ProgressView()
+                                .tint(Color.accentColor)
+                        } else {
+                            Text("Зачислиться")
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    .disabled(
+                        viewModel.isJoiningCourse ||
+                        courseCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    )
+                }
+            }
         }
     }
 }
