@@ -16,6 +16,8 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     @Published var assignmentTeams: [AssignmentTeam] = []
     @Published var myTeam: AssignmentTeam?
+    @Published var captainContext: CaptainAssignmentContextResponse?
+    @Published private(set) var isVolunteerCaptain = false
 
     @Published var commentText: String = ""
 
@@ -58,6 +60,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
         await loadAssignmentDetails()
         await loadComments()
         await reloadTeams()
+        await loadCaptainState()
         await loadSubmission()
         await loadGrade()
     }
@@ -148,8 +151,9 @@ final class AssignmentDetailsViewModel: ObservableObject {
         do {
             try await assignmentsRepository.joinAssignmentTeam(teamId: team.id)
             await reloadTeams()
+            await loadCaptainState()
         } catch {
-            teamErrorMessage = "Не удалось вступить в команду"
+            teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось вступить в команду")
         }
     }
 
@@ -157,6 +161,18 @@ final class AssignmentDetailsViewModel: ObservableObject {
         isUpdatingTeam = true
         teamErrorMessage = nil
         defer { isUpdatingTeam = false }
+
+        guard let assignment else { return }
+
+        if assignment.isTeacherManagedTeamFormation {
+            teamErrorMessage = "В этом задании команды формирует преподаватель."
+            return
+        }
+
+        if assignment.requiresCaptainVolunteerBeforeCreatingTeam, !isVolunteerCaptain {
+            teamErrorMessage = "Сначала нажмите «Стать капитаном», затем создайте команду."
+            return
+        }
 
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -166,8 +182,62 @@ final class AssignmentDetailsViewModel: ObservableObject {
                 name: trimmedName.isEmpty ? nil : trimmedName
             )
             await reloadTeams()
+            await loadCaptainState()
         } catch {
-            teamErrorMessage = "Не удалось создать команду"
+            teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось создать команду")
+        }
+    }
+
+    func selfAssignAsCaptain() async {
+        isUpdatingTeam = true
+        teamErrorMessage = nil
+        defer { isUpdatingTeam = false }
+
+        guard let assignment else { return }
+
+        guard assignment.allowsStudentCaptainSelfService else {
+            teamErrorMessage = "Самовыбор капитана недоступен для этого задания."
+            return
+        }
+
+        guard assignment.isCaptainSelectionWindowOpen else {
+            teamErrorMessage = "Этап выбора капитанов уже завершён."
+            return
+        }
+
+        do {
+            try await assignmentsRepository.selfAssignCaptain(assignmentId: assignmentId)
+            await reloadTeams()
+            await loadCaptainState()
+            if assignment.requiresCaptainVolunteerBeforeCreatingTeam, !isVolunteerCaptain {
+                isVolunteerCaptain = true
+            }
+        } catch {
+            teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось записаться капитаном")
+        }
+    }
+
+    func withdrawCaptainVolunteer() async {
+        isUpdatingTeam = true
+        teamErrorMessage = nil
+        defer { isUpdatingTeam = false }
+
+        guard let assignment else { return }
+
+        guard assignment.allowsStudentCaptainSelfService else { return }
+
+        guard assignment.isCaptainSelectionWindowOpen else {
+            teamErrorMessage = "Снять себя с роли капитана сейчас нельзя: этап завершён."
+            return
+        }
+
+        do {
+            try await assignmentsRepository.withdrawSelfAsCaptain(assignmentId: assignmentId)
+            isVolunteerCaptain = false
+            await reloadTeams()
+            await loadCaptainState()
+        } catch {
+            teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось снять роль капитана")
         }
     }
 
@@ -181,8 +251,9 @@ final class AssignmentDetailsViewModel: ObservableObject {
         do {
             try await assignmentsRepository.leaveAssignmentTeam(teamId: teamId)
             await reloadTeams()
+            await loadCaptainState()
         } catch {
-            teamErrorMessage = "Не удалось выйти из команды"
+            teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось выйти из команды")
         }
     }
 
@@ -244,6 +315,39 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
         } catch {
             errorMessage = "Не удалось удалить решение"
+        }
+    }
+
+    private func loadCaptainState() async {
+        guard assignment != nil else {
+            captainContext = nil
+            isVolunteerCaptain = false
+            return
+        }
+
+        do {
+            captainContext = try await assignmentsRepository.getMyCaptainContext(assignmentId: assignmentId)
+        } catch {
+            captainContext = nil
+        }
+
+        await syncVolunteerCaptainFromServer()
+    }
+
+    private func syncVolunteerCaptainFromServer() async {
+        guard let assignment,
+              assignment.allowsStudentCaptainSelfService,
+              let profileId = profile?.id
+        else {
+            isVolunteerCaptain = false
+            return
+        }
+
+        do {
+            let list = try await assignmentsRepository.getAssignmentCaptains(assignmentId: assignmentId)
+            isVolunteerCaptain = list.contains(where: { $0.matchesUser(profileId) })
+        } catch {
+            // не меняем isVolunteerCaptain: при ошибке сети не затираем локальное состояние
         }
     }
 
@@ -325,5 +429,32 @@ final class AssignmentDetailsViewModel: ObservableObject {
             let isCaptain = team.captain?.userId == profileId
             return inMembers || isCaptain
         }
+    }
+
+    private func mapTeamActionError(_ error: Error, fallback: String) -> String {
+        guard let err = error as? NetworkError,
+              case let .serverError(code, raw?) = err,
+              let data = raw.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            if let err = error as? NetworkError, case .serverError(let code, _) = err, code == 403 {
+                return "Нет доступа"
+            }
+            return fallback
+        }
+
+        if let detail = obj["detail"] as? String, !detail.isEmpty, detail != "null" {
+            return detail
+        }
+
+        if let title = obj["title"] as? String, !title.isEmpty {
+            return title
+        }
+
+        if code == 403 {
+            return "Нет доступа"
+        }
+
+        return fallback
     }
 }

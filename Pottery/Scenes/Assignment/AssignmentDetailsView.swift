@@ -175,13 +175,7 @@ struct AssignmentDetailsView: View {
             }
 
             HStack {
-                infoChip(
-                    assignment.finalTeamSubmissionChipTitle,
-                    color: assignment.requiresSubmission ? .accentColor : .secondary
-                )
-
                 Spacer()
-
                 infoChip("Создано \(formatDate(assignment.created))", color: .gray)
             }
 
@@ -327,6 +321,15 @@ struct AssignmentDetailsView: View {
     // MARK: - Teams
 
     private var teamsSection: some View {
+        Group {
+            if let assignment = viewModel.assignment {
+                teamsSectionContent(assignment)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func teamsSectionContent(_ assignment: AssignmentResponse) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Команда")
                 .font(.headline)
@@ -339,6 +342,94 @@ struct AssignmentDetailsView: View {
 
             if let myTeam = viewModel.myTeam {
                 myTeamSection(myTeam)
+            } else if assignment.isTeacherManagedTeamFormation {
+                Text("Команды в этом задании формирует преподаватель.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                if viewModel.assignmentTeams.isEmpty {
+                    Text("Пока нет команд, в которые можно вступить.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Выберите команду для вступления")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    ForEach(viewModel.assignmentTeams, id: \.id) { team in
+                        availableTeamRow(team)
+                    }
+                }
+            } else if assignment.requiresCaptainVolunteerBeforeCreatingTeam,
+                      viewModel.assignmentTeams.isEmpty,
+                      !viewModel.isVolunteerCaptain {
+                if assignment.isCaptainSelectionWindowOpen {
+                    Text(
+                        "Сначала запишитесь капитаном — после этого можно создать команду, " +
+                            "к которой смогут присоединиться другие студенты."
+                    )
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                    Button {
+                        Task { await viewModel.selfAssignAsCaptain() }
+                    } label: {
+                        if viewModel.isUpdatingTeam {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                        } else {
+                            Text("Стать капитаном")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(viewModel.isUpdatingTeam)
+                } else {
+                    Text("Этап выбора капитанов завершён. Создать новую команду сейчас нельзя.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } else if assignment.requiresCaptainVolunteerBeforeCreatingTeam,
+                      viewModel.assignmentTeams.isEmpty,
+                      viewModel.isVolunteerCaptain {
+                VStack(alignment: .leading, spacing: 8) {
+                    if assignment.isCaptainSelectionWindowOpen {
+                        Button(role: .destructive) {
+                            Task { await viewModel.withdrawCaptainVolunteer() }
+                        } label: {
+                            if viewModel.isUpdatingTeam {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                            } else {
+                                Text("Отказаться от роли капитана")
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(viewModel.isUpdatingTeam)
+                    }
+
+                    Text("Команды пока не созданы")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    TextField("Название команды (опционально)", text: $newTeamName)
+                        .textFieldStyle(.roundedBorder)
+
+                    Button {
+                        Task { await viewModel.createTeam(name: newTeamName) }
+                    } label: {
+                        if viewModel.isUpdatingTeam {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                        } else {
+                            Text("Создать команду")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(viewModel.isUpdatingTeam)
+                }
             } else if viewModel.assignmentTeams.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Команды пока не созданы")

@@ -1,3 +1,4 @@
+import Foundation
 struct AssignmentResponse: Decodable {
     let id: String
     let courseId: String
@@ -97,11 +98,6 @@ extension AssignmentResponse {
         }
     }
 
-    /// В API это не «можно ли загрузить решение», а нужен ли сценарий выбора финальной работы капитаном команды.
-    var finalTeamSubmissionChipTitle: String {
-        requiresSubmission ? "Выбор финала капитаном" : "Без финала команды"
-    }
-
     var teamFormationTitle: String? {
         guard let teamFormationMode else { return nil }
 
@@ -112,6 +108,8 @@ extension AssignmentResponse {
             return "Драфт капитанов"
         case "random_distribution":
             return "Случайное распределение"
+        case "student_self_selection":
+            return "Самовыбор в команды"
         default:
             return teamFormationMode
         }
@@ -120,6 +118,69 @@ extension AssignmentResponse {
     var teamSizeTitle: String? {
         guard minTeamSize != nil || maxTeamSize != nil else { return nil }
         return "\(minTeamSize ?? 0)-\(maxTeamSize ?? 0)"
+    }
+
+    var normalizedTeamFormationMode: String? {
+        teamFormationMode?.lowercased()
+    }
+
+    var isTeacherManagedTeamFormation: Bool {
+        normalizedTeamFormationMode == "teacher_managed"
+    }
+
+    /// Для этого режима бэкенд ожидает `POST .../captains/self` до создания команды через `POST .../teams`.
+    var requiresCaptainVolunteerBeforeCreatingTeam: Bool {
+        normalizedTeamFormationMode == "student_self_selection"
+    }
+
+    /// `POST/DELETE .../captains/self` разрешены только если режим не teacher_managed (проверка на сервере).
+    var allowsStudentCaptainSelfService: Bool {
+        guard let normalizedTeamFormationMode else { return false }
+        return normalizedTeamFormationMode != "teacher_managed"
+    }
+
+    /// Окно самовыбора капитана: до `captainSelectionEndsAtUtc` (если задано) и до `startsAtUtc` (если задано).
+    var isCaptainSelectionWindowOpen: Bool {
+        let now = Date()
+        if let endStr = captainSelectionEndsAtUtc,
+           let end = Self.parseApiUtc(endStr),
+           now > end {
+            return false
+        }
+        if let startStr = startsAtUtc,
+           let start = Self.parseApiUtc(startStr),
+           now >= start {
+            return false
+        }
+        return true
+    }
+
+    private static func parseApiUtc(_ string: String) -> Date? {
+        let withFraction = ISO8601DateFormatter()
+        withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = withFraction.date(from: string) { return d }
+        let plain = ISO8601DateFormatter()
+        plain.formatOptions = [.withInternetDateTime]
+        return plain.date(from: string)
+    }
+}
+
+struct CaptainAssignmentContextResponse: Decodable {
+    let assignmentId: String
+    let isCaptain: Bool
+    let teamId: String?
+    let finalSubmissionId: String?
+    let canSelectFinalSubmission: Bool
+}
+
+struct AssignmentCaptainListItem: Decodable {
+    let studentId: String?
+    let userId: String?
+
+    func matchesUser(_ profileId: String) -> Bool {
+        if let userId, userId == profileId { return true }
+        if let studentId, studentId == profileId { return true }
+        return false
     }
 }
 

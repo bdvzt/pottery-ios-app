@@ -140,19 +140,11 @@ struct CourseDetailsView: View {
                             infoRow(title: "Старт", value: formatDate(startsAt), icon: "play.circle")
                         }
 
-                        HStack {
-                            infoChip(
-                                assignment.finalTeamSubmissionChipTitle,
-                                color: assignment.requiresSubmission ? .accentColor : .secondary
-                            )
-
-                            Spacer()
-
-                            if let deadline = assignment.deadline {
-                                Text("До \(formatDate(deadline))")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+                        if let deadline = assignment.deadline {
+                            Text("До \(formatDate(deadline))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }
 
                         if let teamSizeTitle = assignment.teamSizeTitle {

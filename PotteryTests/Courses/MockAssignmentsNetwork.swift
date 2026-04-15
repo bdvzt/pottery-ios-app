@@ -7,6 +7,18 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
     var getAssignmentResult: Result<AssignmentResponse, Error> = .failure(TestError.mock)
     var getTeamsResult: Result<[AssignmentTeam], Error> = .success([])
     var createTeamResult: Result<AssignmentTeam, Error> = .failure(TestError.mock)
+    var getCaptainContextResult: Result<CaptainAssignmentContextResponse, Error> = .success(
+        CaptainAssignmentContextResponse(
+            assignmentId: "",
+            isCaptain: false,
+            teamId: nil,
+            finalSubmissionId: nil,
+            canSelectFinalSubmission: false
+        )
+    )
+    var getCaptainsResult: Result<[AssignmentCaptainListItem], Error> = .success([])
+    var selfAssignCaptainResult: Result<Void, Error> = .success(())
+    var withdrawCaptainResult: Result<Void, Error> = .success(())
 
     func getCourseAssignments(id: String, page: Int, pageSize: Int) async throws -> [AssignmentResponse] {
         try getAssignmentsResult.get()
@@ -31,4 +43,20 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
     func joinAssignmentTeam(teamId: String) async throws {}
 
     func leaveAssignmentTeam(teamId: String) async throws {}
+
+    func getMyCaptainContext(assignmentId: String) async throws -> CaptainAssignmentContextResponse {
+        try getCaptainContextResult.get()
+    }
+
+    func getAssignmentCaptains(assignmentId: String) async throws -> [AssignmentCaptainListItem] {
+        try getCaptainsResult.get()
+    }
+
+    func selfAssignCaptain(assignmentId: String) async throws {
+        try selfAssignCaptainResult.get()
+    }
+
+    func withdrawSelfAsCaptain(assignmentId: String) async throws {
+        try withdrawCaptainResult.get()
+    }
 }

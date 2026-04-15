@@ -62,6 +62,32 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
         let endPoint = LeaveAssignmentTeamEndpoint(teamId: teamId)
         try await networkService.request(endPoint)
     }
+
+    func getMyCaptainContext(assignmentId: String) async throws -> CaptainAssignmentContextResponse {
+        let endPoint = GetMyCaptainContextEndpoint(assignmentId: assignmentId)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: CaptainAssignmentContextResponse.self
+        )
+    }
+
+    func getAssignmentCaptains(assignmentId: String) async throws -> [AssignmentCaptainListItem] {
+        let endPoint = GetAssignmentCaptainsEndpoint(assignmentId: assignmentId)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: [AssignmentCaptainListItem].self
+        )
+    }
+
+    func selfAssignCaptain(assignmentId: String) async throws {
+        let endPoint = SelfAssignCaptainEndpoint(assignmentId: assignmentId)
+        try await networkService.request(endPoint)
+    }
+
+    func withdrawSelfAsCaptain(assignmentId: String) async throws {
+        let endPoint = WithdrawSelfAsCaptainEndpoint(assignmentId: assignmentId)
+        try await networkService.request(endPoint)
+    }
 }
 
 private struct GetAssignmentTeamsEndpoint: EndPoint {
@@ -117,6 +143,62 @@ private struct LeaveAssignmentTeamEndpoint: EndPoint {
 
     var baseURL: URL { APIConstants.baseURL }
     var path: String { APIConstants.Assignments.leaveTeamSelf(teamId: teamId) }
+    var method: HTTPMethod { .delete }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct GetMyCaptainContextEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentCaptainMe(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct GetAssignmentCaptainsEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentCaptains(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct SelfAssignCaptainEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentCaptainSelf(assignmentId: assignmentId) }
+    var method: HTTPMethod { .post }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct WithdrawSelfAsCaptainEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentCaptainSelf(assignmentId: assignmentId) }
     var method: HTTPMethod { .delete }
     var task: HTTPTask { .request }
     var authorization: AuthorizationRequirement { .accessToken }

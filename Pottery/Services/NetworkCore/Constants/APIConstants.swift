@@ -57,6 +57,15 @@ enum APIConstants {
         static func leaveTeamSelf(teamId: String) -> String {
             "/api/assignments/teams/\(teamId)/leave-self"
         }
+        static func assignmentCaptains(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/captains"
+        }
+        static func assignmentCaptainMe(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/captains/me"
+        }
+        static func assignmentCaptainSelf(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/captains/self"
+        }
     }
 
     // MARK: - Comments
