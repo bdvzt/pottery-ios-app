@@ -1,6 +1,9 @@
 struct AssignmentsResponse: Decodable {
     let items: [AssignmentResponse]
-    let total: Int
-    let page: Int
-    let pageSize: Int
+    let totalCount: Int?
+
+    private enum CodingKeys: String, CodingKey {
+        case items
+        case totalCount
+    }
 }

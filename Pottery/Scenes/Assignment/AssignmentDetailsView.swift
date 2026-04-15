@@ -13,6 +13,7 @@ struct AssignmentDetailsView: View {
     @State private var galleryItem: PhotosPickerItem?
 
     @State private var selectedFile: AssignmentFile?
+    @State private var newTeamName: String = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -96,6 +97,8 @@ struct AssignmentDetailsView: View {
                         filesSection(files)
                     }
 
+                    teamsSection
+
                     submissionSection
 
                     commentsSection
@@ -110,7 +113,7 @@ struct AssignmentDetailsView: View {
 
     private func assignmentCard(_ assignment: AssignmentResponse) -> some View {
 
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
 
             Text(assignment.title ?? "Без названия")
                 .font(.title3)
@@ -122,30 +125,64 @@ struct AssignmentDetailsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            if let deadline = assignment.deadline {
+            HStack(spacing: 6) {
+                statusChip(assignment)
 
-                let date = deadline
-                    .split(separator: "T").first?
-                    .replacingOccurrences(of: "-", with: ".") ?? ""
-
-                HStack {
-
-                    Label(date, systemImage: "calendar")
-
-                    Spacer()
-
-                    if assignment.requiresSubmission {
-
-                        Text("Требуется сдача")
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.accentColor.opacity(0.15))
-                            .foregroundStyle(Color.accentColor)
-                            .clipShape(Capsule())
-                    }
+                if assignment.shouldShowHiddenByVisibility {
+                    infoChip("Скрыто", color: .orange)
                 }
-                .font(.caption)
+
+                if let teamStateTitle = assignment.teamStateTitle {
+                    let color: Color = assignment.teamStateKind == .compositionLocked ? .purple : .red
+                    infoChip(teamStateTitle, color: color)
+                }
+            }
+
+            if let deadline = assignment.deadline {
+                infoRow(title: "Дедлайн", value: formatDate(deadline), icon: "calendar")
+            }
+
+            if let startsAt = assignment.startsAtUtc {
+                infoRow(title: "Старт задания", value: formatDate(startsAt), icon: "play.circle")
+            }
+
+            if let captainEnds = assignment.captainSelectionEndsAtUtc {
+                infoRow(title: "Капитаны до", value: formatDate(captainEnds), icon: "person.badge.key")
+            }
+
+            if let formationStarts = assignment.teamFormationStartsAtUtc {
+                infoRow(title: "Старт команд", value: formatDate(formationStarts), icon: "person.3")
+            }
+
+            if let formationEnds = assignment.teamFormationEndsAtUtc {
+                infoRow(title: "Формирование до", value: formatDate(formationEnds), icon: "calendar.badge.clock")
+            }
+
+            if let teamSizeTitle = assignment.teamSizeTitle {
+                infoRow(
+                    title: "Размер команды",
+                    value: teamSizeTitle,
+                    icon: "person.2"
+                )
+            }
+
+            if let mode = assignment.teamFormationTitle {
+                infoRow(
+                    title: "Режим команд",
+                    value: mode,
+                    icon: "person.2.wave.2"
+                )
+            }
+
+            HStack {
+                infoChip(
+                    assignment.finalTeamSubmissionChipTitle,
+                    color: assignment.requiresSubmission ? .accentColor : .secondary
+                )
+
+                Spacer()
+
+                infoChip("Создано \(formatDate(assignment.created))", color: .gray)
             }
 
             if let grade = viewModel.grade?.grade {
@@ -287,6 +324,123 @@ struct AssignmentDetailsView: View {
         }
     }
 
+    // MARK: - Teams
+
+    private var teamsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Команда")
+                .font(.headline)
+
+            if let teamErrorMessage = viewModel.teamErrorMessage {
+                Text(teamErrorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
+            if let myTeam = viewModel.myTeam {
+                myTeamSection(myTeam)
+            } else if viewModel.assignmentTeams.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Команды пока не созданы")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    TextField("Название команды (опционально)", text: $newTeamName)
+                        .textFieldStyle(.roundedBorder)
+
+                    Button {
+                        Task { await viewModel.createTeam(name: newTeamName) }
+                    } label: {
+                        if viewModel.isUpdatingTeam {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                        } else {
+                            Text("Создать команду")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(viewModel.isUpdatingTeam)
+                }
+            } else {
+                Text("Выберите команду для вступления")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                ForEach(viewModel.assignmentTeams, id: \.id) { team in
+                    availableTeamRow(team)
+                }
+            }
+        }
+    }
+
+    private func myTeamSection(_ team: AssignmentTeam) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(team.name ?? "Моя команда")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+
+            if let members = team.members, !members.isEmpty {
+                ForEach(members, id: \.userId) { member in
+                    Text(memberFullName(member))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Text("Состав команды пока пуст")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Button(role: .destructive) {
+                Task { await viewModel.leaveMyTeam() }
+            } label: {
+                if viewModel.isUpdatingTeam {
+                    ProgressView()
+                } else {
+                    Label("Выйти из команды", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            }
+            .disabled(viewModel.isUpdatingTeam)
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func availableTeamRow(_ team: AssignmentTeam) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(team.name ?? "Команда")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Text("\(team.members?.count ?? 0) участ.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Button {
+                Task { await viewModel.joinTeam(team) }
+            } label: {
+                if viewModel.isUpdatingTeam {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Text("Вступить")
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(viewModel.isUpdatingTeam)
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     // MARK: - Comments
 
     private var commentsSection: some View {
@@ -373,11 +527,62 @@ struct AssignmentDetailsView: View {
     }
 
     private func formatDate(_ date: String) -> String {
+        if let parsedDate = parseISODate(date) {
+            return Self.outputDateFormatter.string(from: parsedDate)
+        }
+        return date
+    }
 
-        date
-            .split(separator: "T")
-            .first?
-            .replacingOccurrences(of: "-", with: ".") ?? ""
+    private func parseISODate(_ raw: String) -> Date? {
+        if let value = Self.iso8601FormatterWithFractionalSeconds.date(from: raw) {
+            return value
+        }
+        return Self.iso8601Formatter.date(from: raw)
+    }
+
+    private func memberFullName(_ member: AssignmentTeamMember) -> String {
+        let name = [member.lastName, member.firstName]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+
+        return name.isEmpty ? (member.email ?? "Участник") : name
+    }
+
+    private func infoRow(title: String, value: String, icon: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: icon)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .frame(width: 16, alignment: .center)
+            Text("\(title): \(value)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func statusChip(_ assignment: AssignmentResponse) -> some View {
+        switch assignment.statusKind {
+        case .available:
+            return AnyView(infoChip(assignment.statusTitle, color: .green))
+        case .hidden:
+            return AnyView(infoChip(assignment.statusTitle, color: .orange))
+        case .closed:
+            return AnyView(infoChip(assignment.statusTitle, color: .red))
+        case .unknown:
+            return AnyView(infoChip(assignment.statusTitle, color: .gray))
+        }
+    }
+
+    private func infoChip(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.caption2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(color.opacity(0.15))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
     }
 
     private func errorView(_ text: String) -> some View {
@@ -429,5 +634,24 @@ struct AssignmentDetailsView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+
+    private static let outputDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "HH:mm dd.MM.yyyy"
+        return formatter
+    }()
+
+    private static let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static let iso8601FormatterWithFractionalSeconds: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
 }
 

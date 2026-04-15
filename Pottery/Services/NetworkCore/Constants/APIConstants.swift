@@ -2,7 +2,7 @@ import Foundation
 
 enum APIConstants {
     // MARK: - Base URLs
-    static let baseURL = URL(string: "http://localhost:5196")!
+    static let baseURL = URL(string: "http://111.88.155.34:5196")!
 
     // MARK: - Auth
     enum Auth {
@@ -39,8 +39,23 @@ enum APIConstants {
         static func getCourseAssignments(id: String) -> String {
             "/api/courses/\(id)/assignments"
         }
+        static func getVisibleCourseAssignments(id: String) -> String {
+            "/api/courses/\(id)/assignments/visible"
+        }
         static func myGrades(id: String) -> String {
             "/api/courses/\(id)/my-grades"
+        }
+        static func teams(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/teams"
+        }
+        static func createTeam(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/teams"
+        }
+        static func joinTeamSelf(teamId: String) -> String {
+            "/api/assignments/teams/\(teamId)/join-self"
+        }
+        static func leaveTeamSelf(teamId: String) -> String {
+            "/api/assignments/teams/\(teamId)/leave-self"
         }
     }
 

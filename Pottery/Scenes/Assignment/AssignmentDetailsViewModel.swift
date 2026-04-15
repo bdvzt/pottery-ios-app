@@ -14,12 +14,16 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
     @Published var assignment: AssignmentResponse?
     @Published var comments: [Comment] = []
+    @Published var assignmentTeams: [AssignmentTeam] = []
+    @Published var myTeam: AssignmentTeam?
 
     @Published var commentText: String = ""
 
     @Published var isLoading = false
     @Published var isSendingComment = false
+    @Published var isUpdatingTeam = false
     @Published var errorMessage: String?
+    @Published var teamErrorMessage: String?
 
     @Published var grade: Grade?
 
@@ -46,50 +50,32 @@ final class AssignmentDetailsViewModel: ObservableObject {
     func loadAssignment() async {
         isLoading = true
         errorMessage = nil
+        teamErrorMessage = nil
         defer { isLoading = false }
 
         await loadProfile()
 
+        await loadAssignmentDetails()
+        await loadComments()
+        await reloadTeams()
+        await loadSubmission()
+        await loadGrade()
+    }
+
+    private func loadAssignmentDetails() async {
         do {
-            async let assignmentRequest = assignmentsRepository.getAssignment(id: assignmentId)
-            async let commentsRequest = commentsRepository.getComments(id: assignmentId)
-
-            let assignmentResult = try await assignmentRequest
-            assignment = assignmentResult
-            comments = try await commentsRequest
-
-            do {
-                let submission = try await submissionsRepository.getMySubmission(
-                    assignmentId: assignmentId
-                )
-
-                if ((submission?.files.isEmpty) != nil) {
-                    mySubmission = nil
+            assignment = try await assignmentsRepository.getAssignment(id: assignmentId)
+        } catch let error as NetworkError {
+            switch error {
+            case .serverError(let code, _):
+                if code == 403 {
+                    errorMessage = "Задание скрыто"
                 } else {
-                    mySubmission = submission
+                    errorMessage = "Не удалось загрузить задание"
                 }
-            } catch let error as NetworkError {
-                switch error {
-                case .serverError(let code, _):
-                    if code == 404 {
-                        mySubmission = nil
-                    } else {
-                        throw error
-                    }
-                default:
-                    throw error
-                }
+            default:
+                errorMessage = "Не удалось загрузить задание"
             }
-
-            let grades = try await assignmentsRepository.getMyGrades(id: assignmentResult.courseId)
-
-            let uniqueGrades = Dictionary(
-                grouping: grades,
-                by: { $0.assignmentId }
-            ).compactMap { $0.value.first }
-
-            grade = uniqueGrades.first { $0.assignmentId == assignmentId }
-
         } catch {
             errorMessage = "Не удалось загрузить задание"
         }
@@ -146,14 +132,57 @@ final class AssignmentDetailsViewModel: ObservableObject {
     }
 
     func loadProfile() async {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-
         do {
             profile = try await usersRepository.getProfile()
+            resolveMyTeam()
         } catch {
             errorMessage = "Не удалось загрузить профиль"
+        }
+    }
+
+    func joinTeam(_ team: AssignmentTeam) async {
+        isUpdatingTeam = true
+        teamErrorMessage = nil
+        defer { isUpdatingTeam = false }
+
+        do {
+            try await assignmentsRepository.joinAssignmentTeam(teamId: team.id)
+            await reloadTeams()
+        } catch {
+            teamErrorMessage = "Не удалось вступить в команду"
+        }
+    }
+
+    func createTeam(name: String) async {
+        isUpdatingTeam = true
+        teamErrorMessage = nil
+        defer { isUpdatingTeam = false }
+
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        do {
+            _ = try await assignmentsRepository.createAssignmentTeam(
+                assignmentId: assignmentId,
+                name: trimmedName.isEmpty ? nil : trimmedName
+            )
+            await reloadTeams()
+        } catch {
+            teamErrorMessage = "Не удалось создать команду"
+        }
+    }
+
+    func leaveMyTeam() async {
+        guard let teamId = myTeam?.id else { return }
+
+        isUpdatingTeam = true
+        teamErrorMessage = nil
+        defer { isUpdatingTeam = false }
+
+        do {
+            try await assignmentsRepository.leaveAssignmentTeam(teamId: teamId)
+            await reloadTeams()
+        } catch {
+            teamErrorMessage = "Не удалось выйти из команды"
         }
     }
 
@@ -215,6 +244,86 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
         } catch {
             errorMessage = "Не удалось удалить решение"
+        }
+    }
+
+    private func reloadTeams() async {
+        do {
+            assignmentTeams = try await assignmentsRepository.getAssignmentTeams(assignmentId: assignmentId)
+            resolveMyTeam()
+        } catch let error as NetworkError {
+            if case .serverError(let code, _) = error, code == 403 {
+                assignmentTeams = []
+                myTeam = nil
+                return
+            }
+            teamErrorMessage = "Не удалось обновить команды"
+        } catch {
+            teamErrorMessage = "Не удалось обновить команды"
+        }
+    }
+
+    private func loadComments() async {
+        do {
+            comments = try await commentsRepository.getComments(id: assignmentId)
+        } catch {
+            comments = []
+        }
+    }
+
+    private func loadSubmission() async {
+        do {
+            let submission = try await submissionsRepository.getMySubmission(
+                assignmentId: assignmentId
+            )
+
+            if let submission, !submission.files.isEmpty {
+                mySubmission = submission
+            } else {
+                mySubmission = nil
+            }
+        } catch let error as NetworkError {
+            switch error {
+            case .serverError(let code, _):
+                if code == 404 || code == 403 {
+                    mySubmission = nil
+                } else {
+                    errorMessage = errorMessage ?? "Не удалось загрузить решение"
+                }
+            default:
+                errorMessage = errorMessage ?? "Не удалось загрузить решение"
+            }
+        } catch {
+            errorMessage = errorMessage ?? "Не удалось загрузить решение"
+        }
+    }
+
+    private func loadGrade() async {
+        guard let courseId = assignment?.courseId else { return }
+
+        do {
+            let grades = try await assignmentsRepository.getMyGrades(id: courseId)
+            let uniqueGrades = Dictionary(
+                grouping: grades,
+                by: { $0.assignmentId }
+            ).compactMap { $0.value.first }
+
+            grade = uniqueGrades.first { $0.assignmentId == assignmentId }
+        } catch {
+            grade = nil
+        }
+    }
+
+    private func resolveMyTeam() {
+        guard let profileId = profile?.id else {
+            myTeam = nil
+            return
+        }
+
+        myTeam = assignmentTeams.first { team in
+            let inMembers = team.members?.contains(where: { $0.userId == profileId }) ?? false
+            let isCaptain = team.captain?.userId == profileId
+            return inMembers || isCaptain
         }
     }
 }

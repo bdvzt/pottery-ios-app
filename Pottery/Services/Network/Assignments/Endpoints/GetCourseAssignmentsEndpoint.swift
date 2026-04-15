@@ -17,7 +17,7 @@ struct GetCourseAssignmentsEndpoint: EndPoint {
 
     var baseURL: URL { APIConstants.baseURL }
     var path: String {
-        APIConstants.Assignments.getCourseAssignments(id: id)
+        APIConstants.Assignments.getVisibleCourseAssignments(id: id)
     }
     var method: HTTPMethod { .get }
     var task: HTTPTask {

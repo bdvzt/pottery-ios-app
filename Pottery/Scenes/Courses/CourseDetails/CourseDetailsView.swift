@@ -109,7 +109,7 @@ struct CourseDetailsView: View {
                 Button {
                     viewModel.openAssignment(assignment)
                 } label: {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text(assignment.title ?? "Без названия")
                             .font(.subheadline)
                             .fontWeight(.semibold)
@@ -123,27 +123,52 @@ struct CourseDetailsView: View {
                                 .multilineTextAlignment(.leading)
                         }
 
-                        HStack {
-                            if assignment.requiresSubmission {
-                                Text("Требуется сдача")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.accentColor.opacity(0.15))
-                                    .foregroundStyle(Color.accentColor)
-                                    .clipShape(Capsule())
+                        HStack(spacing: 6) {
+                            assignmentStatusChip(assignment)
+
+                            if assignment.shouldShowHiddenByVisibility {
+                                infoChip("Скрыто", color: .orange)
                             }
+
+                            if let teamStateTitle = assignment.teamStateTitle {
+                                let color: Color = assignment.teamStateKind == .compositionLocked ? .purple : .red
+                                infoChip(teamStateTitle, color: color)
+                            }
+                        }
+
+                        if let startsAt = assignment.startsAtUtc {
+                            infoRow(title: "Старт", value: formatDate(startsAt), icon: "play.circle")
+                        }
+
+                        HStack {
+                            infoChip(
+                                assignment.finalTeamSubmissionChipTitle,
+                                color: assignment.requiresSubmission ? .accentColor : .secondary
+                            )
 
                             Spacer()
 
                             if let deadline = assignment.deadline {
-                                let date = deadline
-                                    .split(separator: "T").first?
-                                    .replacingOccurrences(of: "-", with: ".") ?? ""
-                                Text("До \(date)")
+                                Text("До \(formatDate(deadline))")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
+                        }
+
+                        if let teamSizeTitle = assignment.teamSizeTitle {
+                            infoRow(
+                                title: "Размер команды",
+                                value: teamSizeTitle,
+                                icon: "person.3"
+                            )
+                        }
+
+                        if let mode = assignment.teamFormationTitle {
+                            infoRow(
+                                title: "Формирование",
+                                value: mode,
+                                icon: "person.2.wave.2"
+                            )
                         }
                     }
                     .padding()
@@ -173,4 +198,73 @@ struct CourseDetailsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+
+    private func infoRow(title: String, value: String, icon: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: icon)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .frame(width: 16, alignment: .center)
+            Text("\(title): \(value)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func assignmentStatusChip(_ assignment: AssignmentResponse) -> some View {
+        switch assignment.statusKind {
+        case .available:
+            return AnyView(infoChip(assignment.statusTitle, color: .green))
+        case .hidden:
+            return AnyView(infoChip(assignment.statusTitle, color: .orange))
+        case .closed:
+            return AnyView(infoChip(assignment.statusTitle, color: .red))
+        case .unknown:
+            return AnyView(infoChip(assignment.statusTitle, color: .gray))
+        }
+    }
+
+    private func infoChip(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.caption2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(color.opacity(0.15))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
+    }
+
+    private func formatDate(_ raw: String) -> String {
+        if let date = parseISODate(raw) {
+            return Self.outputDateFormatter.string(from: date)
+        }
+        return raw
+    }
+
+    private func parseISODate(_ raw: String) -> Date? {
+        if let date = Self.iso8601FormatterWithFractionalSeconds.date(from: raw) {
+            return date
+        }
+        return Self.iso8601Formatter.date(from: raw)
+    }
+
+    private static let outputDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "HH:mm dd.MM.yyyy"
+        return formatter
+    }()
+
+    private static let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static let iso8601FormatterWithFractionalSeconds: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
 }
