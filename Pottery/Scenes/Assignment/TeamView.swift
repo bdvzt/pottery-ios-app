@@ -94,6 +94,12 @@ struct TeamView: View {
             Text("Финальное решение команды")
                 .font(.headline)
 
+            if !viewModel.canSelectFinalSubmissionNow {
+                Text("Выбор финального решения сейчас недоступен.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
             if let error = viewModel.finalSelectionErrorMessage {
                 Text(error)
                     .font(.footnote)
@@ -129,6 +135,21 @@ struct TeamView: View {
                                                     .foregroundStyle(.secondary)
                                                     .lineLimit(1)
                                             }
+                                            if let grade = submission.grade {
+                                                Text("Оценка: \(grade)")
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.secondary)
+                                            } else {
+                                                Text("Оценка еще не выставлена")
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                            if let teacherComment = normalizedTeacherComment(submission.teacherComment) {
+                                                Text("Комментарий: \(teacherComment)")
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.secondary)
+                                                    .lineLimit(2)
+                                            }
                                         }
 
                                         Spacer()
@@ -152,7 +173,7 @@ struct TeamView: View {
                                                 }
                                             }
                                             .buttonStyle(.bordered)
-                                            .disabled(viewModel.isSelectingFinalSubmission)
+                                            .disabled(viewModel.isSelectingFinalSubmission || !viewModel.canSelectFinalSubmissionNow)
                                         }
                                     }
                                     .padding(8)
@@ -187,5 +208,11 @@ struct TeamView: View {
             .joined(separator: " ")
 
         return fullName.isEmpty ? (member.email ?? "Участник") : fullName
+    }
+
+    private func normalizedTeacherComment(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }

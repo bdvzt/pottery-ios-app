@@ -26,7 +26,11 @@ final class TeamViewModel: ObservableObject {
     }
 
     var canShowFinalSubmissionPicker: Bool {
-        captainContext?.canSelectFinalSubmission == true && captainMyTeam != nil
+        captainContext?.isCaptain == true && captainMyTeam != nil
+    }
+
+    var canSelectFinalSubmissionNow: Bool {
+        captainContext?.canSelectFinalSubmission == true
     }
 
     func load() async {
@@ -67,7 +71,7 @@ final class TeamViewModel: ObservableObject {
     }
 
     func selectFinalSubmission(_ submissionId: String) async {
-        guard canShowFinalSubmissionPicker else { return }
+        guard canShowFinalSubmissionPicker, canSelectFinalSubmissionNow else { return }
 
         isSelectingFinalSubmission = true
         finalSelectionErrorMessage = nil

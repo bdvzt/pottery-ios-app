@@ -250,6 +250,8 @@ struct AssignmentDetailsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if let submission = viewModel.mySubmission {
+                submissionFeedbackSection(submission)
+
                 if submission.files.isEmpty {
                     Text("Файлы еще не прикреплены")
                         .font(.footnote)
@@ -513,7 +515,7 @@ struct AssignmentDetailsView: View {
                     ForEach(viewModel.assignmentTeams, id: \.id) { team in
                         availableTeamRow(
                             team,
-                            canJoin: viewModel.myTeam == nil && !viewModel.isCaptainDraftMode
+                            canJoin: viewModel.myTeam == nil && assignment.canStudentSelfManageTeamMembership
                         )
                     }
                 }
@@ -585,7 +587,7 @@ struct AssignmentDetailsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-            } else {
+            } else if assignment.canStudentSelfManageTeamMembership {
                 if viewModel.assignmentTeams.isEmpty {
                     Text("Создайте первую команду для задания.")
                         .font(.footnote)
@@ -598,6 +600,10 @@ struct AssignmentDetailsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+            } else {
+                Text("В этом режиме доступен только просмотр состава команд.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
@@ -623,7 +629,7 @@ struct AssignmentDetailsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            if !isCurrentUserCaptain(of: team) {
+            if viewModel.assignment?.canStudentSelfManageTeamMembership == true && !isCurrentUserCaptain(of: team) {
                 Button(role: .destructive) {
                     Task { await viewModel.leaveMyTeam() }
                 } label: {
@@ -943,6 +949,46 @@ struct AssignmentDetailsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+    }
+
+    private func submissionFeedbackSection(_ submission: SubmissionResponse) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Оценка")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if let grade = submission.grade {
+                    Text("\(grade)")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                } else {
+                    Text("Оценка еще не выставлена")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            if let comment = normalizedTeacherComment(submission.teacherComment) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Комментарий преподавателя")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(comment)
+                        .font(.footnote)
+                }
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+    }
+
+    private func normalizedTeacherComment(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     private static let outputDateFormatter: DateFormatter = {

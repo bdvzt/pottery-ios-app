@@ -34,6 +34,14 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
         )
     }
 
+    func getMyTeamGrade(assignmentId: String) async throws -> Grade {
+        let endPoint = GetMyTeamGradeEndpoint(assignmentId: assignmentId)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: Grade.self
+        )
+    }
+
     func getAssignmentTeams(assignmentId: String) async throws -> [AssignmentTeam] {
         let endPoint = GetAssignmentTeamsEndpoint(assignmentId: assignmentId)
         return try await networkService.requestDecodable(
@@ -189,6 +197,20 @@ private struct GetMyCaptainContextEndpoint: EndPoint {
 
     var baseURL: URL { APIConstants.baseURL }
     var path: String { APIConstants.Assignments.assignmentCaptainMe(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct GetMyTeamGradeEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.myTeamGrade(assignmentId: assignmentId) }
     var method: HTTPMethod { .get }
     var task: HTTPTask { .request }
     var authorization: AuthorizationRequirement { .accessToken }

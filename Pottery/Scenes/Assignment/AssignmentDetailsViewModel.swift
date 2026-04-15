@@ -68,13 +68,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
     private func loadAssignmentDetails() async {
         do {
-            let loaded = try await assignmentsRepository.getAssignment(id: assignmentId)
-            if !loaded.isAvailableForStudentNow {
-                assignment = nil
-                errorMessage = "Задание пока недоступно"
-                return
-            }
-            assignment = loaded
+            assignment = try await assignmentsRepository.getAssignment(id: assignmentId)
         } catch let error as NetworkError {
             switch error {
             case .serverError(let code, let message):
@@ -109,6 +103,11 @@ final class AssignmentDetailsViewModel: ObservableObject {
         teamErrorMessage = nil
         defer { isUpdatingTeam = false }
 
+        if assignment?.canStudentSelfManageTeamMembership != true {
+            teamErrorMessage = "Вступление в команды доступно только в режиме свободного набора."
+            return
+        }
+
         do {
             try await assignmentsRepository.joinAssignmentTeam(teamId: team.id)
             await reloadTeams()
@@ -126,13 +125,8 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
         guard let assignment else { return }
 
-        if assignment.normalizedTeamFormationMode == "captain_draft" {
-            teamErrorMessage = "В режиме драфта команды формируются через выбор студентов капитанами."
-            return
-        }
-
-        if assignment.isTeacherManagedTeamFormation {
-            teamErrorMessage = "В этом задании команды формирует преподаватель."
+        if !assignment.canStudentSelfManageTeamMembership {
+            teamErrorMessage = "Создание команды доступно только в режиме свободного набора."
             return
         }
 
@@ -213,6 +207,10 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
     func leaveMyTeam() async {
         guard let team = myTeam else { return }
+        if assignment?.canStudentSelfManageTeamMembership != true {
+            teamErrorMessage = "Выход из команды доступен только в режиме свободного набора."
+            return
+        }
         if team.captain?.userId == profile?.id {
             teamErrorMessage = "Капитан не может выйти из своей команды."
             return
@@ -256,8 +254,6 @@ final class AssignmentDetailsViewModel: ObservableObject {
         do {
             let state = try await assignmentsRepository.getAssignmentDraftState(assignmentId: assignmentId)
             draftState = state
-            assignmentTeams = state.teams
-            resolveMyTeam()
             draftErrorMessage = nil
             updateDraftPolling(with: state)
         } catch {
@@ -283,8 +279,6 @@ final class AssignmentDetailsViewModel: ObservableObject {
                 studentId: student.userId
             )
             draftState = state
-            assignmentTeams = state.teams
-            resolveMyTeam()
             await reloadTeams()
             updateDraftPolling(with: state)
         } catch {
@@ -364,6 +358,10 @@ final class AssignmentDetailsViewModel: ObservableObject {
         } catch let error as NetworkError {
             switch error {
             case .serverError(let code, _):
+                if let serverText = serverMessage(from: error) {
+                    errorMessage = serverText
+                    break
+                }
                 if code == 400 {
                     errorMessage = "Сейчас отправка решения недоступна: задание еще не началось или дедлайн уже прошел."
                 } else if code == 403 {
@@ -403,6 +401,8 @@ final class AssignmentDetailsViewModel: ObservableObject {
             )
             selectedSubmissionFileIds.removeAll()
             await loadSubmission()
+        } catch let error as NetworkError {
+            errorMessage = serverMessage(from: error) ?? "Не удалось удалить выбранные файлы"
         } catch {
             errorMessage = "Не удалось удалить выбранные файлы"
         }
@@ -453,8 +453,6 @@ final class AssignmentDetailsViewModel: ObservableObject {
                 do {
                     let state = try await self.assignmentsRepository.getAssignmentDraftState(assignmentId: self.assignmentId)
                     self.draftState = state
-                    self.assignmentTeams = state.teams
-                    self.resolveMyTeam()
                     self.draftErrorMessage = nil
                     if !(state.isStarted && !state.isCompleted) {
                         self.stopDraftPolling()
@@ -490,12 +488,6 @@ final class AssignmentDetailsViewModel: ObservableObject {
     }
 
     private func reloadTeams() async {
-        if isCaptainDraftMode {
-            assignmentTeams = draftState?.teams ?? []
-            resolveMyTeam()
-            return
-        }
-
         do {
             assignmentTeams = try await assignmentsRepository.getAssignmentTeams(assignmentId: assignmentId)
             resolveMyTeam()
@@ -537,6 +529,15 @@ final class AssignmentDetailsViewModel: ObservableObject {
     }
 
     private func loadGrade() async {
+        do {
+            grade = try await assignmentsRepository.getMyTeamGrade(assignmentId: assignmentId)
+            return
+        } catch let error as NetworkError {
+            if case .serverError(let code, _) = error, code == 404 {
+                grade = nil
+            }
+        } catch {}
+
         guard let courseId = assignment?.courseId else { return }
 
         do {
@@ -612,6 +613,21 @@ final class AssignmentDetailsViewModel: ObservableObject {
             return mime
         }
         return "application/octet-stream"
+    }
+
+    private func serverMessage(from error: NetworkError) -> String? {
+        guard case .serverError(_, let raw?) = error,
+              let data = raw.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+
+        if let detail = obj["detail"] as? String, !detail.isEmpty, detail != "null" {
+            return detail
+        }
+        if let title = obj["title"] as? String, !title.isEmpty {
+            return title
+        }
+        return nil
     }
 }
 

@@ -139,6 +139,10 @@ extension AssignmentResponse {
         normalizedTeamFormationMode == "student_self_selection"
     }
 
+    var canStudentSelfManageTeamMembership: Bool {
+        normalizedTeamFormationMode == "student_self_selection"
+    }
+
     /// `POST/DELETE .../captains/self` разрешены только если режим не teacher_managed (проверка на сервере).
     var allowsStudentCaptainSelfService: Bool {
         guard let normalizedTeamFormationMode else { return false }

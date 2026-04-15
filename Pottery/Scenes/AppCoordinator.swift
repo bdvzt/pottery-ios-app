@@ -47,6 +47,7 @@ private extension AppCoordinator {
     func showLogin() {
         let viewModel = AuthViewModel(
             authRepository: authNetwork,
+            usersRepository: usersNetwork,
             onLoginSuccess: { [weak self] in
                 self?.showMainTabs()
             },

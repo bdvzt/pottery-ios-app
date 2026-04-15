@@ -5,6 +5,7 @@ struct SubmissionResponse: Decodable {
     let studentId: String
     let created: String
     let grade: Int?
+    let teacherComment: String?
     let status: String
     let files: [SubmissionFile]
 

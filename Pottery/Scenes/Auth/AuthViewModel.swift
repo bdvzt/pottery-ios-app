@@ -11,15 +11,18 @@ final class AuthViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let authRepository: AuthNetworkProtocol
+    private let usersRepository: UsersNetworkProtocol
     private let onLoginSuccess: () -> Void
     private let onOpenRegistration: () -> Void
 
     init(
         authRepository: AuthNetworkProtocol,
+        usersRepository: UsersNetworkProtocol,
         onLoginSuccess: @escaping () -> Void,
         onOpenRegistration: @escaping () -> Void
     ) {
         self.authRepository = authRepository
+        self.usersRepository = usersRepository
         self.onLoginSuccess = onLoginSuccess
         self.onOpenRegistration = onOpenRegistration
     }
@@ -53,6 +56,13 @@ final class AuthViewModel: ObservableObject {
                     password: password
                 )
             )
+
+            let profile = try await usersRepository.getProfile()
+            guard profile.role == .student else {
+                try? await authRepository.logout()
+                errorMessage = "Мобильное приложение доступно только для студентов. Используйте веб-версию."
+                return
+            }
 
             onLoginSuccess()
 

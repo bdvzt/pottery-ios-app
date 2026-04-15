@@ -45,6 +45,9 @@ enum APIConstants {
         static func myGrades(id: String) -> String {
             "/api/courses/\(id)/my-grades"
         }
+        static func myTeamGrade(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/my-team-grade"
+        }
         static func teams(assignmentId: String) -> String {
             "/api/assignments/\(assignmentId)/teams"
         }

@@ -6,7 +6,7 @@ struct SubmissionFile: Decodable {
     let url: String
     let mimeType: String
     let size: Int
-    let type: String
+    let type: String?
 
 }
 struct AssignmentFile: Decodable, Identifiable {
@@ -15,5 +15,5 @@ struct AssignmentFile: Decodable, Identifiable {
     let url: String
     let mimeType: String
     let size: Int64
-    let type: String
+    let type: String?
 }

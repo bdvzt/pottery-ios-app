@@ -3,6 +3,9 @@ import XCTest
 
 final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
     var getGradesResult: Result<[Grade], Error> = .success([])
+    var getMyTeamGradeResult: Result<Grade, Error> = .success(
+        Grade(assignmentId: "", assignmentTitle: nil, grade: nil)
+    )
     var getAssignmentsResult: Result<[AssignmentResponse], Error> = .success([])
     var getAssignmentResult: Result<AssignmentResponse, Error> = .failure(TestError.mock)
     var getTeamsResult: Result<[AssignmentTeam], Error> = .success([])
@@ -61,6 +64,10 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
 
     func getMyGrades(id: String) async throws -> [Grade] {
         try getGradesResult.get()
+    }
+
+    func getMyTeamGrade(assignmentId: String) async throws -> Grade {
+        try getMyTeamGradeResult.get()
     }
 
     func getAssignmentTeams(assignmentId: String) async throws -> [AssignmentTeam] {
