@@ -5,29 +5,19 @@ import XCTest
 final class AssignmentDetailsViewModelTests: XCTestCase {
 
     func test_loadAssignment_success_setsAssignment() async {
-
         let assignmentsMock = MockAssignmentsNetwork()
-        let commentsMock = MockCommentsNetwork()
         let usersMock = MockUsersNetwork()
+        let submissionsMock = MockSubmissionsNetwork()
 
-        let assignment = AssignmentResponse(
-            id: "assignment-1",
-            courseId: "course-1",
-            title: "Homework",
-            text: "Do task",
-            requiresSubmission: true,
-            deadline: nil,
-            created: "2024-01-01",
-            files: nil
-        )
+        let assignment = makeAssignmentResponse(id: "assignment-1", courseId: "course-1")
 
         assignmentsMock.getAssignmentResult = .success(assignment)
 
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock,
-            usersRepository: usersMock
+            usersRepository: usersMock,
+            submissionsRepository: submissionsMock
         )
 
         await viewModel.loadAssignment()
@@ -35,148 +25,15 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.assignment?.id, "assignment-1")
     }
 
-    func test_loadAssignment_success_setsComments() async {
-
-        let assignmentsMock = MockAssignmentsNetwork()
-        let commentsMock = MockCommentsNetwork()
-        let usersMock = MockUsersNetwork()
-
-        assignmentsMock.getAssignmentResult = .success(
-            AssignmentResponse(
-                id: "assignment-1",
-                courseId: "course-1",
-                title: "Homework",
-                text: nil,
-                requiresSubmission: false,
-                deadline: nil,
-                created: "2024-01-01",
-                files: nil
-            )
-        )
-
-        commentsMock.getCommentsResult = .success([
-            Comment(
-                id: "comment-1",
-                assignmentId: "assignment-1",
-                userId: "user-1",
-                userName: "Иван Иванов",
-                text: "Отличное задание!",
-                created: "2024-01-01T10:00:00Z"
-            )
-        ])
-
-        let viewModel = AssignmentDetailsViewModel(
-            assignmentId: "assignment-1",
-            assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock,
-            usersRepository: usersMock
-        )
-
-        await viewModel.loadAssignment()
-
-        XCTAssertEqual(viewModel.comments.count, 1)
-    }
-
-    func test_sendComment_success_addsComment() async {
-
-        let assignmentsMock = MockAssignmentsNetwork()
-        let commentsMock = MockCommentsNetwork()
-        let usersMock = MockUsersNetwork()
-
-        let comment = Comment(
-            id: "comment-1",
-            assignmentId: "assignment-1",
-            userId: "user-1",
-            userName: "Иван Иванов",
-            text: "Отличное задание!",
-            created: "2024-01-01T10:00:00Z"
-        )
-
-        commentsMock.createCommentResult = .success(comment)
-
-        let viewModel = AssignmentDetailsViewModel(
-            assignmentId: "assignment-1",
-            assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock,
-            usersRepository: usersMock
-        )
-
-        viewModel.commentText = "Hello"
-
-        await viewModel.sendComment()
-
-        XCTAssertEqual(viewModel.comments.count, 1)
-        XCTAssertEqual(viewModel.commentText, "")
-    }
-
-    func test_deleteComment_removesComment() async {
-
-        let assignmentsMock = MockAssignmentsNetwork()
-        let commentsMock = MockCommentsNetwork()
-        let usersMock = MockUsersNetwork()
-
-        let comment = Comment(
-            id: "comment-1",
-            assignmentId: "assignment-1",
-            userId: "user-1",
-            userName: "Иван Иванов",
-            text: "Отличное задание!",
-            created: "2024-01-01T10:00:00Z"
-        )
-
-        let viewModel = AssignmentDetailsViewModel(
-            assignmentId: "assignment-1",
-            assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock,
-            usersRepository: usersMock
-        )
-
-        viewModel.comments = [comment]
-
-        await viewModel.deleteComment(comment)
-
-        XCTAssertTrue(viewModel.comments.isEmpty)
-    }
-
-    func test_sendComment_failure_setsError() async {
-
-        let assignmentsMock = MockAssignmentsNetwork()
-        let commentsMock = MockCommentsNetwork()
-        let usersMock = MockUsersNetwork()
-
-        commentsMock.createCommentResult = .failure(TestError.mock)
-
-        let viewModel = AssignmentDetailsViewModel(
-            assignmentId: "assignment-1",
-            assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock,
-            usersRepository: usersMock
-        )
-
-        viewModel.commentText = "Hello"
-
-        await viewModel.sendComment()
-
-        XCTAssertEqual(viewModel.errorMessage, "Не удалось отправить комментарий")
-    }
-
     func test_loadAssignment_success_setsGrade() async {
-
         let assignmentsMock = MockAssignmentsNetwork()
-        let commentsMock = MockCommentsNetwork()
         let usersMock = MockUsersNetwork()
+        let submissionsMock = MockSubmissionsNetwork()
 
-        let assignment = AssignmentResponse(
-            id: "assignment-s1",
-            courseId: "course-1",
-            title: "Homework",
-            text: nil,
-            requiresSubmission: false,
-            deadline: nil,
-            created: "2024-01-01",
-            files: nil
+        let assignment = makeAssignmentResponse(
+            id: "assignment-1",
+            courseId: "course-1"
         )
-
         assignmentsMock.getAssignmentResult = .success(assignment)
 
         assignmentsMock.getGradesResult = .success([
@@ -190,12 +47,58 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: "assignment-1",
             assignmentsRepository: assignmentsMock,
-            commentsRepository: commentsMock,
-            usersRepository: usersMock
+            usersRepository: usersMock,
+            submissionsRepository: submissionsMock
         )
 
         await viewModel.loadAssignment()
 
         XCTAssertEqual(viewModel.grade?.grade, 5)
     }
+
+    private func makeAssignmentResponse(id: String, courseId: String) -> AssignmentResponse {
+        AssignmentResponse(
+            id: id,
+            courseId: courseId,
+            title: "Homework",
+            text: "Do task",
+            status: "available",
+            startsAtUtc: nil,
+            minTeamSize: nil,
+            maxTeamSize: nil,
+            teamFormationMode: nil,
+            captainSelectionEndsAtUtc: nil,
+            teamFormationStartsAtUtc: nil,
+            teamFormationEndsAtUtc: nil,
+            draftCurrentCaptainUserId: nil,
+            draftStartedAtUtc: nil,
+            draftCompletedAtUtc: nil,
+            isTeamCompositionLocked: nil,
+            teamCompositionLockedAtUtc: nil,
+            isVisible: true,
+            isClosed: false,
+            requiresSubmission: false,
+            deadline: nil,
+            created: "2024-01-01",
+            files: nil
+        )
+    }
+}
+
+private final class MockSubmissionsNetwork: SubmissionsNetworkProtocol {
+    var getMySubmissionResult: Result<SubmissionResponse?, Error> = .success(nil)
+
+    func uploadFiles(assignmentId: String, files: [MultipartFormData]) async throws -> SubmissionResponse {
+        throw TestError.mock
+    }
+
+    func getSubmission(id: String) async throws -> SubmissionResponse {
+        throw TestError.mock
+    }
+
+    func getMySubmission(assignmentId: String) async throws -> SubmissionResponse? {
+        try getMySubmissionResult.get()
+    }
+
+    func deleteSubmissionFiles(submissionId: String, fileIds: [String]) async throws {}
 }

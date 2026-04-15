@@ -16,6 +16,8 @@ struct CourseDetailsView: View {
                         teachersCard(viewModel.teachers)
                     }
 
+                    gradesButtonCard
+
                     if !viewModel.assignments.isEmpty {
                         assignmentsCard(viewModel.assignments)
                     }
@@ -175,6 +177,29 @@ struct CourseDetailsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var gradesButtonCard: some View {
+        Button {
+            viewModel.openGrades()
+        } label: {
+            HStack {
+                Image(systemName: "chart.bar.doc.horizontal")
+                    .font(.body)
+                Text("Мои оценки")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Кнопка покинуть курс

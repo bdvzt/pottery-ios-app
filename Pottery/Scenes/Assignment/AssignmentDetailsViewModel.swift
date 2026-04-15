@@ -9,20 +9,20 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var selectedImages: [UIImage] = []
     @Published var isSubmitting = false
     @Published var mySubmission: SubmissionResponse?
+    @Published var selectedSubmissionFileIds: Set<String> = []
     @Published var showCamera = false
     @Published var showGallery = false
 
     @Published var assignment: AssignmentResponse?
-    @Published var comments: [Comment] = []
     @Published var assignmentTeams: [AssignmentTeam] = []
     @Published var myTeam: AssignmentTeam?
     @Published var captainContext: CaptainAssignmentContextResponse?
     @Published private(set) var isVolunteerCaptain = false
-
-    @Published var commentText: String = ""
+    @Published var draftState: AssignmentDraftStateResponse?
+    @Published var isDraftLoading = false
+    @Published var draftErrorMessage: String?
 
     @Published var isLoading = false
-    @Published var isSendingComment = false
     @Published var isUpdatingTeam = false
     @Published var errorMessage: String?
     @Published var teamErrorMessage: String?
@@ -31,22 +31,24 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
-    private let commentsRepository: CommentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
     private let submissionsRepository: SubmissionsNetworkProtocol
+    private var draftPollingTask: Task<Void, Never>?
 
     init(
         assignmentId: String,
         assignmentsRepository: AssignmentsNetworkProtocol,
-        commentsRepository: CommentsNetworkProtocol,
         usersRepository: UsersNetworkProtocol,
         submissionsRepository: SubmissionsNetworkProtocol,
     ) {
         self.assignmentId = assignmentId
         self.assignmentsRepository = assignmentsRepository
-        self.commentsRepository = commentsRepository
         self.usersRepository = usersRepository
         self.submissionsRepository = submissionsRepository
+    }
+
+    deinit {
+        draftPollingTask?.cancel()
     }
 
     func loadAssignment() async {
@@ -58,9 +60,9 @@ final class AssignmentDetailsViewModel: ObservableObject {
         await loadProfile()
 
         await loadAssignmentDetails()
-        await loadComments()
         await reloadTeams()
         await loadCaptainState()
+        await refreshDraftState()
         await loadSubmission()
         await loadGrade()
     }
@@ -84,56 +86,6 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
     }
 
-    func sendComment() async {
-        let text = commentText.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !text.isEmpty else { return }
-
-        isSendingComment = true
-        defer { isSendingComment = false }
-
-        do {
-            let comment = try await commentsRepository.createComment(
-                id: assignmentId,
-                data: CommentRequest(text: text)
-            )
-
-            comments.insert(comment, at: 0)
-            commentText = ""
-            await loadAssignment()
-
-        } catch {
-            errorMessage = "Не удалось отправить комментарий"
-        }
-    }
-
-    func deleteComment(_ comment: Comment) async {
-        do {
-            try await commentsRepository.deleteComment(id: comment.id)
-            comments.removeAll { $0.id == comment.id }
-            await loadAssignment()
-        } catch {
-            errorMessage = "Не удалось удалить комментарий"
-        }
-    }
-
-    func editComment(_ comment: Comment, text: String) async {
-        do {
-            let updated = try await commentsRepository.editComment(
-                id: comment.id,
-                data: CommentRequest(text: text)
-            )
-
-            if let index = comments.firstIndex(where: { $0.id == comment.id }) {
-                comments[index] = updated
-            }
-            await loadAssignment()
-
-        } catch {
-            errorMessage = "Не удалось изменить комментарий"
-        }
-    }
-
     func loadProfile() async {
         do {
             profile = try await usersRepository.getProfile()
@@ -152,6 +104,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
             try await assignmentsRepository.joinAssignmentTeam(teamId: team.id)
             await reloadTeams()
             await loadCaptainState()
+            await refreshDraftState()
         } catch {
             teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось вступить в команду")
         }
@@ -163,6 +116,11 @@ final class AssignmentDetailsViewModel: ObservableObject {
         defer { isUpdatingTeam = false }
 
         guard let assignment else { return }
+
+        if assignment.normalizedTeamFormationMode == "captain_draft" {
+            teamErrorMessage = "В режиме драфта команды формируются через выбор студентов капитанами."
+            return
+        }
 
         if assignment.isTeacherManagedTeamFormation {
             teamErrorMessage = "В этом задании команды формирует преподаватель."
@@ -183,6 +141,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
             )
             await reloadTeams()
             await loadCaptainState()
+            await refreshDraftState()
         } catch {
             teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось создать команду")
         }
@@ -209,6 +168,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
             try await assignmentsRepository.selfAssignCaptain(assignmentId: assignmentId)
             await reloadTeams()
             await loadCaptainState()
+            await refreshDraftState()
             if assignment.requiresCaptainVolunteerBeforeCreatingTeam, !isVolunteerCaptain {
                 isVolunteerCaptain = true
             }
@@ -236,13 +196,19 @@ final class AssignmentDetailsViewModel: ObservableObject {
             isVolunteerCaptain = false
             await reloadTeams()
             await loadCaptainState()
+            await refreshDraftState()
         } catch {
             teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось снять роль капитана")
         }
     }
 
     func leaveMyTeam() async {
-        guard let teamId = myTeam?.id else { return }
+        guard let team = myTeam else { return }
+        if team.captain?.userId == profile?.id {
+            teamErrorMessage = "Капитан не может выйти из своей команды."
+            return
+        }
+        let teamId = team.id
 
         isUpdatingTeam = true
         teamErrorMessage = nil
@@ -252,8 +218,68 @@ final class AssignmentDetailsViewModel: ObservableObject {
             try await assignmentsRepository.leaveAssignmentTeam(teamId: teamId)
             await reloadTeams()
             await loadCaptainState()
+            await refreshDraftState()
         } catch {
             teamErrorMessage = mapTeamActionError(error, fallback: "Не удалось выйти из команды")
+        }
+    }
+
+    var isCaptainDraftMode: Bool {
+        assignment?.normalizedTeamFormationMode == "captain_draft"
+    }
+
+    var isMyDraftTurn: Bool {
+        guard let profileId = profile?.id else { return false }
+        return draftState?.currentCaptainUserId == profileId
+    }
+
+    func refreshDraftState() async {
+        guard isCaptainDraftMode else {
+            draftState = nil
+            draftErrorMessage = nil
+            stopDraftPolling()
+            return
+        }
+
+        isDraftLoading = true
+        defer { isDraftLoading = false }
+
+        do {
+            let state = try await assignmentsRepository.getAssignmentDraftState(assignmentId: assignmentId)
+            draftState = state
+            assignmentTeams = state.teams
+            resolveMyTeam()
+            draftErrorMessage = nil
+            updateDraftPolling(with: state)
+        } catch {
+            draftErrorMessage = mapTeamActionError(error, fallback: "Не удалось загрузить драфт")
+            stopDraftPolling()
+        }
+    }
+
+    func pickDraftStudent(_ student: AssignmentDraftStudent) async {
+        guard isCaptainDraftMode else { return }
+        guard isMyDraftTurn else {
+            draftErrorMessage = "Сейчас ход другого капитана."
+            return
+        }
+
+        isUpdatingTeam = true
+        draftErrorMessage = nil
+        defer { isUpdatingTeam = false }
+
+        do {
+            let state = try await assignmentsRepository.pickDraftStudent(
+                assignmentId: assignmentId,
+                studentId: student.userId
+            )
+            draftState = state
+            assignmentTeams = state.teams
+            resolveMyTeam()
+            await reloadTeams()
+            updateDraftPolling(with: state)
+        } catch {
+            draftErrorMessage = mapTeamActionError(error, fallback: "Не удалось выбрать студента")
         }
     }
 
@@ -293,29 +319,59 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
             await loadAssignment()
 
+        } catch let error as NetworkError {
+            switch error {
+            case .serverError(let code, _):
+                if code == 400 {
+                    errorMessage = "Сейчас отправка решения недоступна: задание еще не началось или дедлайн уже прошел."
+                } else if code == 403 {
+                    errorMessage = "Нет доступа к отправке решения."
+                } else {
+                    errorMessage = "Не удалось отправить решение"
+                }
+            default:
+                errorMessage = "Не удалось отправить решение"
+            }
         } catch {
             errorMessage = "Не удалось отправить решение"
         }
     }
 
-    func deleteSubmission() async {
-
-        guard let submission = mySubmission else { return }
-
-        let fileIds = submission.files.map { $0.id }
-
-         do {
-
-             try await submissionsRepository.deleteSubmissionFiles(
-                 submissionId: submission.id,
-                 fileIds: fileIds
-             )
-
-            mySubmission = nil
-
-        } catch {
-            errorMessage = "Не удалось удалить решение"
+    func toggleSubmissionFileSelection(_ fileId: String) {
+        if selectedSubmissionFileIds.contains(fileId) {
+            selectedSubmissionFileIds.remove(fileId)
+        } else {
+            selectedSubmissionFileIds.insert(fileId)
         }
+    }
+
+    func clearSubmissionFileSelection() {
+        selectedSubmissionFileIds.removeAll()
+    }
+
+    func deleteSelectedSubmissionFiles() async {
+        guard let submission = mySubmission else { return }
+        let fileIds = Array(selectedSubmissionFileIds)
+        guard !fileIds.isEmpty else { return }
+
+        do {
+            try await submissionsRepository.deleteSubmissionFiles(
+                submissionId: submission.id,
+                fileIds: fileIds
+            )
+            selectedSubmissionFileIds.removeAll()
+            await loadSubmission()
+        } catch {
+            errorMessage = "Не удалось удалить выбранные файлы"
+        }
+    }
+
+    func makeTeamViewModel() -> TeamViewModel {
+        TeamViewModel(
+            assignmentId: assignmentId,
+            assignmentsRepository: assignmentsRepository,
+            initialTeamFormationMode: assignment?.normalizedTeamFormationMode
+        )
     }
 
     private func loadCaptainState() async {
@@ -332,6 +388,46 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
 
         await syncVolunteerCaptainFromServer()
+    }
+
+    private func updateDraftPolling(with state: AssignmentDraftStateResponse) {
+        if state.isStarted && !state.isCompleted {
+            startDraftPolling()
+        } else {
+            stopDraftPolling()
+        }
+    }
+
+    private func startDraftPolling() {
+        guard draftPollingTask == nil else { return }
+        draftPollingTask = Task { [weak self] in
+            while let self, !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                guard !Task.isCancelled else { return }
+                guard self.isCaptainDraftMode else {
+                    self.stopDraftPolling()
+                    return
+                }
+                do {
+                    let state = try await self.assignmentsRepository.getAssignmentDraftState(assignmentId: self.assignmentId)
+                    self.draftState = state
+                    self.assignmentTeams = state.teams
+                    self.resolveMyTeam()
+                    self.draftErrorMessage = nil
+                    if !(state.isStarted && !state.isCompleted) {
+                        self.stopDraftPolling()
+                        return
+                    }
+                } catch {
+                    self.draftErrorMessage = self.mapTeamActionError(error, fallback: "Не удалось обновить драфт")
+                }
+            }
+        }
+    }
+
+    private func stopDraftPolling() {
+        draftPollingTask?.cancel()
+        draftPollingTask = nil
     }
 
     private func syncVolunteerCaptainFromServer() async {
@@ -352,6 +448,12 @@ final class AssignmentDetailsViewModel: ObservableObject {
     }
 
     private func reloadTeams() async {
+        if isCaptainDraftMode {
+            assignmentTeams = draftState?.teams ?? []
+            resolveMyTeam()
+            return
+        }
+
         do {
             assignmentTeams = try await assignmentsRepository.getAssignmentTeams(assignmentId: assignmentId)
             resolveMyTeam()
@@ -367,30 +469,20 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
     }
 
-    private func loadComments() async {
-        do {
-            comments = try await commentsRepository.getComments(id: assignmentId)
-        } catch {
-            comments = []
-        }
-    }
-
     private func loadSubmission() async {
         do {
             let submission = try await submissionsRepository.getMySubmission(
                 assignmentId: assignmentId
             )
 
-            if let submission, !submission.files.isEmpty {
-                mySubmission = submission
-            } else {
-                mySubmission = nil
-            }
+            mySubmission = submission
+            selectedSubmissionFileIds.removeAll()
         } catch let error as NetworkError {
             switch error {
             case .serverError(let code, _):
                 if code == 404 || code == 403 {
                     mySubmission = nil
+                    selectedSubmissionFileIds.removeAll()
                 } else {
                     errorMessage = errorMessage ?? "Не удалось загрузить решение"
                 }
@@ -444,11 +536,11 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
 
         if let detail = obj["detail"] as? String, !detail.isEmpty, detail != "null" {
-            return detail
+            return normalizeTeamErrorMessage(detail)
         }
 
         if let title = obj["title"] as? String, !title.isEmpty {
-            return title
+            return normalizeTeamErrorMessage(title)
         }
 
         if code == 403 {
@@ -456,5 +548,18 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
 
         return fallback
+    }
+
+    private func normalizeTeamErrorMessage(_ message: String) -> String {
+        let lowered = message.lowercased()
+        let mentionsCaptainLimit =
+            lowered.contains("капитан") &&
+            (lowered.contains("лимит") || lowered.contains("слишком много") || lowered.contains("превыш"))
+
+        if mentionsCaptainLimit {
+            return "Достигнут лимит капитанов для этого задания. Вступите в существующую команду или дождитесь изменений от преподавателя."
+        }
+
+        return message
     }
 }

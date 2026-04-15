@@ -28,7 +28,8 @@ final class CourseDetailsViewModelTests: XCTestCase {
             courseNetwork: coursesMock,
             assignmentsNetwork: assignmentsMock,
             onLeaveCourse: {},
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { _ in },
+            onOpenGrades: {}
         )
 
         await viewModel.loadCourse()
@@ -66,7 +67,8 @@ final class CourseDetailsViewModelTests: XCTestCase {
             courseNetwork: coursesMock,
             assignmentsNetwork: assignmentsMock,
             onLeaveCourse: {},
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { _ in },
+            onOpenGrades: {}
         )
 
         await viewModel.loadCourse()
@@ -108,7 +110,8 @@ final class CourseDetailsViewModelTests: XCTestCase {
             courseNetwork: coursesMock,
             assignmentsNetwork: assignmentsMock,
             onLeaveCourse: {},
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { _ in },
+            onOpenGrades: {}
         )
 
         await viewModel.loadCourse()
@@ -129,7 +132,8 @@ final class CourseDetailsViewModelTests: XCTestCase {
             courseNetwork: coursesMock,
             assignmentsNetwork: assignmentsMock,
             onLeaveCourse: {},
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { _ in },
+            onOpenGrades: {}
         )
 
         await viewModel.loadCourse()
@@ -152,7 +156,8 @@ final class CourseDetailsViewModelTests: XCTestCase {
             onLeaveCourse: {
                 called = true
             },
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { _ in },
+            onOpenGrades: {}
         )
 
         await viewModel.leaveCourse()
@@ -173,7 +178,8 @@ final class CourseDetailsViewModelTests: XCTestCase {
             courseNetwork: coursesMock,
             assignmentsNetwork: assignmentsMock,
             onLeaveCourse: {},
-            onOpenAssignment: { _ in }
+            onOpenAssignment: { _ in },
+            onOpenGrades: {}
         )
 
         await viewModel.leaveCourse()

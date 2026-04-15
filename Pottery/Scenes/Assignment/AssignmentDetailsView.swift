@@ -5,24 +5,19 @@ struct AssignmentDetailsView: View {
 
     @StateObject var viewModel: AssignmentDetailsViewModel
 
-    @State private var editingComment: Comment?
-    @State private var editingText = ""
-    @State private var showEditAlert = false
-
     @State private var cameraImage: UIImage?
     @State private var galleryItem: PhotosPickerItem?
 
     @State private var selectedFile: AssignmentFile?
     @State private var newTeamName: String = ""
+    @State private var showCaptainWarning = false
+    @State private var showCreateTeamAlert = false
+    @State private var showTeamSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
 
             content
-
-            Divider()
-
-            commentInputBar
         }
         .dismissKeyboardOnTap()
         .sheet(item: $selectedFile) { file in
@@ -49,19 +44,29 @@ struct AssignmentDetailsView: View {
                 viewModel.addImage(image)
             }
         }
-        .alert("Редактировать комментарий", isPresented: $showEditAlert) {
-
-            TextField("Комментарий", text: $editingText)
-
-            Button("Сохранить") {
-                if let comment = editingComment {
-                    Task {
-                        await viewModel.editComment(comment, text: editingText)
-                    }
-                }
-            }
-
+        .alert("Стать капитаном?", isPresented: $showCaptainWarning) {
             Button("Отмена", role: .cancel) {}
+            Button("ОК") {
+                Task { await viewModel.selfAssignAsCaptain() }
+            }
+        } message: {
+            Text("После выбора роли капитана вы не сможете выйти из своей команды.")
+        }
+        .alert("Название команды", isPresented: $showCreateTeamAlert) {
+            TextField("Введите название", text: $newTeamName)
+            Button("Отмена", role: .cancel) {}
+            Button("Создать") {
+                let teamName = newTeamName
+                newTeamName = ""
+                Task { await viewModel.createTeam(name: teamName) }
+            }
+        } message: {
+            Text("Укажите название перед созданием команды.")
+        }
+        .sheet(isPresented: $showTeamSheet) {
+            NavigationStack {
+                TeamView(viewModel: viewModel.makeTeamViewModel())
+            }
         }
         .task {
             await viewModel.loadAssignment()
@@ -99,9 +104,11 @@ struct AssignmentDetailsView: View {
 
                     teamsSection
 
-                    submissionSection
+                    if viewModel.isCaptainDraftMode {
+                        draftSection
+                    }
 
-                    commentsSection
+                    submissionSection
                 }
 
             }
@@ -146,12 +153,22 @@ struct AssignmentDetailsView: View {
                 infoRow(title: "Старт задания", value: formatDate(startsAt), icon: "play.circle")
             }
 
-            if let captainEnds = assignment.captainSelectionEndsAtUtc {
-                infoRow(title: "Капитаны до", value: formatDate(captainEnds), icon: "person.badge.key")
+            if let captainEnds = assignment.captainSelectionEndsAtUtc,
+               let formationStarts = assignment.teamFormationStartsAtUtc,
+               isSameMoment(captainEnds, formationStarts) {
+                infoRow(
+                    title: "Капитаны до / старт команд",
+                    value: formatDate(captainEnds),
+                    icon: "person.3"
+                )
+            } else {
+            if let captainsAndTeamStart = assignment.captainSelectionEndsAtUtc ?? assignment.teamFormationStartsAtUtc {
+                infoRow(
+                    title: "Капитаны до / старт команд",
+                    value: formatDate(captainsAndTeamStart),
+                    icon: "person.3"
+                )
             }
-
-            if let formationStarts = assignment.teamFormationStartsAtUtc {
-                infoRow(title: "Старт команд", value: formatDate(formationStarts), icon: "person.3")
             }
 
             if let formationEnds = assignment.teamFormationEndsAtUtc {
@@ -179,20 +196,20 @@ struct AssignmentDetailsView: View {
                 infoChip("Создано \(formatDate(assignment.created))", color: .gray)
             }
 
-            if let grade = viewModel.grade?.grade {
-
-                HStack {
-
-                    Text("Оценка")
-
-                    Spacer()
-
+            HStack {
+                Text("Оценка")
+                Spacer()
+                if let grade = viewModel.grade?.grade {
                     Text("\(grade)")
                         .fontWeight(.semibold)
                         .foregroundStyle(Color.accentColor)
+                } else {
+                    Text("Нет оценки")
+                        .fontWeight(.medium)
+                        .foregroundStyle(.secondary)
                 }
-                .font(.caption)
             }
+            .font(.caption)
 
         }
         .padding()
@@ -246,41 +263,78 @@ struct AssignmentDetailsView: View {
 
     private var submissionSection: some View {
 
-        VStack(alignment: .center, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
 
             Text("Ваше решение")
                 .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let submission = viewModel.mySubmission {
+                if submission.files.isEmpty {
+                    Text("Файлы еще не прикреплены")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Выберите файлы для удаления")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
 
-                ForEach(submission.files, id: \.id) { file in
-                    submissionFileRow(file)
+                    ForEach(submission.files, id: \.id) { file in
+                        selectableSubmissionFileRow(file)
+                    }
                 }
 
-                Button(role: .destructive) {
-                    Task { await viewModel.deleteSubmission() }
+                HStack(spacing: 10) {
+                    Button {
+                        viewModel.showGallery = true
+                    } label: {
+                        Label("Добавить файлы", systemImage: "plus.circle")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button(role: .destructive) {
+                        Task { await viewModel.deleteSelectedSubmissionFiles() }
+                    } label: {
+                        Label("Удалить выбранные", systemImage: "trash")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(viewModel.selectedSubmissionFileIds.isEmpty)
+                }
+
+                if !viewModel.selectedImages.isEmpty {
+                    selectedImagesPreview
+                }
+
+                Button {
+                    Task { await viewModel.submitSolution() }
                 } label: {
-                    Label("Удалить решение", systemImage: "trash")
+                    if viewModel.isSubmitting {
+                        ProgressView()
+                    } else {
+                        Text("Загрузить добавленные файлы")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(viewModel.selectedImages.isEmpty || viewModel.isSubmitting)
+
+                if !viewModel.selectedSubmissionFileIds.isEmpty {
+                    Button("Снять выделение") {
+                        viewModel.clearSubmissionFileSelection()
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
 
             } else {
+                Text("Решение еще не отправлено")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
 
                 if !viewModel.selectedImages.isEmpty {
-
-                    ScrollView(.horizontal) {
-
-                        HStack {
-
-                            ForEach(viewModel.selectedImages, id: \.self) { image in
-
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 80, height: 80)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                        }
-                    }
+                    selectedImagesPreview
                 }
 
                 HStack {
@@ -307,7 +361,7 @@ struct AssignmentDetailsView: View {
                     if viewModel.isSubmitting {
                         ProgressView()
                     } else {
-                        Text("Отправить решение")
+                        Text("Прикрепить файлы")
                             .frame(maxWidth: .infinity)
                     }
 
@@ -316,6 +370,9 @@ struct AssignmentDetailsView: View {
                 .frame(minHeight: 60)
             }
         }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     // MARK: - Teams
@@ -328,11 +385,132 @@ struct AssignmentDetailsView: View {
         }
     }
 
+    // MARK: - Captain Draft
+
+    private var draftSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Драфт капитанов")
+                .font(.headline)
+
+            if let draftErrorMessage = viewModel.draftErrorMessage {
+                Text(draftErrorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
+            if viewModel.isDraftLoading && viewModel.draftState == nil {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else if let draftState = viewModel.draftState {
+                draftStatusView(draftState)
+
+                if !draftState.teams.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Команды драфта")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        ForEach(draftState.teams, id: \.id) { team in
+                            availableTeamRow(team, canJoin: false)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
+                if draftState.isStarted && !draftState.isCompleted {
+                    draftStudentsPicker(draftState)
+                }
+            } else {
+                Text("Ожидаем запуск преподавателем.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private func draftStatusView(_ state: AssignmentDraftStateResponse) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if !state.isStarted {
+                Text("Ожидаем запуск преподавателем.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else if state.isCompleted {
+                Text("Драфт завершен")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else if viewModel.isMyDraftTurn {
+                Text("Сейчас ваш ход выбора")
+                    .font(.footnote)
+                    .foregroundStyle(.green)
+            } else {
+                Text("Сейчас ход другого капитана")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func draftStudentsPicker(_ state: AssignmentDraftStateResponse) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Доступные студенты")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+
+            if state.availableStudents.isEmpty {
+                Text("Свободных студентов не осталось.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(state.availableStudents, id: \.userId) { student in
+                    HStack(spacing: 10) {
+                        Image(systemName: "person")
+                            .foregroundStyle(.secondary)
+
+                        Text(draftStudentFullName(student))
+                            .font(.footnote)
+                            .lineLimit(1)
+
+                        Spacer()
+
+                        if viewModel.isMyDraftTurn {
+                            Button {
+                                Task { await viewModel.pickDraftStudent(student) }
+                            } label: {
+                                if viewModel.isUpdatingTeam {
+                                    ProgressView()
+                                } else {
+                                    Text("Выбрать")
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(viewModel.isUpdatingTeam)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     @ViewBuilder
     private func teamsSectionContent(_ assignment: AssignmentResponse) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Команда")
-                .font(.headline)
+            HStack {
+                Text("Команда")
+                    .font(.headline)
+                Spacer()
+                Button("Состав команды") {
+                    showTeamSheet = true
+                }
+                .font(.footnote)
+            }
 
             if let teamErrorMessage = viewModel.teamErrorMessage {
                 Text(teamErrorMessage)
@@ -342,57 +520,57 @@ struct AssignmentDetailsView: View {
 
             if let myTeam = viewModel.myTeam {
                 myTeamSection(myTeam)
+            } else {
+                Text("Вы еще не состоите в команде")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Текущие команды")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+
+                if viewModel.assignmentTeams.isEmpty {
+                    Text("Пока нет созданных команд.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(viewModel.assignmentTeams, id: \.id) { team in
+                        availableTeamRow(
+                            team,
+                            canJoin: viewModel.myTeam == nil && !viewModel.isCaptainDraftMode
+                        )
+                    }
+                }
+            }
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            if viewModel.myTeam == nil {
+                teamActionsSection(assignment)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func teamActionsSection(_ assignment: AssignmentResponse) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Действия")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+
+            if viewModel.isCaptainDraftMode {
+                Text("В этом задании команды собираются через драфт капитанов.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             } else if assignment.isTeacherManagedTeamFormation {
                 Text("Команды в этом задании формирует преподаватель.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-
-                if viewModel.assignmentTeams.isEmpty {
-                    Text("Пока нет команд, в которые можно вступить.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text("Выберите команду для вступления")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-
-                    ForEach(viewModel.assignmentTeams, id: \.id) { team in
-                        availableTeamRow(team)
-                    }
-                }
-            } else if assignment.requiresCaptainVolunteerBeforeCreatingTeam,
-                      viewModel.assignmentTeams.isEmpty,
-                      !viewModel.isVolunteerCaptain {
-                if assignment.isCaptainSelectionWindowOpen {
-                    Text(
-                        "Сначала запишитесь капитаном — после этого можно создать команду, " +
-                            "к которой смогут присоединиться другие студенты."
-                    )
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                    Button {
-                        Task { await viewModel.selfAssignAsCaptain() }
-                    } label: {
-                        if viewModel.isUpdatingTeam {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text("Стать капитаном")
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(viewModel.isUpdatingTeam)
-                } else {
-                    Text("Этап выбора капитанов завершён. Создать новую команду сейчас нельзя.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            } else if assignment.requiresCaptainVolunteerBeforeCreatingTeam,
-                      viewModel.assignmentTeams.isEmpty,
-                      viewModel.isVolunteerCaptain {
-                VStack(alignment: .leading, spacing: 8) {
+            } else if assignment.requiresCaptainVolunteerBeforeCreatingTeam {
+                if viewModel.isVolunteerCaptain {
                     if assignment.isCaptainSelectionWindowOpen {
                         Button(role: .destructive) {
                             Task { await viewModel.withdrawCaptainVolunteer() }
@@ -409,60 +587,48 @@ struct AssignmentDetailsView: View {
                         .disabled(viewModel.isUpdatingTeam)
                     }
 
-                    Text("Команды пока не созданы")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-
-                    TextField("Название команды (опционально)", text: $newTeamName)
-                        .textFieldStyle(.roundedBorder)
-
-                    Button {
-                        Task { await viewModel.createTeam(name: newTeamName) }
-                    } label: {
-                        if viewModel.isUpdatingTeam {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text("Создать команду")
-                                .frame(maxWidth: .infinity)
-                        }
+                    if viewModel.assignmentTeams.isEmpty {
+                        Text("Команды пока не созданы")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        createTeamTriggerButton(title: "Создать команду")
+                    } else {
+                        Text("Вы уже капитан. Для этого режима новая команда недоступна.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(viewModel.isUpdatingTeam)
-                }
-            } else if viewModel.assignmentTeams.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Команды пока не созданы")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-
-                    TextField("Название команды (опционально)", text: $newTeamName)
-                        .textFieldStyle(.roundedBorder)
-
-                    Button {
-                        Task { await viewModel.createTeam(name: newTeamName) }
-                    } label: {
-                        if viewModel.isUpdatingTeam {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text("Создать команду")
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(viewModel.isUpdatingTeam)
-                }
-            } else {
-                Text("Выберите команду для вступления")
+                } else if assignment.isCaptainSelectionWindowOpen {
+                    Text(
+                        viewModel.assignmentTeams.isEmpty
+                            ? "Сначала запишитесь капитаном — после этого можно создать команду."
+                            : "Чтобы создать свою команду, сначала запишитесь капитаном."
+                    )
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-
-                ForEach(viewModel.assignmentTeams, id: \.id) { team in
-                    availableTeamRow(team)
+                    captainSelfAssignButton()
+                } else {
+                    Text("Этап выбора капитанов завершен. Создать новую команду сейчас нельзя.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                if viewModel.assignmentTeams.isEmpty {
+                    Text("Создайте первую команду для задания.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    createTeamTriggerButton(title: "Создать команду")
+                } else if viewModel.myTeam == nil {
+                    createAdditionalTeamForm()
+                } else {
+                    Text("Вы уже состоите в команде.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
             }
         }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private func myTeamSection(_ team: AssignmentTeam) -> some View {
@@ -483,23 +649,26 @@ struct AssignmentDetailsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Button(role: .destructive) {
-                Task { await viewModel.leaveMyTeam() }
-            } label: {
-                if viewModel.isUpdatingTeam {
-                    ProgressView()
-                } else {
-                    Label("Выйти из команды", systemImage: "rectangle.portrait.and.arrow.right")
+            if !isCurrentUserCaptain(of: team) {
+                Button(role: .destructive) {
+                    Task { await viewModel.leaveMyTeam() }
+                } label: {
+                    if viewModel.isUpdatingTeam {
+                        ProgressView()
+                    } else {
+                        Label("Выйти из команды", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
                 }
+                .disabled(viewModel.isUpdatingTeam)
             }
-            .disabled(viewModel.isUpdatingTeam)
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func availableTeamRow(_ team: AssignmentTeam) -> some View {
+    private func availableTeamRow(_ team: AssignmentTeam, canJoin: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(team.name ?? "Команда")
@@ -513,98 +682,96 @@ struct AssignmentDetailsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Button {
-                Task { await viewModel.joinTeam(team) }
-            } label: {
-                if viewModel.isUpdatingTeam {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                } else {
-                    Text("Вступить")
-                        .frame(maxWidth: .infinity)
+            if let members = team.members, !members.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Участники")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    ForEach(members.prefix(4), id: \.userId) { member in
+                        HStack(spacing: 6) {
+                            Image(systemName: "person.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            Text(memberFullName(member))
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+
+                    if members.count > 4 {
+                        Text("+\(members.count - 4) еще")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                .padding(.top, 2)
             }
-            .buttonStyle(.bordered)
-            .disabled(viewModel.isUpdatingTeam)
+
+            if canJoin {
+                Button {
+                    Task { await viewModel.joinTeam(team) }
+                } label: {
+                    if viewModel.isUpdatingTeam {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Вступить")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .buttonStyle(.bordered)
+                .disabled(viewModel.isUpdatingTeam)
+            }
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - Comments
+    private func createAdditionalTeamForm() -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Можно создать новую команду")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            createTeamTriggerButton(title: "Создать еще одну команду")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
 
-    private var commentsSection: some View {
-
-        VStack(alignment: .leading, spacing: 12) {
-
-            Text("Комментарии")
-                .font(.headline)
-
-            if viewModel.comments.isEmpty {
-
-                Text("Комментариев пока нет")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
+    private func createTeamTriggerButton(title: String) -> some View {
+        Button {
+            showCreateTeamAlert = true
+        } label: {
+            if viewModel.isUpdatingTeam {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
             } else {
-
-                ForEach(viewModel.comments, id: \.id) { comment in
-                    commentRow(comment)
-                }
+                Text(title)
+                    .frame(maxWidth: .infinity)
             }
         }
+        .buttonStyle(.borderedProminent)
+        .disabled(viewModel.isUpdatingTeam)
+        .frame(maxWidth: .infinity)
     }
 
-    private func commentRow(_ comment: Comment) -> some View {
-
-        VStack(alignment: .leading, spacing: 6) {
-
-            HStack {
-
-                Text(comment.userName ?? "Пользователь")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-
-                Spacer()
-
-                Text(formatDate(comment.created))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            if let text = comment.text {
-                Text(text)
-                    .font(.footnote)
-            }
-
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    // MARK: - Input
-
-    private var commentInputBar: some View {
-
-        HStack(spacing: 10) {
-
-            TextField("Комментарий...", text: $viewModel.commentText)
-                .textFieldStyle(.roundedBorder)
-
-            Button {
-
-                Task { await viewModel.sendComment() }
-
-            } label: {
-
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 26))
+    private func captainSelfAssignButton() -> some View {
+        Button {
+            showCaptainWarning = true
+        } label: {
+            if viewModel.isUpdatingTeam {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+            } else {
+                Text("Стать капитаном")
+                    .frame(maxWidth: .infinity)
             }
         }
-        .padding()
-        .background(.ultraThinMaterial)
+        .buttonStyle(.borderedProminent)
+        .disabled(viewModel.isUpdatingTeam)
     }
 
     // MARK: Helpers
@@ -631,6 +798,13 @@ struct AssignmentDetailsView: View {
         return Self.iso8601Formatter.date(from: raw)
     }
 
+    private func isSameMoment(_ lhs: String, _ rhs: String) -> Bool {
+        guard let leftDate = parseISODate(lhs), let rightDate = parseISODate(rhs) else {
+            return false
+        }
+        return abs(leftDate.timeIntervalSince(rightDate)) < 1
+    }
+
     private func memberFullName(_ member: AssignmentTeamMember) -> String {
         let name = [member.lastName, member.firstName]
             .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -638,6 +812,19 @@ struct AssignmentDetailsView: View {
             .joined(separator: " ")
 
         return name.isEmpty ? (member.email ?? "Участник") : name
+    }
+
+    private func draftStudentFullName(_ student: AssignmentDraftStudent) -> String {
+        let name = [student.lastName, student.firstName]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        return name.isEmpty ? (student.email ?? "Студент") : name
+    }
+
+    private func isCurrentUserCaptain(of team: AssignmentTeam) -> Bool {
+        guard let profileId = viewModel.profile?.id else { return false }
+        return team.captain?.userId == profileId
     }
 
     private func infoRow(title: String, value: String, icon: String) -> some View {
@@ -689,40 +876,67 @@ struct AssignmentDetailsView: View {
         }
     }
 
-    private func submissionFileRow(_ file: SubmissionFile) -> some View {
-
+    private func selectableSubmissionFileRow(_ file: SubmissionFile) -> some View {
         Button {
-
-            selectedFile = AssignmentFile(
-                id: file.id,
-                fileName: file.fileName,
-                url: file.url,
-                mimeType: file.mimeType,
-                size: Int64(file.size),
-                type: file.type
-            )
-
+            viewModel.toggleSubmissionFileSelection(file.id)
         } label: {
+            HStack(spacing: 10) {
+                Image(
+                    systemName: viewModel.selectedSubmissionFileIds.contains(file.id)
+                        ? "checkmark.circle.fill"
+                        : "circle"
+                )
+                .foregroundStyle(
+                    viewModel.selectedSubmissionFileIds.contains(file.id)
+                        ? Color.accentColor
+                        : Color.secondary
+                )
 
-            HStack {
-
-                if file.mimeType.contains("image") {
-                    Image(systemName: "photo")
-                } else if file.mimeType.contains("video") {
-                    Image(systemName: "video")
-                } else {
-                    Image(systemName: "doc")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(file.fileName)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                    Text(file.mimeType)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-
-                Text(file.fileName)
-                    .font(.subheadline)
 
                 Spacer()
 
+                Button {
+                    selectedFile = AssignmentFile(
+                        id: file.id,
+                        fileName: file.fileName,
+                        url: file.url,
+                        mimeType: file.mimeType,
+                        size: Int64(file.size),
+                        type: file.type
+                    )
+                } label: {
+                    Image(systemName: "eye")
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
             }
             .padding()
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.tertiarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var selectedImagesPreview: some View {
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(viewModel.selectedImages, id: \.self) { image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
         }
     }
 

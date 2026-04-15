@@ -19,6 +19,37 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
     var getCaptainsResult: Result<[AssignmentCaptainListItem], Error> = .success([])
     var selfAssignCaptainResult: Result<Void, Error> = .success(())
     var withdrawCaptainResult: Result<Void, Error> = .success(())
+    var getDraftStateResult: Result<AssignmentDraftStateResponse, Error> = .success(
+        AssignmentDraftStateResponse(
+            assignmentId: nil,
+            isStarted: false,
+            isCompleted: false,
+            currentCaptainUserId: nil,
+            teams: [],
+            availableStudents: []
+        )
+    )
+    var pickDraftStudentResult: Result<AssignmentDraftStateResponse, Error> = .success(
+        AssignmentDraftStateResponse(
+            assignmentId: nil,
+            isStarted: false,
+            isCompleted: false,
+            currentCaptainUserId: nil,
+            teams: [],
+            availableStudents: []
+        )
+    )
+    var captainMyTeamResult: Result<CaptainMyTeamResponse, Error> = .success(
+        CaptainMyTeamResponse(
+            id: "",
+            assignmentId: nil,
+            captain: nil,
+            finalSubmissionId: nil,
+            name: nil,
+            members: []
+        )
+    )
+    var selectFinalSubmissionResult: Result<Void, Error> = .success(())
 
     func getCourseAssignments(id: String, page: Int, pageSize: Int) async throws -> [AssignmentResponse] {
         try getAssignmentsResult.get()
@@ -58,5 +89,21 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
 
     func withdrawSelfAsCaptain(assignmentId: String) async throws {
         try withdrawCaptainResult.get()
+    }
+
+    func getAssignmentDraftState(assignmentId: String) async throws -> AssignmentDraftStateResponse {
+        try getDraftStateResult.get()
+    }
+
+    func pickDraftStudent(assignmentId: String, studentId: String) async throws -> AssignmentDraftStateResponse {
+        try pickDraftStudentResult.get()
+    }
+
+    func getCaptainMyTeam(assignmentId: String) async throws -> CaptainMyTeamResponse {
+        try captainMyTeamResult.get()
+    }
+
+    func selectCaptainFinalSubmission(assignmentId: String, submissionId: String) async throws {
+        try selectFinalSubmissionResult.get()
     }
 }

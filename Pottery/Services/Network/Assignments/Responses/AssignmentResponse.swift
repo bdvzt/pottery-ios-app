@@ -209,3 +209,57 @@ struct AssignmentTeamMember: Decodable {
     let email: String?
     let createdAtUtc: String
 }
+
+struct AssignmentDraftStateResponse: Decodable {
+    let assignmentId: String?
+    let isStarted: Bool
+    let isCompleted: Bool
+    let currentCaptainUserId: String?
+    let teams: [AssignmentTeam]
+    let availableStudents: [AssignmentDraftStudent]
+}
+
+struct AssignmentDraftStudent: Decodable {
+    let userId: String
+    let firstName: String?
+    let lastName: String?
+    let email: String?
+    let isBlocked: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case userId = "id"
+        case firstName
+        case lastName
+        case email
+        case isBlocked
+    }
+}
+
+struct CaptainMyTeamResponse: Decodable {
+    let id: String
+    let assignmentId: String?
+    let captain: AssignmentCaptain?
+    let finalSubmissionId: String?
+    let name: String?
+    let members: [CaptainTeamMember]
+}
+
+struct CaptainTeamMember: Decodable {
+    let userId: String
+    let firstName: String?
+    let lastName: String?
+    let middleName: String?
+    let email: String?
+    let submissions: [CaptainMemberSubmission]?
+}
+
+struct CaptainMemberSubmission: Decodable {
+    let id: String
+    let assignmentId: String?
+    let studentId: String?
+    let created: String?
+    let grade: Int?
+    let teacherComment: String?
+    let status: String?
+    let files: [SubmissionFile]?
+}

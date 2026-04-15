@@ -66,6 +66,18 @@ enum APIConstants {
         static func assignmentCaptainSelf(assignmentId: String) -> String {
             "/api/assignments/\(assignmentId)/captains/self"
         }
+        static func assignmentDraftState(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/teams/draft"
+        }
+        static func assignmentDraftPick(assignmentId: String, studentId: String) -> String {
+            "/api/assignments/\(assignmentId)/teams/draft/pick/\(studentId)"
+        }
+        static func assignmentCaptainMyTeam(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/teams/captain/my-team"
+        }
+        static func assignmentCaptainSelectFinalSubmission(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/teams/captain/final-submission"
+        }
     }
 
     // MARK: - Comments

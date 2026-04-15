@@ -9,7 +9,6 @@ final class AppCoordinator: Coordinator {
     private let usersNetwork: UsersNetworkProtocol
     private let coursesNetwork: CoursesNetworkProtocol
     private let assignmentsNetwork: AssignmentsNetworkProtocol
-    private let commentsNetwork: CommentsNetworkProtocol
     private let submissionsRepository: SubmissionsNetworkProtocol
     private let tokenStorage: TokenStorageProtocol
 
@@ -19,7 +18,6 @@ final class AppCoordinator: Coordinator {
         usersNetwork: UsersNetworkProtocol,
         coursesNetwork: CoursesNetworkProtocol,
         assignmentsNetwork: AssignmentsNetworkProtocol,
-        commentsNetwork: CommentsNetworkProtocol,
         submissionsRepository: SubmissionsNetworkProtocol,
         tokenStorage: TokenStorageProtocol
     ) {
@@ -28,7 +26,6 @@ final class AppCoordinator: Coordinator {
         self.usersNetwork = usersNetwork
         self.coursesNetwork = coursesNetwork
         self.assignmentsNetwork = assignmentsNetwork
-        self.commentsNetwork = commentsNetwork
         self.submissionsRepository = submissionsRepository
         self.tokenStorage = tokenStorage
     }
@@ -193,6 +190,9 @@ private extension AppCoordinator {
             },
             onOpenAssignment: { [weak self] assignment in
                 self?.showAssignmentDetails(assignment: assignment, navigation: navigation)
+            },
+            onOpenGrades: { [weak self] in
+                self?.showCourseGrades(courseId: course.id, navigation: navigation)
             }
         )
 
@@ -207,7 +207,6 @@ private extension AppCoordinator {
         let viewModel = AssignmentDetailsViewModel(
             assignmentId: assignment.id,
             assignmentsRepository: assignmentsNetwork,
-            commentsRepository: commentsNetwork,
             usersRepository: usersNetwork,
             submissionsRepository: submissionsRepository
         )
@@ -215,6 +214,16 @@ private extension AppCoordinator {
         let view = AssignmentDetailsView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
 
+        navigation.pushViewController(controller, animated: true)
+    }
+
+    func showCourseGrades(courseId: String, navigation: UINavigationController) {
+        let viewModel = GradesViewModel(
+            courseId: courseId,
+            assignmentsNetwork: assignmentsNetwork
+        )
+        let view = GradesView(viewModel: viewModel)
+        let controller = UIHostingController(rootView: view)
         navigation.pushViewController(controller, animated: true)
     }
 }

@@ -16,19 +16,22 @@ final class CourseDetailsViewModel: ObservableObject {
 
     private let onLeaveCourse: () -> Void
     private let onOpenAssignment: (AssignmentResponse) -> Void
+    private let onOpenGrades: () -> Void
 
     init(
         courseId: String,
         courseNetwork: CoursesNetworkProtocol,
         assignmentsNetwork: AssignmentsNetworkProtocol,
         onLeaveCourse: @escaping () -> Void,
-        onOpenAssignment: @escaping (AssignmentResponse) -> Void
+        onOpenAssignment: @escaping (AssignmentResponse) -> Void,
+        onOpenGrades: @escaping () -> Void
     ) {
         self.courseId = courseId
         self.courseNetwork = courseNetwork
         self.assignmentsNetwork = assignmentsNetwork
         self.onLeaveCourse = onLeaveCourse
         self.onOpenAssignment = onOpenAssignment
+        self.onOpenGrades = onOpenGrades
     }
 
     func loadCourse() async {
@@ -56,6 +59,10 @@ final class CourseDetailsViewModel: ObservableObject {
 
     func openAssignment(_ assignment: AssignmentResponse) {
         onOpenAssignment(assignment)
+    }
+
+    func openGrades() {
+        onOpenGrades()
     }
 
     func leaveCourse() async {

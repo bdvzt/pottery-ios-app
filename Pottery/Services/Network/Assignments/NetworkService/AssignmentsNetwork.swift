@@ -88,6 +88,38 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
         let endPoint = WithdrawSelfAsCaptainEndpoint(assignmentId: assignmentId)
         try await networkService.request(endPoint)
     }
+
+    func getAssignmentDraftState(assignmentId: String) async throws -> AssignmentDraftStateResponse {
+        let endPoint = GetAssignmentDraftStateEndpoint(assignmentId: assignmentId)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: AssignmentDraftStateResponse.self
+        )
+    }
+
+    func pickDraftStudent(assignmentId: String, studentId: String) async throws -> AssignmentDraftStateResponse {
+        let endPoint = PickDraftStudentEndpoint(assignmentId: assignmentId, studentId: studentId)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: AssignmentDraftStateResponse.self
+        )
+    }
+
+    func getCaptainMyTeam(assignmentId: String) async throws -> CaptainMyTeamResponse {
+        let endPoint = GetCaptainMyTeamEndpoint(assignmentId: assignmentId)
+        return try await networkService.requestDecodable(
+            endPoint,
+            as: CaptainMyTeamResponse.self
+        )
+    }
+
+    func selectCaptainFinalSubmission(assignmentId: String, submissionId: String) async throws {
+        let endPoint = SelectCaptainFinalSubmissionEndpoint(
+            assignmentId: assignmentId,
+            body: SelectFinalSubmissionRequest(submissionId: submissionId)
+        )
+        try await networkService.request(endPoint)
+    }
 }
 
 private struct GetAssignmentTeamsEndpoint: EndPoint {
@@ -204,6 +236,70 @@ private struct WithdrawSelfAsCaptainEndpoint: EndPoint {
     var authorization: AuthorizationRequirement { .accessToken }
 }
 
+private struct GetAssignmentDraftStateEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentDraftState(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct PickDraftStudentEndpoint: EndPoint {
+    private let assignmentId: String
+    private let studentId: String
+
+    init(assignmentId: String, studentId: String) {
+        self.assignmentId = assignmentId
+        self.studentId = studentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentDraftPick(assignmentId: assignmentId, studentId: studentId) }
+    var method: HTTPMethod { .post }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct GetCaptainMyTeamEndpoint: EndPoint {
+    private let assignmentId: String
+
+    init(assignmentId: String) {
+        self.assignmentId = assignmentId
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentCaptainMyTeam(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct SelectCaptainFinalSubmissionEndpoint: EndPoint {
+    private let assignmentId: String
+    private let body: SelectFinalSubmissionRequest
+
+    init(assignmentId: String, body: SelectFinalSubmissionRequest) {
+        self.assignmentId = assignmentId
+        self.body = body
+    }
+
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.assignmentCaptainSelectFinalSubmission(assignmentId: assignmentId) }
+    var method: HTTPMethod { .post }
+    var task: HTTPTask { .requestBody(body) }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
 private struct CreateAssignmentTeamRequest: Encodable {
     let name: String?
+}
+
+private struct SelectFinalSubmissionRequest: Encodable {
+    let submissionId: String
 }

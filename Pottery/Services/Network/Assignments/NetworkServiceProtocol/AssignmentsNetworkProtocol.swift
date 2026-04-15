@@ -10,4 +10,8 @@ protocol AssignmentsNetworkProtocol {
     func getAssignmentCaptains(assignmentId: String) async throws -> [AssignmentCaptainListItem]
     func selfAssignCaptain(assignmentId: String) async throws
     func withdrawSelfAsCaptain(assignmentId: String) async throws
+    func getAssignmentDraftState(assignmentId: String) async throws -> AssignmentDraftStateResponse
+    func pickDraftStudent(assignmentId: String, studentId: String) async throws -> AssignmentDraftStateResponse
+    func getCaptainMyTeam(assignmentId: String) async throws -> CaptainMyTeamResponse
+    func selectCaptainFinalSubmission(assignmentId: String, submissionId: String) async throws
 }

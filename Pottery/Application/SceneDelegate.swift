@@ -40,9 +40,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             networkService: networkService
         )
 
-        let commentsNetwork = CommentsNetwork(
-            networkService: networkService
-        )
 
         let submissionsRepository = SubmissionsNetwork(
             networkService: networkService
@@ -54,7 +51,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             usersNetwork: usersNetwork,
             coursesNetwork: coursesNetwork,
             assignmentsNetwork: assignmentsNetwork,
-            commentsNetwork: commentsNetwork,
             submissionsRepository: submissionsRepository,
             tokenStorage: tokenStorage
         )

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		881B13CA2F8FC4EB00F15412 /* TeamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881B13C92F8FC4DA00F15412 /* TeamView.swift */; };
+		881B13CC2F8FC4F200F15412 /* TeamViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881B13CB2F8FC4ED00F15412 /* TeamViewModel.swift */; };
+		881B13CE2F8FC50600F15412 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881B13CD2F8FC50100F15412 /* GradesView.swift */; };
+		881B13D02F8FC50C00F15412 /* GradesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881B13CF2F8FC50800F15412 /* GradesViewModel.swift */; };
 		882119FE2F6296610073396D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 882119F72F6296610073396D /* Assets.xcassets */; };
 		88211A002F6296610073396D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 882119FA2F6296610073396D /* LaunchScreen.storyboard */; };
 		88211A022F6296610073396D /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 882119F12F6296610073396D /* Coordinator.swift */; };
@@ -149,6 +153,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		881B13C92F8FC4DA00F15412 /* TeamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamView.swift; sourceTree = "<group>"; };
+		881B13CB2F8FC4ED00F15412 /* TeamViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamViewModel.swift; sourceTree = "<group>"; };
+		881B13CD2F8FC50100F15412 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
+		881B13CF2F8FC50800F15412 /* GradesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewModel.swift; sourceTree = "<group>"; };
 		882119A12F60AD900073396D /* Pottery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pottery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		882119B72F60AD920073396D /* PotteryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PotteryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		882119C12F60AD920073396D /* PotteryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PotteryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -775,6 +783,8 @@
 		88F98E8F2F64932600EDC0D2 /* Assignment */ = {
 			isa = PBXGroup;
 			children = (
+				881B13CB2F8FC4ED00F15412 /* TeamViewModel.swift */,
+				881B13C92F8FC4DA00F15412 /* TeamView.swift */,
 				88F98EF42F64E9CD00EDC0D2 /* FileViewer.swift */,
 				88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */,
 				88F98EC62F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift */,
@@ -786,6 +796,8 @@
 		88F98E922F64932600EDC0D2 /* CourseDetails */ = {
 			isa = PBXGroup;
 			children = (
+				881B13CF2F8FC50800F15412 /* GradesViewModel.swift */,
+				881B13CD2F8FC50100F15412 /* GradesView.swift */,
 				88F98E902F64932600EDC0D2 /* CourseDetailsModel.swift */,
 				88F98E912F64932600EDC0D2 /* CourseDetailsView.swift */,
 			);
@@ -1059,6 +1071,7 @@
 				88F98E9C2F6494A000EDC0D2 /* AssignmentsResponse.swift in Sources */,
 				88F98EDC2F64CCB400EDC0D2 /* SubmissionsNetworkProtocol.swift in Sources */,
 				88211A032F6296610073396D /* NavigationController.swift in Sources */,
+				881B13CC2F8FC4F200F15412 /* TeamViewModel.swift in Sources */,
 				88211AC32F62A59D0073396D /* RegisterRequest.swift in Sources */,
 				88F98EB02F64A2D000EDC0D2 /* CommentRequest.swift in Sources */,
 				88211AC92F62A6670073396D /* Role.swift in Sources */,
@@ -1101,6 +1114,7 @@
 				88F98EEF2F64D4CE00EDC0D2 /* GetMySubmissionEndpoint.swift in Sources */,
 				88F98EC72F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift in Sources */,
 				88211ABA2F62A4EC0073396D /* AuthNetworkProtocol.swift in Sources */,
+				881B13CA2F8FC4EB00F15412 /* TeamView.swift in Sources */,
 				88211ACE2F62A8710073396D /* SessionServiceProtocol.swift in Sources */,
 				88F98EE72F64D36900EDC0D2 /* SubmissionResponse.swift in Sources */,
 				88211AE52F62B3BF0073396D /* LogoutEndPoint.swift in Sources */,
@@ -1126,6 +1140,7 @@
 				88211B132F62CF280073396D /* DismissKeyboardOnTap.swift in Sources */,
 				88211A922F6296780073396D /* NetworkLogger.swift in Sources */,
 				88F98E882F6488EB00EDC0D2 /* AssignmentResponse.swift in Sources */,
+				881B13D02F8FC50C00F15412 /* GradesViewModel.swift in Sources */,
 				88F98EDF2F64CCD000EDC0D2 /* UploadSubmissionEndpoint.swift in Sources */,
 				88F98EF32F64DFD800EDC0D2 /* CameraPicker.swift in Sources */,
 				88211A962F6296780073396D /* AuthorizationRequirement.swift in Sources */,
@@ -1144,6 +1159,7 @@
 				88F98E432F64442B00EDC0D2 /* Teacher.swift in Sources */,
 				88F98E3C2F643D2F00EDC0D2 /* CoursesNetworkProtocol.swift in Sources */,
 				88211B002F62C0CB0073396D /* AuthView.swift in Sources */,
+				881B13CE2F8FC50600F15412 /* GradesView.swift in Sources */,
 				88211ABC2F62A5270073396D /* UsersNetworkProtocol.swift in Sources */,
 				88211AA52F6296780073396D /* HTTPHeader.swift in Sources */,
 				88F98E4D2F64487700EDC0D2 /* GetCourseTeachersEndpoint.swift in Sources */,
