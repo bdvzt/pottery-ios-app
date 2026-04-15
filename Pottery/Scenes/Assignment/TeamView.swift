@@ -16,7 +16,7 @@ struct TeamView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
-                ForEach(viewModel.teams, id: \.id) { team in
+                ForEach(Array(viewModel.teams.enumerated()), id: \.offset) { _, team in
                     teamCard(team)
                 }
 
@@ -60,7 +60,7 @@ struct TeamView: View {
             }
 
             if let members = team.members, !members.isEmpty {
-                ForEach(members, id: \.userId) { member in
+                ForEach(Array(members.enumerated()), id: \.offset) { _, member in
                     HStack(spacing: 8) {
                         Text(memberName(member))
                             .font(.footnote)
@@ -70,7 +70,7 @@ struct TeamView: View {
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .background(Color.accentColor.opacity(0.15))
-                                .foregroundStyle(.accentColor)
+                                .foregroundStyle(Color.accentColor)
                                 .clipShape(Capsule())
                         }
                         Spacer()
@@ -106,19 +106,19 @@ struct TeamView: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
 
-                    ForEach(team.members, id: \.userId) { member in
+                    ForEach(Array(team.members.enumerated()), id: \.offset) { _, member in
                         VStack(alignment: .leading, spacing: 6) {
                             Text(memberDisplayName(member))
                                 .font(.footnote)
                                 .fontWeight(.semibold)
 
-                            let submissions = member.submissions ?? []
+                            let submissions: [CaptainMemberSubmission] = member.submissions ?? []
                             if submissions.isEmpty {
                                 Text("Нет решений")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             } else {
-                                ForEach(submissions, id: \.id) { submission in
+                                ForEach(Array(submissions.enumerated()), id: \.offset) { _, submission in
                                     HStack(spacing: 8) {
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text("Решение #\(submission.id.prefix(6))")

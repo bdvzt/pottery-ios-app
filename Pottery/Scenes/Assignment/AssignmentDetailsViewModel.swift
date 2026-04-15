@@ -1,17 +1,15 @@
 import Foundation
-import UIKit
 import Combine
+import UniformTypeIdentifiers
 
 @MainActor
 final class AssignmentDetailsViewModel: ObservableObject {
     @Published var profile: ProfileResponse?
 
-    @Published var selectedImages: [UIImage] = []
+    @Published var pendingUploadFiles: [PendingSubmissionUploadFile] = []
     @Published var isSubmitting = false
     @Published var mySubmission: SubmissionResponse?
     @Published var selectedSubmissionFileIds: Set<String> = []
-    @Published var showCamera = false
-    @Published var showGallery = false
 
     @Published var assignment: AssignmentResponse?
     @Published var assignmentTeams: [AssignmentTeam] = []
@@ -60,6 +58,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
         await loadProfile()
 
         await loadAssignmentDetails()
+        guard assignment != nil, errorMessage == nil else { return }
         await reloadTeams()
         await loadCaptainState()
         await refreshDraftState()
@@ -69,12 +68,22 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
     private func loadAssignmentDetails() async {
         do {
-            assignment = try await assignmentsRepository.getAssignment(id: assignmentId)
+            let loaded = try await assignmentsRepository.getAssignment(id: assignmentId)
+            if !loaded.isAvailableForStudentNow {
+                assignment = nil
+                errorMessage = "Задание пока недоступно"
+                return
+            }
+            assignment = loaded
         } catch let error as NetworkError {
             switch error {
-            case .serverError(let code, _):
+            case .serverError(let code, let message):
                 if code == 403 {
-                    errorMessage = "Задание скрыто"
+                    if (message?.lowercased().contains("пока недоступно") == true) {
+                        errorMessage = "Задание пока недоступно"
+                    } else {
+                        errorMessage = "Задание скрыто"
+                    }
                 } else {
                     errorMessage = "Не удалось загрузить задание"
                 }
@@ -283,30 +292,63 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
     }
 
-    func addImage(_ image: UIImage) {
-        selectedImages.append(image)
+    func addPickedFiles(urls: [URL]) async {
+        var picked: [PendingSubmissionUploadFile] = []
+
+        for url in urls {
+            let accessGranted = url.startAccessingSecurityScopedResource()
+            defer {
+                if accessGranted {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+
+            do {
+                let data = try Data(contentsOf: url)
+                let fileName = url.lastPathComponent
+                let mimeType = mimeType(for: url)
+                picked.append(
+                    PendingSubmissionUploadFile(
+                        fileName: fileName,
+                        mimeType: mimeType,
+                        data: data
+                    )
+                )
+            } catch {
+                errorMessage = "Не удалось прочитать файл \(url.lastPathComponent)"
+            }
+        }
+
+        pendingUploadFiles.append(contentsOf: picked)
+    }
+
+    func removePendingUploadFile(_ fileId: UUID) {
+        pendingUploadFiles.removeAll { $0.id == fileId }
+    }
+
+    func clearPendingUploadFiles() {
+        pendingUploadFiles.removeAll()
     }
 
     func submitSolution() async {
 
-        guard !selectedImages.isEmpty else { return }
+        guard !pendingUploadFiles.isEmpty else { return }
+        if let assignment, !assignment.isSubmissionWindowOpen {
+            errorMessage = "Сейчас отправка решения недоступна: задание еще не началось или дедлайн уже прошел."
+            return
+        }
 
         isSubmitting = true
         defer { isSubmitting = false }
 
         do {
 
-            let files: [MultipartFormData] = selectedImages.compactMap { image in
-
-                guard let data = image.jpegData(compressionQuality: 0.8) else {
-                    return nil
-                }
-
-                return MultipartFormData(
+            let files: [MultipartFormData] = pendingUploadFiles.map { file in
+                MultipartFormData(
                     name: "files",
-                    filename: UUID().uuidString + ".jpg",
-                    mimeType: "image/jpeg",
-                    data: data
+                    filename: file.fileName,
+                    mimeType: file.mimeType,
+                    data: file.data
                 )
             }
 
@@ -315,7 +357,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
                 files: files
             )
 
-            selectedImages.removeAll()
+            pendingUploadFiles.removeAll()
 
             await loadAssignment()
 
@@ -562,4 +604,20 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
         return message
     }
+
+    private func mimeType(for url: URL) -> String {
+        let ext = url.pathExtension
+        if let type = UTType(filenameExtension: ext),
+           let mime = type.preferredMIMEType {
+            return mime
+        }
+        return "application/octet-stream"
+    }
+}
+
+struct PendingSubmissionUploadFile: Identifiable {
+    let id = UUID()
+    let fileName: String
+    let mimeType: String
+    let data: Data
 }

@@ -1,18 +1,16 @@
 import SwiftUI
-import PhotosUI
+import UniformTypeIdentifiers
 
 struct AssignmentDetailsView: View {
 
     @StateObject var viewModel: AssignmentDetailsViewModel
-
-    @State private var cameraImage: UIImage?
-    @State private var galleryItem: PhotosPickerItem?
 
     @State private var selectedFile: AssignmentFile?
     @State private var newTeamName: String = ""
     @State private var showCaptainWarning = false
     @State private var showCreateTeamAlert = false
     @State private var showTeamSheet = false
+    @State private var showFileImporter = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,25 +21,16 @@ struct AssignmentDetailsView: View {
         .sheet(item: $selectedFile) { file in
             FileViewer(file: file)
         }
-        .sheet(isPresented: $viewModel.showCamera) {
-            CameraPicker(image: $cameraImage)
-        }
-        .photosPicker(
-            isPresented: $viewModel.showGallery,
-            selection: $galleryItem,
-            matching: .images
-        )
-        .onChange(of: galleryItem) { item in
-            Task {
-                if let data = try? await item?.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) {
-                    viewModel.addImage(image)
-                }
-            }
-        }
-        .onChange(of: cameraImage) { image in
-            if let image {
-                viewModel.addImage(image)
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: [.item],
+            allowsMultipleSelection: true
+        ) { result in
+            switch result {
+            case .success(let urls):
+                Task { await viewModel.addPickedFiles(urls: urls) }
+            case .failure:
+                viewModel.errorMessage = "Не удалось выбрать файлы"
             }
         }
         .alert("Стать капитаном?", isPresented: $showCaptainWarning) {
@@ -134,6 +123,7 @@ struct AssignmentDetailsView: View {
 
             HStack(spacing: 6) {
                 statusChip(assignment)
+                stageChip(assignment)
 
                 if assignment.shouldShowHiddenByVisibility {
                     infoChip("Скрыто", color: .orange)
@@ -153,22 +143,12 @@ struct AssignmentDetailsView: View {
                 infoRow(title: "Старт задания", value: formatDate(startsAt), icon: "play.circle")
             }
 
-            if let captainEnds = assignment.captainSelectionEndsAtUtc,
-               let formationStarts = assignment.teamFormationStartsAtUtc,
-               isSameMoment(captainEnds, formationStarts) {
-                infoRow(
-                    title: "Капитаны до / старт команд",
-                    value: formatDate(captainEnds),
-                    icon: "person.3"
-                )
-            } else {
             if let captainsAndTeamStart = assignment.captainSelectionEndsAtUtc ?? assignment.teamFormationStartsAtUtc {
                 infoRow(
                     title: "Капитаны до / старт команд",
                     value: formatDate(captainsAndTeamStart),
                     icon: "person.3"
                 )
-            }
             }
 
             if let formationEnds = assignment.teamFormationEndsAtUtc {
@@ -286,7 +266,7 @@ struct AssignmentDetailsView: View {
 
                 HStack(spacing: 10) {
                     Button {
-                        viewModel.showGallery = true
+                        showFileImporter = true
                     } label: {
                         Label("Добавить файлы", systemImage: "plus.circle")
                             .frame(maxWidth: .infinity)
@@ -303,8 +283,8 @@ struct AssignmentDetailsView: View {
                     .disabled(viewModel.selectedSubmissionFileIds.isEmpty)
                 }
 
-                if !viewModel.selectedImages.isEmpty {
-                    selectedImagesPreview
+                if !viewModel.pendingUploadFiles.isEmpty {
+                    pendingUploadFilesView
                 }
 
                 Button {
@@ -318,7 +298,7 @@ struct AssignmentDetailsView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(viewModel.selectedImages.isEmpty || viewModel.isSubmitting)
+                .disabled(viewModel.pendingUploadFiles.isEmpty || viewModel.isSubmitting)
 
                 if !viewModel.selectedSubmissionFileIds.isEmpty {
                     Button("Снять выделение") {
@@ -333,22 +313,16 @@ struct AssignmentDetailsView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                if !viewModel.selectedImages.isEmpty {
-                    selectedImagesPreview
+                if !viewModel.pendingUploadFiles.isEmpty {
+                    pendingUploadFilesView
                 }
 
                 HStack {
 
                     Button {
-                        viewModel.showCamera = true
+                        showFileImporter = true
                     } label: {
-                        Label("Камера", systemImage: "camera")
-                    }
-
-                    Button {
-                        viewModel.showGallery = true
-                    } label: {
-                        Label("Галерея", systemImage: "photo")
+                        Label("Файлы", systemImage: "doc")
                     }
                 }
 
@@ -571,7 +545,7 @@ struct AssignmentDetailsView: View {
                     .foregroundStyle(.secondary)
             } else if assignment.requiresCaptainVolunteerBeforeCreatingTeam {
                 if viewModel.isVolunteerCaptain {
-                    if assignment.isCaptainSelectionWindowOpen {
+                    if assignment.isCaptainSelectionActive {
                         Button(role: .destructive) {
                             Task { await viewModel.withdrawCaptainVolunteer() }
                         } label: {
@@ -597,7 +571,7 @@ struct AssignmentDetailsView: View {
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
-                } else if assignment.isCaptainSelectionWindowOpen {
+                } else if assignment.isCaptainSelectionActive {
                     Text(
                         viewModel.assignmentTeams.isEmpty
                             ? "Сначала запишитесь капитаном — после этого можно создать команду."
@@ -774,6 +748,19 @@ struct AssignmentDetailsView: View {
         .disabled(viewModel.isUpdatingTeam)
     }
 
+    private func stageChip(_ assignment: AssignmentResponse) -> some View {
+        let color: Color
+        switch assignment.stageKind {
+        case .captainSelection:
+            color = .blue
+        case .teamFormation:
+            color = .orange
+        case .compositionLocked:
+            color = .purple
+        }
+        return infoChip(assignment.stageTitle, color: color)
+    }
+
     // MARK: Helpers
 
     private func icon(for mime: String) -> String {
@@ -926,16 +913,34 @@ struct AssignmentDetailsView: View {
         .buttonStyle(.plain)
     }
 
-    private var selectedImagesPreview: some View {
-        ScrollView(.horizontal) {
-            HStack {
-                ForEach(viewModel.selectedImages, id: \.self) { image in
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 80, height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+    private var pendingUploadFilesView: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(viewModel.pendingUploadFiles) { file in
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(file.fileName)
+                            .font(.footnote)
+                            .lineLimit(1)
+                        Text(file.mimeType)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                    Button(role: .destructive) {
+                        viewModel.removePendingUploadFile(file.id)
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.plain)
                 }
+                .padding(8)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
     }

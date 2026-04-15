@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 @MainActor
 final class TeamViewModel: ObservableObject {
@@ -25,7 +26,7 @@ final class TeamViewModel: ObservableObject {
     }
 
     var canShowFinalSubmissionPicker: Bool {
-        captainContext?.isCaptain == true && captainMyTeam != nil
+        captainContext?.canSelectFinalSubmission == true && captainMyTeam != nil
     }
 
     func load() async {
@@ -41,20 +42,7 @@ final class TeamViewModel: ObservableObject {
             }
 
             captainContext = try? await assignmentsRepository.getMyCaptainContext(assignmentId: assignmentId)
-
-            switch teamFormationMode {
-            case "student_self_selection":
-                teams = try await assignmentsRepository.getAssignmentTeams(assignmentId: assignmentId)
-            case "captain_draft":
-                let state = try await assignmentsRepository.getAssignmentDraftState(assignmentId: assignmentId)
-                teams = state.teams
-            case "teacher_managed", "random_distribution":
-                teams = []
-                errorMessage = "Состав команд недоступен для студента в этом режиме."
-            default:
-                teams = []
-                errorMessage = "Состав команд недоступен."
-            }
+            teams = try await assignmentsRepository.getAssignmentTeams(assignmentId: assignmentId)
 
             if captainContext?.isCaptain == true {
                 captainMyTeam = try? await assignmentsRepository.getCaptainMyTeam(assignmentId: assignmentId)
@@ -66,7 +54,7 @@ final class TeamViewModel: ObservableObject {
                 if code == 403 {
                     errorMessage = "Нет доступа к составу команд"
                 } else if code == 400 {
-                    errorMessage = "Состав команд недоступен для этого режима"
+                    errorMessage = "Состав команд сейчас недоступен"
                 } else {
                     errorMessage = "Не удалось загрузить состав команды"
                 }

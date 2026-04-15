@@ -38,6 +38,12 @@ enum AssignmentTeamStateKind {
     case compositionLocked
 }
 
+enum AssignmentStageKind {
+    case captainSelection
+    case teamFormation
+    case compositionLocked
+}
+
 extension AssignmentResponse {
     var statusKind: AssignmentStatusKind {
         switch status?.lowercased() {
@@ -78,7 +84,7 @@ extension AssignmentResponse {
     }
 
     var teamStateKind: AssignmentTeamStateKind {
-        if isTeamCompositionLocked == true {
+        if isCompositionLockedEffective {
             return .compositionLocked
         }
         if isTeamEnrollmentClosed {
@@ -139,17 +145,84 @@ extension AssignmentResponse {
         return normalizedTeamFormationMode != "teacher_managed"
     }
 
-    /// Окно самовыбора капитана: до `captainSelectionEndsAtUtc` (если задано) и до `startsAtUtc` (если задано).
+    /// Этап капитанов активен до `captainSelectionEndsAtUtc`.
     var isCaptainSelectionWindowOpen: Bool {
+        isCaptainSelectionActive
+    }
+
+    var isCaptainSelectionActive: Bool {
         let now = Date()
         if let endStr = captainSelectionEndsAtUtc,
            let end = Self.parseApiUtc(endStr),
            now > end {
             return false
         }
-        if let startStr = startsAtUtc,
-           let start = Self.parseApiUtc(startStr),
-           now >= start {
+        return captainSelectionEndsAtUtc != nil
+    }
+
+    var isTeamFormationActive: Bool {
+        let now = Date()
+        guard let formationEndRaw = teamFormationEndsAtUtc,
+              let formationEnd = Self.parseApiUtc(formationEndRaw)
+        else { return false }
+
+        if let captainEndRaw = captainSelectionEndsAtUtc,
+           let captainEnd = Self.parseApiUtc(captainEndRaw) {
+            return now > captainEnd && now <= formationEnd
+        }
+
+        return now <= formationEnd
+    }
+
+    var isCompositionLockedByTimeline: Bool {
+        guard let formationEndRaw = teamFormationEndsAtUtc,
+              let formationEnd = Self.parseApiUtc(formationEndRaw)
+        else { return false }
+        return Date() > formationEnd
+    }
+
+    var isCompositionLockedEffective: Bool {
+        isTeamCompositionLocked == true || isCompositionLockedByTimeline
+    }
+
+    var stageKind: AssignmentStageKind {
+        if isCompositionLockedEffective {
+            return .compositionLocked
+        }
+        if isTeamFormationActive {
+            return .teamFormation
+        }
+        return .captainSelection
+    }
+
+    var stageTitle: String {
+        switch stageKind {
+        case .captainSelection:
+            return "Выбор капитанов"
+        case .teamFormation:
+            return "Формирование команд"
+        case .compositionLocked:
+            return "Состав зафиксирован"
+        }
+    }
+
+    var isAvailableForStudentNow: Bool {
+        guard let formationEndRaw = teamFormationEndsAtUtc,
+              let formationEnd = Self.parseApiUtc(formationEndRaw)
+        else { return true }
+        return Date() >= formationEnd
+    }
+
+    var isSubmissionWindowOpen: Bool {
+        let now = Date()
+        if let startRaw = startsAtUtc,
+           let start = Self.parseApiUtc(startRaw),
+           now < start {
+            return false
+        }
+        if let deadlineRaw = deadline,
+           let dl = Self.parseApiUtc(deadlineRaw),
+           now > dl {
             return false
         }
         return true
