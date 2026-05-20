@@ -24,6 +24,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var isUpdatingTeam = false
     @Published var errorMessage: String?
     @Published var teamErrorMessage: String?
+    @Published var assignmentAccessHint: String?
 
     @Published var grade: Grade?
 
@@ -47,11 +48,13 @@ final class AssignmentDetailsViewModel: ObservableObject {
         assignmentsRepository: AssignmentsNetworkProtocol,
         usersRepository: UsersNetworkProtocol,
         submissionsRepository: SubmissionsNetworkProtocol,
+        initialAssignment: AssignmentResponse? = nil
     ) {
         self.assignmentId = assignmentId
         self.assignmentsRepository = assignmentsRepository
         self.usersRepository = usersRepository
         self.submissionsRepository = submissionsRepository
+        self.assignment = initialAssignment
     }
 
     deinit {
@@ -62,31 +65,48 @@ final class AssignmentDetailsViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         teamErrorMessage = nil
+        assignmentAccessHint = nil
         defer { isLoading = false }
 
         await loadProfile()
 
-        await loadAssignmentDetails()
-        await loadGradingRulesDisplay()
-        await loadCriteriaDisplay()
-        guard assignment != nil, errorMessage == nil else { return }
-        await reloadTeams()
-        await loadCaptainState()
-        await refreshDraftState()
-        await loadSubmission()
-        await loadAssessment()
+        // Параллельно: детали, рубрика (rules + criteria), submission.
+        // Рубрика доступна по assignmentId даже при 403 на GET /assignments/{id}.
+        async let detailsTask: Void = loadAssignmentDetails()
+        async let rubricTask: Void = loadRubric()
+        async let submissionTask: Void = loadSubmission()
+
+        _ = await (detailsTask, rubricTask, submissionTask)
+
+        if assignment != nil {
+            await reloadTeams()
+            await loadCaptainState()
+            await refreshDraftState()
+        }
+
         await loadGrade()
+        await loadAssessment()
+    }
+
+    var isLimitedAccessMode: Bool {
+        assignmentAccessHint != nil
     }
 
     private func loadAssignmentDetails() async {
         do {
             assignment = try await assignmentsRepository.getAssignment(id: assignmentId)
+            assignmentAccessHint = nil
         } catch let error as NetworkError {
             switch error {
             case .serverError(let code, let message):
                 if code == 403 {
-                    if (message?.lowercased().contains("пока недоступно") == true) {
-                        errorMessage = "Задание пока недоступно"
+                    if message?.lowercased().contains("пока недоступно") == true {
+                        if assignment != nil {
+                            assignmentAccessHint =
+                                "Детали задания пока недоступны, но рубрику и командные действия можно просматривать."
+                        } else {
+                            errorMessage = "Задание пока недоступно"
+                        }
                     } else {
                         errorMessage = "Задание скрыто"
                     }
@@ -99,6 +119,12 @@ final class AssignmentDetailsViewModel: ObservableObject {
         } catch {
             errorMessage = "Не удалось загрузить задание"
         }
+    }
+
+    private func loadRubric() async {
+        async let rulesTask: Void = loadGradingRulesDisplay()
+        async let criteriaTask: Void = loadCriteriaDisplay()
+        _ = await (rulesTask, criteriaTask)
     }
 
     func loadProfile() async {

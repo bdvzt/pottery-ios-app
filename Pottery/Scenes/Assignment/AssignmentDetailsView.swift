@@ -77,7 +77,7 @@ struct AssignmentDetailsView: View {
 
                 }
 
-                else if let error = viewModel.errorMessage {
+                else if let error = viewModel.errorMessage, viewModel.assignment == nil {
 
                     errorView(error)
 
@@ -87,13 +87,18 @@ struct AssignmentDetailsView: View {
 
                     assignmentCard(assignment)
 
+                    if let accessHint = viewModel.assignmentAccessHint {
+                        limitedAccessCard(accessHint)
+                    }
+
+                    if !viewModel.isLimitedAccessMode,
+                       let files = assignment.files, !files.isEmpty {
+                        filesSection(files)
+                    }
+
                     gradingRulesSection
 
                     criteriaSection
-
-                    if let files = assignment.files, !files.isEmpty {
-                        filesSection(files)
-                    }
 
                     teamsSection
 
@@ -101,7 +106,9 @@ struct AssignmentDetailsView: View {
                         draftSection
                     }
 
-                    submissionSection
+                    if !viewModel.isLimitedAccessMode {
+                        submissionSection
+                    }
 
                     myAssessmentSection
                 }
@@ -853,16 +860,44 @@ struct AssignmentDetailsView: View {
     }
 
     private func errorView(_ text: String) -> some View {
-
         VStack(spacing: 10) {
-
-            Text(text)
-                .foregroundStyle(.red)
+            if text == "Задание пока недоступно" {
+                Image(systemName: "clock")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                Text("Задание пока недоступно")
+                    .foregroundStyle(.primary)
+                Text("Оно появится в деталях, когда наступит время доступа.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(text)
+                    .foregroundStyle(.red)
+            }
 
             Button("Обновить") {
                 Task { await viewModel.loadAssignment() }
             }
         }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func limitedAccessCard(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "info.circle")
+                .foregroundStyle(.blue)
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private func selectableSubmissionFileRow(_ file: SubmissionFile) -> some View {
