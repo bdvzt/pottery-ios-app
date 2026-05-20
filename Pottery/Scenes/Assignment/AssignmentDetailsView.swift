@@ -89,6 +89,8 @@ struct AssignmentDetailsView: View {
 
                     gradingRulesSection
 
+                    criteriaSection
+
                     if let files = assignment.files, !files.isEmpty {
                         filesSection(files)
                     }

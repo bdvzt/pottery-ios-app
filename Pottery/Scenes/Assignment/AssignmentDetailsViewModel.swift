@@ -30,6 +30,9 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var gradingRules: AssignmentGradingRulesDto?
     @Published var gradingRulesPlaceholder: String?
 
+    @Published var criterionSections: [CriterionGroupSection] = []
+    @Published var criterionSectionsPlaceholder: String?
+
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
@@ -62,6 +65,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
         await loadAssignmentDetails()
         await loadGradingRulesDisplay()
+        await loadCriteriaDisplay()
         guard assignment != nil, errorMessage == nil else { return }
         await reloadTeams()
         await loadCaptainState()
@@ -614,6 +618,62 @@ final class AssignmentDetailsViewModel: ObservableObject {
         gradingRules = await fetchGradingRules()
     }
 
+    private func loadCriteriaDisplay() async {
+        guard let groups = await fetchCriterionGroups() else {
+            criterionSections = []
+            return
+        }
+
+        let sortedGroups = groups.sorted { $0.resolvedSortOrder < $1.resolvedSortOrder }
+
+        let sections: [CriterionGroupSection] = await withTaskGroup(of: CriterionGroupSection?.self) { taskGroup in
+            for group in sortedGroups {
+                taskGroup.addTask { [assignmentsRepository] in
+                    do {
+                        let criteria = try await assignmentsRepository.getCriteriaInGroup(groupId: group.id)
+                        let sorted = criteria.sorted { $0.resolvedSortOrder < $1.resolvedSortOrder }
+                        return CriterionGroupSection(group: group, criteria: sorted)
+                    } catch {
+                        return CriterionGroupSection(group: group, criteria: [])
+                    }
+                }
+            }
+
+            var results: [String: CriterionGroupSection] = [:]
+            for await section in taskGroup {
+                if let section { results[section.group.id] = section }
+            }
+            return sortedGroups.compactMap { results[$0.id] }
+        }
+
+        criterionSections = sections
+        criterionSectionsPlaceholder = sections.isEmpty
+            ? "Критерии пока не настроены преподавателем."
+            : nil
+    }
+
+    private func fetchCriterionGroups() async -> [CriterionGroupDto]? {
+        do {
+            let groups = try await assignmentsRepository.getCriterionGroups(assignmentId: assignmentId)
+            criterionSectionsPlaceholder = nil
+            return groups
+        } catch let error as NetworkError {
+            if case .serverError(let code, _) = error {
+                if code == 404 || code == 403 {
+                    criterionSectionsPlaceholder = "Критерии пока недоступны."
+                } else {
+                    criterionSectionsPlaceholder = "Не удалось загрузить критерии."
+                }
+            } else {
+                criterionSectionsPlaceholder = "Не удалось загрузить критерии."
+            }
+            return nil
+        } catch {
+            criterionSectionsPlaceholder = "Не удалось загрузить критерии."
+            return nil
+        }
+    }
+
     private func fetchGradingRules() async -> AssignmentGradingRulesDto? {
         do {
             let rules = try await assignmentsRepository.getGradingRules(assignmentId: assignmentId)
@@ -661,6 +721,13 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
         return nil
     }
+}
+
+struct CriterionGroupSection: Identifiable, Equatable {
+    let group: CriterionGroupDto
+    let criteria: [CriterionDto]
+
+    var id: String { group.id }
 }
 
 struct PendingSubmissionUploadFile: Identifiable {
