@@ -128,6 +128,27 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
         )
         try await networkService.request(endPoint)
     }
+
+    func getGradingRules(assignmentId: String) async throws -> AssignmentGradingRulesDto {
+        try await networkService.requestDecodable(
+            GetGradingRulesEndpoint(assignmentId: assignmentId),
+            as: AssignmentGradingRulesDto.self
+        )
+    }
+
+    func getCriterionGroups(assignmentId: String) async throws -> [CriterionGroupDto] {
+        try await networkService.requestDecodable(
+            GetCriterionGroupsEndpoint(assignmentId: assignmentId),
+            as: [CriterionGroupDto].self
+        )
+    }
+
+    func getCriteriaInGroup(groupId: String) async throws -> [CriterionDto] {
+        try await networkService.requestDecodable(
+            GetCriteriaInGroupEndpoint(groupId: groupId),
+            as: [CriterionDto].self
+        )
+    }
 }
 
 private struct GetAssignmentTeamsEndpoint: EndPoint {
