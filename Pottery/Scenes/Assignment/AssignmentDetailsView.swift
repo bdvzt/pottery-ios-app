@@ -102,6 +102,8 @@ struct AssignmentDetailsView: View {
                     }
 
                     submissionSection
+
+                    myAssessmentSection
                 }
 
             }
@@ -180,20 +182,10 @@ struct AssignmentDetailsView: View {
                 infoChip("Создано \(formatDate(assignment.created))", color: .gray)
             }
 
-            HStack {
-                Text("Оценка")
-                Spacer()
-                if let grade = viewModel.grade?.grade {
-                    Text("\(grade)")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Color.accentColor)
-                } else {
-                    Text("Нет оценки")
-                        .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .font(.caption)
+            gradeSummaryRow(
+                rounded: viewModel.grade?.grade,
+                calculated: viewModel.grade?.calculatedGrade
+            )
 
         }
         .padding()
@@ -957,21 +949,10 @@ struct AssignmentDetailsView: View {
 
     private func submissionFeedbackSection(_ submission: SubmissionResponse) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("Оценка")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                if let grade = submission.grade {
-                    Text("\(grade)")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                } else {
-                    Text("Оценка еще не выставлена")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            gradeSummaryRow(
+                rounded: submission.grade,
+                calculated: submission.calculatedGrade
+            )
 
             if let comment = normalizedTeacherComment(submission.teacherComment) {
                 VStack(alignment: .leading, spacing: 4) {

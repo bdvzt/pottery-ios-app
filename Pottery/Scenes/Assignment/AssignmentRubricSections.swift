@@ -307,4 +307,127 @@ extension AssignmentDetailsView {
             .foregroundStyle(color)
             .clipShape(Capsule())
     }
+
+    // MARK: - Моя оценка
+
+    var myAssessmentSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Моя оценка")
+                .font(.headline)
+
+            if viewModel.mySubmission == nil {
+                Text("Решение не отправлено.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else if let assessment = viewModel.assessment {
+                assessmentContent(assessment)
+            } else {
+                Text(viewModel.assessmentPlaceholder ?? "Решение отправлено и ожидает проверки.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    @ViewBuilder
+    private func assessmentContent(_ assessment: SubmissionAssessmentDto) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Итоговая оценка")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(GradeFormatting.calculatedGradeText(assessment.finalGrade) ?? "—")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.accentColor)
+            }
+
+            assessmentBreakdown(assessment)
+
+            if let checked = formattedCheckedAt(assessment.checkedAtUtc) {
+                Text("Проверено: \(checked)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let comment = assessment.comment?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !comment.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Комментарий преподавателя")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(comment)
+                        .font(.footnote)
+                }
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+    }
+
+    private func assessmentBreakdown(_ assessment: SubmissionAssessmentDto) -> some View {
+        let rows: [(String, Decimal?)] = [
+            ("Основные баллы", assessment.mainPoints),
+            ("Бонус", assessment.bonusPoints),
+            ("Штраф", assessment.penaltyPoints),
+            ("Множитель", assessment.multiplier)
+        ]
+        return VStack(alignment: .leading, spacing: 2) {
+            ForEach(rows.indices, id: \.self) { index in
+                let row = rows[index]
+                if let text = GradeFormatting.calculatedGradeText(row.1) {
+                    HStack {
+                        Text(row.0)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(text)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                }
+            }
+        }
+    }
+
+    private func formattedCheckedAt(_ raw: String?) -> String? {
+        guard let raw, !raw.isEmpty else { return nil }
+        return raw
+    }
+
+    func gradeSummaryRow(rounded: Int?, calculated: Decimal?) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Оценка")
+                Spacer()
+                if let rounded {
+                    Text("\(rounded)")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.accentColor)
+                } else {
+                    Text("Нет оценки")
+                        .fontWeight(.medium)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .font(.caption)
+
+            if let calculatedText = GradeFormatting.calculatedGradeText(calculated) {
+                HStack {
+                    Text("Расчётная")
+                    Spacer()
+                    Text(calculatedText)
+                        .foregroundStyle(.secondary)
+                }
+                .font(.caption2)
+            }
+        }
+    }
 }
