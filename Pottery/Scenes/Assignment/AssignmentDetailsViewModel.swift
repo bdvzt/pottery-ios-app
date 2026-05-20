@@ -33,6 +33,9 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var criterionSections: [CriterionGroupSection] = []
     @Published var criterionSectionsPlaceholder: String?
 
+    @Published var assessment: SubmissionAssessmentDto?
+    @Published var assessmentPlaceholder: String?
+
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
@@ -71,6 +74,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
         await loadCaptainState()
         await refreshDraftState()
         await loadSubmission()
+        await loadAssessment()
         await loadGrade()
     }
 
@@ -409,6 +413,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
             )
             selectedSubmissionFileIds.removeAll()
             await loadSubmission()
+            await loadAssessment()
         } catch let error as NetworkError {
             errorMessage = serverMessage(from: error) ?? "Не удалось удалить выбранные файлы"
         } catch {
@@ -671,6 +676,36 @@ final class AssignmentDetailsViewModel: ObservableObject {
         } catch {
             criterionSectionsPlaceholder = "Не удалось загрузить критерии."
             return nil
+        }
+    }
+
+    private func loadAssessment() async {
+        guard let submission = mySubmission else {
+            assessment = nil
+            assessmentPlaceholder = nil
+            return
+        }
+
+        do {
+            let value = try await submissionsRepository.getAssessment(submissionId: submission.id)
+            assessment = value
+            assessmentPlaceholder = nil
+        } catch let error as NetworkError {
+            assessment = nil
+            if case .serverError(let code, _) = error {
+                if code == 404 {
+                    assessmentPlaceholder = "Решение отправлено и ожидает проверки."
+                } else if code == 403 {
+                    assessmentPlaceholder = "Оценка пока недоступна."
+                } else {
+                    assessmentPlaceholder = "Не удалось загрузить оценку."
+                }
+            } else {
+                assessmentPlaceholder = "Не удалось загрузить оценку."
+            }
+        } catch {
+            assessment = nil
+            assessmentPlaceholder = "Не удалось загрузить оценку."
         }
     }
 
