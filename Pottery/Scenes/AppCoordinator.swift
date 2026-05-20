@@ -209,7 +209,8 @@ private extension AppCoordinator {
             assignmentId: assignment.id,
             assignmentsRepository: assignmentsNetwork,
             usersRepository: usersNetwork,
-            submissionsRepository: submissionsRepository
+            submissionsRepository: submissionsRepository,
+            initialAssignment: assignment
         )
 
         let view = AssignmentDetailsView(viewModel: viewModel)
