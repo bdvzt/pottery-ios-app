@@ -27,6 +27,9 @@ final class AssignmentDetailsViewModel: ObservableObject {
 
     @Published var grade: Grade?
 
+    @Published var gradingRules: AssignmentGradingRulesDto?
+    @Published var gradingRulesPlaceholder: String?
+
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
@@ -58,6 +61,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
         await loadProfile()
 
         await loadAssignmentDetails()
+        await loadGradingRulesDisplay()
         guard assignment != nil, errorMessage == nil else { return }
         await reloadTeams()
         await loadCaptainState()
@@ -604,6 +608,34 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
 
         return message
+    }
+
+    private func loadGradingRulesDisplay() async {
+        gradingRules = await fetchGradingRules()
+    }
+
+    private func fetchGradingRules() async -> AssignmentGradingRulesDto? {
+        do {
+            let rules = try await assignmentsRepository.getGradingRules(assignmentId: assignmentId)
+            gradingRulesPlaceholder = nil
+            return rules
+        } catch let error as NetworkError {
+            if case .serverError(let code, _) = error {
+                if code == 404 {
+                    gradingRulesPlaceholder = "Правила оценивания пока не заданы."
+                } else if code == 403 {
+                    gradingRulesPlaceholder = "Правила оценивания пока недоступны."
+                } else {
+                    gradingRulesPlaceholder = "Не удалось загрузить правила оценивания."
+                }
+            } else {
+                gradingRulesPlaceholder = "Не удалось загрузить правила оценивания."
+            }
+            return nil
+        } catch {
+            gradingRulesPlaceholder = "Не удалось загрузить правила оценивания."
+            return nil
+        }
     }
 
     private func mimeType(for url: URL) -> String {
