@@ -82,6 +82,7 @@
 		88211B132F62CF280073396D /* DismissKeyboardOnTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B122F62CF280073396D /* DismissKeyboardOnTap.swift */; };
 		88211B162F62D1DD0073396D /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B152F62D1DD0073396D /* EditProfileViewModel.swift */; };
 		88211B182F62D1E40073396D /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88211B172F62D1E40073396D /* EditProfileView.swift */; };
+		8894D0662FBAD51D005BF4A1 /* GradeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8894D0642FBAD51D005BF4A1 /* GradeFormatting.swift */; };
 		88F98E2E2F643D2F00EDC0D2 /* JoinCourseRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E282F643D2F00EDC0D2 /* JoinCourseRequest.swift */; };
 		88F98E352F643D2F00EDC0D2 /* CoursesNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E212F643D2F00EDC0D2 /* CoursesNetwork.swift */; };
 		88F98E382F643D2F00EDC0D2 /* JoinCourseEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */; };
@@ -133,6 +134,12 @@
 		88F98EF12F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EF02F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift */; };
 		88F98EF32F64DFD800EDC0D2 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */; };
 		88F98EF52F64E9CD00EDC0D2 /* FileViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F98EF42F64E9CD00EDC0D2 /* FileViewer.swift */; };
+		AB0000000000000000000001 /* JSONValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000001 /* JSONValue.swift */; };
+		AB0000000000000000000002 /* GradingRulesDto.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000002 /* GradingRulesDto.swift */; };
+		AB0000000000000000000003 /* CriterionDto.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* CriterionDto.swift */; };
+		AB0000000000000000000004 /* SubmissionAssessmentDto.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000004 /* SubmissionAssessmentDto.swift */; };
+		AB0000000000000000000005 /* GradingEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000005 /* GradingEndpoints.swift */; };
+		AB0000000000000000000006 /* AssignmentRubricSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000006 /* AssignmentRubricSections.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -231,6 +238,7 @@
 		88211B122F62CF280073396D /* DismissKeyboardOnTap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissKeyboardOnTap.swift; sourceTree = "<group>"; };
 		88211B152F62D1DD0073396D /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		88211B172F62D1E40073396D /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
+		8894D0642FBAD51D005BF4A1 /* GradeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradeFormatting.swift; sourceTree = "<group>"; };
 		88F98E162F643D2F00EDC0D2 /* JoinCourseEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinCourseEndpoint.swift; sourceTree = "<group>"; };
 		88F98E1D2F643D2F00EDC0D2 /* CoursesNetworkProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesNetworkProtocol.swift; sourceTree = "<group>"; };
 		88F98E212F643D2F00EDC0D2 /* CoursesNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesNetwork.swift; sourceTree = "<group>"; };
@@ -282,6 +290,12 @@
 		88F98EF02F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteSubmissionFilesEndpoint.swift; sourceTree = "<group>"; };
 		88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
 		88F98EF42F64E9CD00EDC0D2 /* FileViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewer.swift; sourceTree = "<group>"; };
+		AA0000000000000000000001 /* JSONValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = JSONValue.swift; path = Pottery/Models/JSONValue.swift; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000002 /* GradingRulesDto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GradingRulesDto.swift; path = Pottery/Services/Network/Grading/Responses/GradingRulesDto.swift; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000003 /* CriterionDto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CriterionDto.swift; path = Pottery/Services/Network/Grading/Responses/CriterionDto.swift; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000004 /* SubmissionAssessmentDto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SubmissionAssessmentDto.swift; path = Pottery/Services/Network/Grading/Responses/SubmissionAssessmentDto.swift; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000005 /* GradingEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GradingEndpoints.swift; path = Pottery/Services/Network/Grading/Endpoints/GradingEndpoints.swift; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000006 /* AssignmentRubricSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AssignmentRubricSections.swift; path = Pottery/Scenes/Assignment/AssignmentRubricSections.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -530,6 +544,7 @@
 			children = (
 				88211AC82F62A6640073396D /* Role.swift */,
 				88211AB52F62A4B20073396D /* ScreenState.swift */,
+				AA0000000000000000000001 /* JSONValue.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -608,6 +623,7 @@
 		88211AF12F62C0600073396D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				8894D0652FBAD51D005BF4A1 /* Grading */,
 				88211B032F62C5260073396D /* AppCoordinator.swift */,
 				88F98E8F2F64932600EDC0D2 /* Assignment */,
 				88F98E952F64932600EDC0D2 /* Courses */,
@@ -662,6 +678,18 @@
 				88211B152F62D1DD0073396D /* EditProfileViewModel.swift */,
 			);
 			path = EditProfile;
+			sourceTree = "<group>";
+		};
+		8894D0652FBAD51D005BF4A1 /* Grading */ = {
+			isa = PBXGroup;
+			children = (
+				8894D0642FBAD51D005BF4A1 /* GradeFormatting.swift */,
+				AA0000000000000000000002 /* GradingRulesDto.swift */,
+				AA0000000000000000000003 /* CriterionDto.swift */,
+				AA0000000000000000000004 /* SubmissionAssessmentDto.swift */,
+				AA0000000000000000000005 /* GradingEndpoints.swift */,
+			);
+			path = Grading;
 			sourceTree = "<group>";
 		};
 		88F98E1C2F643D2F00EDC0D2 /* Endpoints */ = {
@@ -789,6 +817,7 @@
 				88F98EF22F64DFD800EDC0D2 /* CameraPicker.swift */,
 				88F98EC62F64B8B000EDC0D2 /* AssignmentDetailsViewModel.swift */,
 				88F98E9D2F64969300EDC0D2 /* AssignmentDetailsView.swift */,
+				AA0000000000000000000006 /* AssignmentRubricSections.swift */,
 			);
 			path = Assignment;
 			sourceTree = "<group>";
@@ -1104,6 +1133,7 @@
 				88211AE72F62B3EE0073396D /* RegisterEndpoint.swift in Sources */,
 				88211AFE2F62C0C10073396D /* RegistrationViewModel.swift in Sources */,
 				88211AE92F62B41E0073396D /* GetProfileEndpoint.swift in Sources */,
+				8894D0662FBAD51D005BF4A1 /* GradeFormatting.swift in Sources */,
 				88F98EF12F64D4F200EDC0D2 /* DeleteSubmissionFilesEndpoint.swift in Sources */,
 				88F98E352F643D2F00EDC0D2 /* CoursesNetwork.swift in Sources */,
 				88211A812F6296780073396D /* EndPoint.swift in Sources */,
@@ -1174,6 +1204,12 @@
 				88F98EB32F64A2D000EDC0D2 /* EditCommentEndpoint.swift in Sources */,
 				88F98EB72F64A2D000EDC0D2 /* CommentsNetworkProtocol.swift in Sources */,
 				88F98EBA2F64A2D000EDC0D2 /* CreateCommentEndpoint.swift in Sources */,
+				AB0000000000000000000001 /* JSONValue.swift in Sources */,
+				AB0000000000000000000002 /* GradingRulesDto.swift in Sources */,
+				AB0000000000000000000003 /* CriterionDto.swift in Sources */,
+				AB0000000000000000000004 /* SubmissionAssessmentDto.swift in Sources */,
+				AB0000000000000000000005 /* GradingEndpoints.swift in Sources */,
+				AB0000000000000000000006 /* AssignmentRubricSections.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1240,12 +1276,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3XMQDQF9VR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Pottery/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1270,12 +1308,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3XMQDQF9VR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Pottery/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

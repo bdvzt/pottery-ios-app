@@ -81,6 +81,12 @@ enum APIConstants {
         static func assignmentCaptainSelectFinalSubmission(assignmentId: String) -> String {
             "/api/assignments/\(assignmentId)/teams/captain/final-submission"
         }
+        static func gradingRules(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/grading-rules"
+        }
+        static func criterionGroups(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/criterion-groups"
+        }
     }
 
     // MARK: - Comments
@@ -90,6 +96,13 @@ enum APIConstants {
         }
         static func editComment(id: String) -> String {
             "/api/assignments/comments/\(id)"
+        }
+    }
+
+    // MARK: - Criteria
+    enum Criteria {
+        static func criteriaInGroup(groupId: String) -> String {
+            "/api/criterion-groups/\(groupId)/criteria"
         }
     }
 
@@ -105,7 +118,10 @@ enum APIConstants {
             "/api/submissions/\(id)"
         }
         static func getMySubmission(assignmentId: String) -> String {
-            "/assignments/\(assignmentId)/my-submission"
+            "/api/assignments/\(assignmentId)/my-submission"
+        }
+        static func assessment(submissionId: String) -> String {
+            "/api/submissions/\(submissionId)/assessment"
         }
     }
 }
