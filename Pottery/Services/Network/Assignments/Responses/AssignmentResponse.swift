@@ -21,8 +21,73 @@ struct AssignmentResponse: Decodable {
     let isClosed: Bool?
     let requiresSubmission: Bool
     let deadline: String?
+    let peerReviewEnabled: Bool?
+    let peerReviewStartsAtUtc: String?
+    let peerReviewEndsAtUtc: String?
+    let peerReviewRequiredReviewsCount: Int?
+    let peerReviewPenaltyPercent: Decimal?
     let created: String
     let files: [AssignmentFile]?
+
+    init(
+        id: String,
+        courseId: String,
+        title: String? = nil,
+        text: String? = nil,
+        status: String? = nil,
+        startsAtUtc: String? = nil,
+        minTeamSize: Int? = nil,
+        maxTeamSize: Int? = nil,
+        teamFormationMode: String? = nil,
+        captainSelectionEndsAtUtc: String? = nil,
+        teamFormationStartsAtUtc: String? = nil,
+        teamFormationEndsAtUtc: String? = nil,
+        draftCurrentCaptainUserId: String? = nil,
+        draftStartedAtUtc: String? = nil,
+        draftCompletedAtUtc: String? = nil,
+        isTeamCompositionLocked: Bool? = nil,
+        teamCompositionLockedAtUtc: String? = nil,
+        isVisible: Bool? = nil,
+        isClosed: Bool? = nil,
+        requiresSubmission: Bool,
+        deadline: String? = nil,
+        peerReviewEnabled: Bool? = nil,
+        peerReviewStartsAtUtc: String? = nil,
+        peerReviewEndsAtUtc: String? = nil,
+        peerReviewRequiredReviewsCount: Int? = nil,
+        peerReviewPenaltyPercent: Decimal? = nil,
+        created: String,
+        files: [AssignmentFile]? = nil
+    ) {
+        self.id = id
+        self.courseId = courseId
+        self.title = title
+        self.text = text
+        self.status = status
+        self.startsAtUtc = startsAtUtc
+        self.minTeamSize = minTeamSize
+        self.maxTeamSize = maxTeamSize
+        self.teamFormationMode = teamFormationMode
+        self.captainSelectionEndsAtUtc = captainSelectionEndsAtUtc
+        self.teamFormationStartsAtUtc = teamFormationStartsAtUtc
+        self.teamFormationEndsAtUtc = teamFormationEndsAtUtc
+        self.draftCurrentCaptainUserId = draftCurrentCaptainUserId
+        self.draftStartedAtUtc = draftStartedAtUtc
+        self.draftCompletedAtUtc = draftCompletedAtUtc
+        self.isTeamCompositionLocked = isTeamCompositionLocked
+        self.teamCompositionLockedAtUtc = teamCompositionLockedAtUtc
+        self.isVisible = isVisible
+        self.isClosed = isClosed
+        self.requiresSubmission = requiresSubmission
+        self.deadline = deadline
+        self.peerReviewEnabled = peerReviewEnabled
+        self.peerReviewStartsAtUtc = peerReviewStartsAtUtc
+        self.peerReviewEndsAtUtc = peerReviewEndsAtUtc
+        self.peerReviewRequiredReviewsCount = peerReviewRequiredReviewsCount
+        self.peerReviewPenaltyPercent = peerReviewPenaltyPercent
+        self.created = created
+        self.files = files
+    }
 }
 
 enum AssignmentStatusKind {
@@ -232,6 +297,10 @@ extension AssignmentResponse {
         return true
     }
 
+    var isPeerReviewEnabled: Bool {
+        peerReviewEnabled == true
+    }
+
     private static func parseApiUtc(_ string: String) -> Date? {
         let withFraction = ISO8601DateFormatter()
         withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -283,6 +352,7 @@ struct AssignmentTeamMember: Decodable {
     let userId: String
     let firstName: String?
     let lastName: String?
+    let middleName: String?
     let email: String?
     let createdAtUtc: String
 }

@@ -149,6 +149,40 @@ final class AssignmentsNetwork: AssignmentsNetworkProtocol {
             as: [CriterionDto].self
         )
     }
+
+    func getPeerReviewMyStatus(assignmentId: String) async throws -> PeerReviewPersonalStatus {
+        try await networkService.requestDecodable(
+            GetPeerReviewMyStatusEndpoint(assignmentId: assignmentId),
+            as: PeerReviewPersonalStatus.self
+        )
+    }
+
+    func getPeerReviewTeamStatus(assignmentId: String) async throws -> PeerReviewTeamStatus {
+        try await networkService.requestDecodable(
+            GetPeerReviewTeamStatusEndpoint(assignmentId: assignmentId),
+            as: PeerReviewTeamStatus.self
+        )
+    }
+
+    func getPeerReviewMyForm(assignmentId: String) async throws -> PeerReviewMyForm {
+        try await networkService.requestDecodable(
+            GetPeerReviewMyFormEndpoint(assignmentId: assignmentId),
+            as: PeerReviewMyForm.self
+        )
+    }
+
+    func savePeerReviewRatings(
+        assignmentId: String,
+        ratings: [PeerReviewRatingRequest]
+    ) async throws -> [PeerReviewRating] {
+        try await networkService.requestDecodable(
+            SavePeerReviewRatingsEndpoint(
+                assignmentId: assignmentId,
+                body: UpdatePeerReviewRatingsRequest(ratings: ratings)
+            ),
+            as: [PeerReviewRating].self
+        )
+    }
 }
 
 private struct GetAssignmentTeamsEndpoint: EndPoint {
@@ -345,4 +379,41 @@ private struct CreateAssignmentTeamRequest: Encodable {
 
 private struct SelectFinalSubmissionRequest: Encodable {
     let submissionId: String
+}
+
+private struct GetPeerReviewMyStatusEndpoint: EndPoint {
+    let assignmentId: String
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.peerReviewMyStatus(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct GetPeerReviewTeamStatusEndpoint: EndPoint {
+    let assignmentId: String
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.peerReviewTeamStatus(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct GetPeerReviewMyFormEndpoint: EndPoint {
+    let assignmentId: String
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.peerReviewMyForm(assignmentId: assignmentId) }
+    var method: HTTPMethod { .get }
+    var task: HTTPTask { .request }
+    var authorization: AuthorizationRequirement { .accessToken }
+}
+
+private struct SavePeerReviewRatingsEndpoint: EndPoint {
+    let assignmentId: String
+    let body: UpdatePeerReviewRatingsRequest
+    var baseURL: URL { APIConstants.baseURL }
+    var path: String { APIConstants.Assignments.peerReviewRatings(assignmentId: assignmentId) }
+    var method: HTTPMethod { .put }
+    var task: HTTPTask { .requestBody(body) }
+    var authorization: AuthorizationRequirement { .accessToken }
 }
