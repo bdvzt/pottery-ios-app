@@ -100,6 +100,11 @@ final class CourseDetailsViewModelTests: XCTestCase {
                 text: nil,
                 requiresSubmission: true,
                 deadline: nil,
+                peerReviewEnabled: nil,
+                peerReviewStartsAtUtc: nil,
+                peerReviewEndsAtUtc: nil,
+                peerReviewRequiredReviewsCount: nil,
+                peerReviewPenaltyPercent: nil,
                 created: "2024-01-01",
                 files: nil
             )

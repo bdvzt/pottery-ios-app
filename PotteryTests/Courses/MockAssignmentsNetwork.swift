@@ -53,6 +53,21 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
         )
     )
     var selectFinalSubmissionResult: Result<Void, Error> = .success(())
+    var gradingRulesResult: Result<AssignmentGradingRulesDto, Error> = .failure(TestError.mock)
+    var criterionGroupsResult: Result<[CriterionGroupDto], Error> = .success([])
+    var criteriaInGroupResult: Result<[CriterionDto], Error> = .success([])
+    var peerReviewStatusResult: Result<PeerReviewPersonalStatus, Error> = .success(
+        PeerReviewPersonalStatus(
+            assignmentId: "",
+            totalCount: 0,
+            completedCount: 0,
+            remainingCount: 0,
+            isCompleted: false
+        )
+    )
+    var peerReviewTeamStatusResult: Result<PeerReviewTeamStatus, Error> = .failure(TestError.mock)
+    var peerReviewFormResult: Result<PeerReviewMyForm, Error> = .failure(TestError.mock)
+    var savePeerReviewRatingsResult: Result<[PeerReviewRating], Error> = .success([])
 
     func getCourseAssignments(id: String, page: Int, pageSize: Int) async throws -> [AssignmentResponse] {
         try getAssignmentsResult.get()
@@ -112,5 +127,36 @@ final class MockAssignmentsNetwork: AssignmentsNetworkProtocol {
 
     func selectCaptainFinalSubmission(assignmentId: String, submissionId: String) async throws {
         try selectFinalSubmissionResult.get()
+    }
+
+    func getGradingRules(assignmentId: String) async throws -> AssignmentGradingRulesDto {
+        try gradingRulesResult.get()
+    }
+
+    func getCriterionGroups(assignmentId: String) async throws -> [CriterionGroupDto] {
+        try criterionGroupsResult.get()
+    }
+
+    func getCriteriaInGroup(groupId: String) async throws -> [CriterionDto] {
+        try criteriaInGroupResult.get()
+    }
+
+    func getPeerReviewMyStatus(assignmentId: String) async throws -> PeerReviewPersonalStatus {
+        try peerReviewStatusResult.get()
+    }
+
+    func getPeerReviewTeamStatus(assignmentId: String) async throws -> PeerReviewTeamStatus {
+        try peerReviewTeamStatusResult.get()
+    }
+
+    func getPeerReviewMyForm(assignmentId: String) async throws -> PeerReviewMyForm {
+        try peerReviewFormResult.get()
+    }
+
+    func savePeerReviewRatings(
+        assignmentId: String,
+        ratings: [PeerReviewRatingRequest]
+    ) async throws -> [PeerReviewRating] {
+        try savePeerReviewRatingsResult.get()
     }
 }
