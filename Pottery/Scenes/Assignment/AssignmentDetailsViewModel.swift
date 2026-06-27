@@ -37,10 +37,15 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var assessment: SubmissionAssessmentDto?
     @Published var assessmentPlaceholder: String?
 
+    @Published var peerReviewStatus: PeerReviewPersonalStatus?
+    @Published var isPeerReviewStatusLoading = false
+    @Published var peerReviewStatusErrorMessage: String?
+
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
     private let submissionsRepository: SubmissionsNetworkProtocol
+    private let onOpenPeerReview: (String) -> Void
     private var draftPollingTask: Task<Void, Never>?
 
     init(
@@ -48,13 +53,15 @@ final class AssignmentDetailsViewModel: ObservableObject {
         assignmentsRepository: AssignmentsNetworkProtocol,
         usersRepository: UsersNetworkProtocol,
         submissionsRepository: SubmissionsNetworkProtocol,
-        initialAssignment: AssignmentResponse? = nil
+        initialAssignment: AssignmentResponse? = nil,
+        onOpenPeerReview: @escaping (String) -> Void = { _ in }
     ) {
         self.assignmentId = assignmentId
         self.assignmentsRepository = assignmentsRepository
         self.usersRepository = usersRepository
         self.submissionsRepository = submissionsRepository
         self.assignment = initialAssignment
+        self.onOpenPeerReview = onOpenPeerReview
     }
 
     deinit {
@@ -84,6 +91,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
             await refreshDraftState()
         }
 
+        await loadPeerReviewStatusIfNeeded()
         await loadGrade()
         await loadAssessment()
     }
@@ -455,6 +463,33 @@ final class AssignmentDetailsViewModel: ObservableObject {
         )
     }
 
+    func openPeerReview() {
+        onOpenPeerReview(assignmentId)
+    }
+
+    func refreshPeerReviewStatus() async {
+        await loadPeerReviewStatusIfNeeded()
+    }
+
+    private func loadPeerReviewStatusIfNeeded() async {
+        guard assignment?.isPeerReviewEnabled == true else {
+            peerReviewStatus = nil
+            peerReviewStatusErrorMessage = nil
+            return
+        }
+
+        isPeerReviewStatusLoading = true
+        peerReviewStatusErrorMessage = nil
+        defer { isPeerReviewStatusLoading = false }
+
+        do {
+            peerReviewStatus = try await assignmentsRepository.getPeerReviewMyStatus(assignmentId: assignmentId)
+        } catch {
+            peerReviewStatus = nil
+            peerReviewStatusErrorMessage = mapPeerReviewError(error, fallback: "Не удалось загрузить прогресс peer review")
+        }
+    }
+
     private func loadCaptainState() async {
         guard assignment != nil else {
             captainContext = nil
@@ -780,6 +815,69 @@ final class AssignmentDetailsViewModel: ObservableObject {
         if let title = obj["title"] as? String, !title.isEmpty {
             return title
         }
+        return nil
+    }
+
+    private func mapPeerReviewError(_ error: Error, fallback: String) -> String {
+        guard let networkError = error as? NetworkError else { return fallback }
+
+        if case .unauthorized = networkError {
+            return "Сессия истекла. Войдите снова."
+        }
+
+        guard case let .serverError(code, raw) = networkError else { return fallback }
+        let message = peerReviewServerMessage(from: raw)
+        let lowered = message?.lowercased() ?? ""
+
+        if code == 403 {
+            return "Нет доступа к peer review."
+        }
+        if lowered.contains("not enabled") || lowered.contains("не включ") || lowered.contains("отключ") {
+            return "Peer review для этого задания не включен."
+        }
+        if lowered.contains("not started") || lowered.contains("has not started") || lowered.contains("не нач") {
+            return "Peer review еще не начался."
+        }
+        if lowered.contains("deadline") || lowered.contains("ended") || lowered.contains("expired") || lowered.contains("дедлайн") || lowered.contains("срок") {
+            return "Дедлайн peer review уже прошел."
+        }
+        if lowered.contains("not generated") || lowered.contains("assignments are not generated") || lowered.contains("не сформ") || lowered.contains("не сгенер") {
+            return "Назначения peer review еще не сформированы."
+        }
+        if code == 400 || code == 422 {
+            return message ?? "Проверьте данные peer review."
+        }
+        return message ?? fallback
+    }
+
+    private func peerReviewServerMessage(from raw: String?) -> String? {
+        guard let raw,
+              let data = raw.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            return raw
+        }
+
+        for key in ["message", "detail", "title", "code"] {
+            if let value = obj[key] as? String, !value.isEmpty, value != "null" {
+                return value
+            }
+        }
+
+        if let errors = obj["errors"] as? [String: Any],
+           let first = errors.values.first {
+            if let values = first as? [String], let value = values.first {
+                return value
+            }
+            if let value = first as? String {
+                return value
+            }
+        }
+
+        if let details = obj["details"] as? [String], let value = details.first {
+            return value
+        }
+
         return nil
     }
 }
