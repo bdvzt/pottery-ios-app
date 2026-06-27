@@ -1,3 +1,5 @@
+import Foundation
+
 struct SubmissionResponse: Decodable {
 
     let id: String
@@ -5,6 +7,7 @@ struct SubmissionResponse: Decodable {
     let studentId: String
     let created: String
     let grade: Int?
+    let calculatedGrade: Decimal?
     let teacherComment: String?
     let status: String
     let files: [SubmissionFile]

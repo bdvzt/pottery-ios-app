@@ -19,4 +19,6 @@ protocol SubmissionsNetworkProtocol {
         submissionId: String,
         fileIds: [String]
     ) async throws
+
+    func getAssessment(submissionId: String) async throws -> SubmissionAssessmentDto
 }

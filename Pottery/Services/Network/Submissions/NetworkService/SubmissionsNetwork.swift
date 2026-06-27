@@ -62,4 +62,13 @@ final class SubmissionsNetwork: SubmissionsNetworkProtocol {
 
         try await networkService.request(endpoint)
     }
+
+    func getAssessment(submissionId: String) async throws -> SubmissionAssessmentDto {
+        let endpoint = GetSubmissionAssessmentEndpoint(submissionId: submissionId)
+
+        return try await networkService.requestDecodable(
+            endpoint,
+            as: SubmissionAssessmentDto.self
+        )
+    }
 }

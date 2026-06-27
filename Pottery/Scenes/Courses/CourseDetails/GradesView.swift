@@ -54,10 +54,18 @@ struct GradesView: View {
 
             Spacer()
 
-            Text(grade.grade.map(String.init) ?? "—")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundStyle(grade.grade == nil ? .secondary : Color.accentColor)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(grade.grade.map(String.init) ?? "—")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundStyle(grade.grade == nil ? .secondary : Color.accentColor)
+
+                if let calculated = GradeFormatting.calculatedGradeText(grade.calculatedGrade) {
+                    Text(calculated)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
 
             Text(grade.grade == nil ? "Нет оценки" : "Оценка")
                 .font(.caption2)

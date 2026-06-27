@@ -79,6 +79,11 @@ final class AssignmentDetailsViewModelTests: XCTestCase {
             isClosed: false,
             requiresSubmission: false,
             deadline: nil,
+            peerReviewEnabled: nil,
+            peerReviewStartsAtUtc: nil,
+            peerReviewEndsAtUtc: nil,
+            peerReviewRequiredReviewsCount: nil,
+            peerReviewPenaltyPercent: nil,
             created: "2024-01-01",
             files: nil
         )
@@ -101,4 +106,8 @@ private final class MockSubmissionsNetwork: SubmissionsNetworkProtocol {
     }
 
     func deleteSubmissionFiles(submissionId: String, fileIds: [String]) async throws {}
+
+    func getAssessment(submissionId: String) async throws -> SubmissionAssessmentDto {
+        throw TestError.mock
+    }
 }

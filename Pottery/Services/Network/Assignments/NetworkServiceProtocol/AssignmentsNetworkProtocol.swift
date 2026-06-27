@@ -15,4 +15,11 @@ protocol AssignmentsNetworkProtocol {
     func pickDraftStudent(assignmentId: String, studentId: String) async throws -> AssignmentDraftStateResponse
     func getCaptainMyTeam(assignmentId: String) async throws -> CaptainMyTeamResponse
     func selectCaptainFinalSubmission(assignmentId: String, submissionId: String) async throws
+    func getGradingRules(assignmentId: String) async throws -> AssignmentGradingRulesDto
+    func getCriterionGroups(assignmentId: String) async throws -> [CriterionGroupDto]
+    func getCriteriaInGroup(groupId: String) async throws -> [CriterionDto]
+    func getPeerReviewMyStatus(assignmentId: String) async throws -> PeerReviewPersonalStatus
+    func getPeerReviewTeamStatus(assignmentId: String) async throws -> PeerReviewTeamStatus
+    func getPeerReviewMyForm(assignmentId: String) async throws -> PeerReviewMyForm
+    func savePeerReviewRatings(assignmentId: String, ratings: [PeerReviewRatingRequest]) async throws -> [PeerReviewRating]
 }

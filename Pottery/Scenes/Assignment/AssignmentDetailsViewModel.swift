@@ -24,13 +24,28 @@ final class AssignmentDetailsViewModel: ObservableObject {
     @Published var isUpdatingTeam = false
     @Published var errorMessage: String?
     @Published var teamErrorMessage: String?
+    @Published var assignmentAccessHint: String?
 
     @Published var grade: Grade?
+
+    @Published var gradingRules: AssignmentGradingRulesDto?
+    @Published var gradingRulesPlaceholder: String?
+
+    @Published var criterionSections: [CriterionGroupSection] = []
+    @Published var criterionSectionsPlaceholder: String?
+
+    @Published var assessment: SubmissionAssessmentDto?
+    @Published var assessmentPlaceholder: String?
+
+    @Published var peerReviewStatus: PeerReviewPersonalStatus?
+    @Published var isPeerReviewStatusLoading = false
+    @Published var peerReviewStatusErrorMessage: String?
 
     private let assignmentId: String
     private let assignmentsRepository: AssignmentsNetworkProtocol
     private let usersRepository: UsersNetworkProtocol
     private let submissionsRepository: SubmissionsNetworkProtocol
+    private let onOpenPeerReview: (String) -> Void
     private var draftPollingTask: Task<Void, Never>?
 
     init(
@@ -38,11 +53,15 @@ final class AssignmentDetailsViewModel: ObservableObject {
         assignmentsRepository: AssignmentsNetworkProtocol,
         usersRepository: UsersNetworkProtocol,
         submissionsRepository: SubmissionsNetworkProtocol,
+        initialAssignment: AssignmentResponse? = nil,
+        onOpenPeerReview: @escaping (String) -> Void = { _ in }
     ) {
         self.assignmentId = assignmentId
         self.assignmentsRepository = assignmentsRepository
         self.usersRepository = usersRepository
         self.submissionsRepository = submissionsRepository
+        self.assignment = initialAssignment
+        self.onOpenPeerReview = onOpenPeerReview
     }
 
     deinit {
@@ -53,28 +72,49 @@ final class AssignmentDetailsViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         teamErrorMessage = nil
+        assignmentAccessHint = nil
         defer { isLoading = false }
 
         await loadProfile()
 
-        await loadAssignmentDetails()
-        guard assignment != nil, errorMessage == nil else { return }
-        await reloadTeams()
-        await loadCaptainState()
-        await refreshDraftState()
-        await loadSubmission()
+        // Параллельно: детали, рубрика (rules + criteria), submission.
+        // Рубрика доступна по assignmentId даже при 403 на GET /assignments/{id}.
+        async let detailsTask: Void = loadAssignmentDetails()
+        async let rubricTask: Void = loadRubric()
+        async let submissionTask: Void = loadSubmission()
+
+        _ = await (detailsTask, rubricTask, submissionTask)
+
+        if assignment != nil {
+            await reloadTeams()
+            await loadCaptainState()
+            await refreshDraftState()
+        }
+
+        await loadPeerReviewStatusIfNeeded()
         await loadGrade()
+        await loadAssessment()
+    }
+
+    var isLimitedAccessMode: Bool {
+        assignmentAccessHint != nil
     }
 
     private func loadAssignmentDetails() async {
         do {
             assignment = try await assignmentsRepository.getAssignment(id: assignmentId)
+            assignmentAccessHint = nil
         } catch let error as NetworkError {
             switch error {
             case .serverError(let code, let message):
                 if code == 403 {
-                    if (message?.lowercased().contains("пока недоступно") == true) {
-                        errorMessage = "Задание пока недоступно"
+                    if message?.lowercased().contains("пока недоступно") == true {
+                        if assignment != nil {
+                            assignmentAccessHint =
+                                "Детали задания пока недоступны, но рубрику и командные действия можно просматривать."
+                        } else {
+                            errorMessage = "Задание пока недоступно"
+                        }
                     } else {
                         errorMessage = "Задание скрыто"
                     }
@@ -87,6 +127,12 @@ final class AssignmentDetailsViewModel: ObservableObject {
         } catch {
             errorMessage = "Не удалось загрузить задание"
         }
+    }
+
+    private func loadRubric() async {
+        async let rulesTask: Void = loadGradingRulesDisplay()
+        async let criteriaTask: Void = loadCriteriaDisplay()
+        _ = await (rulesTask, criteriaTask)
     }
 
     func loadProfile() async {
@@ -401,6 +447,7 @@ final class AssignmentDetailsViewModel: ObservableObject {
             )
             selectedSubmissionFileIds.removeAll()
             await loadSubmission()
+            await loadAssessment()
         } catch let error as NetworkError {
             errorMessage = serverMessage(from: error) ?? "Не удалось удалить выбранные файлы"
         } catch {
@@ -414,6 +461,33 @@ final class AssignmentDetailsViewModel: ObservableObject {
             assignmentsRepository: assignmentsRepository,
             initialTeamFormationMode: assignment?.normalizedTeamFormationMode
         )
+    }
+
+    func openPeerReview() {
+        onOpenPeerReview(assignmentId)
+    }
+
+    func refreshPeerReviewStatus() async {
+        await loadPeerReviewStatusIfNeeded()
+    }
+
+    private func loadPeerReviewStatusIfNeeded() async {
+        guard assignment?.isPeerReviewEnabled == true else {
+            peerReviewStatus = nil
+            peerReviewStatusErrorMessage = nil
+            return
+        }
+
+        isPeerReviewStatusLoading = true
+        peerReviewStatusErrorMessage = nil
+        defer { isPeerReviewStatusLoading = false }
+
+        do {
+            peerReviewStatus = try await assignmentsRepository.getPeerReviewMyStatus(assignmentId: assignmentId)
+        } catch {
+            peerReviewStatus = nil
+            peerReviewStatusErrorMessage = mapPeerReviewError(error, fallback: "Не удалось загрузить прогресс peer review")
+        }
     }
 
     private func loadCaptainState() async {
@@ -606,6 +680,120 @@ final class AssignmentDetailsViewModel: ObservableObject {
         return message
     }
 
+    private func loadGradingRulesDisplay() async {
+        gradingRules = await fetchGradingRules()
+    }
+
+    private func loadCriteriaDisplay() async {
+        guard let groups = await fetchCriterionGroups() else {
+            criterionSections = []
+            return
+        }
+
+        let sortedGroups = groups.sorted { $0.resolvedSortOrder < $1.resolvedSortOrder }
+
+        let sections: [CriterionGroupSection] = await withTaskGroup(of: CriterionGroupSection?.self) { taskGroup in
+            for group in sortedGroups {
+                taskGroup.addTask { [assignmentsRepository] in
+                    do {
+                        let criteria = try await assignmentsRepository.getCriteriaInGroup(groupId: group.id)
+                        let sorted = criteria.sorted { $0.resolvedSortOrder < $1.resolvedSortOrder }
+                        return CriterionGroupSection(group: group, criteria: sorted)
+                    } catch {
+                        return CriterionGroupSection(group: group, criteria: [])
+                    }
+                }
+            }
+
+            var results: [String: CriterionGroupSection] = [:]
+            for await section in taskGroup {
+                if let section { results[section.group.id] = section }
+            }
+            return sortedGroups.compactMap { results[$0.id] }
+        }
+
+        criterionSections = sections
+        criterionSectionsPlaceholder = sections.isEmpty
+            ? "Критерии пока не настроены преподавателем."
+            : nil
+    }
+
+    private func fetchCriterionGroups() async -> [CriterionGroupDto]? {
+        do {
+            let groups = try await assignmentsRepository.getCriterionGroups(assignmentId: assignmentId)
+            criterionSectionsPlaceholder = nil
+            return groups
+        } catch let error as NetworkError {
+            if case .serverError(let code, _) = error {
+                if code == 404 || code == 403 {
+                    criterionSectionsPlaceholder = "Критерии пока недоступны."
+                } else {
+                    criterionSectionsPlaceholder = "Не удалось загрузить критерии."
+                }
+            } else {
+                criterionSectionsPlaceholder = "Не удалось загрузить критерии."
+            }
+            return nil
+        } catch {
+            criterionSectionsPlaceholder = "Не удалось загрузить критерии."
+            return nil
+        }
+    }
+
+    private func loadAssessment() async {
+        guard let submission = mySubmission else {
+            assessment = nil
+            assessmentPlaceholder = nil
+            return
+        }
+
+        do {
+            let value = try await submissionsRepository.getAssessment(submissionId: submission.id)
+            assessment = value
+            assessmentPlaceholder = nil
+        } catch let error as NetworkError {
+            assessment = nil
+            if case .serverError(let code, _) = error {
+                if code == 404 {
+                    assessmentPlaceholder = "Решение отправлено и ожидает проверки."
+                } else if code == 403 {
+                    assessmentPlaceholder = "Оценка пока недоступна."
+                } else {
+                    assessmentPlaceholder = "Не удалось загрузить оценку."
+                }
+            } else {
+                assessmentPlaceholder = "Не удалось загрузить оценку."
+            }
+        } catch {
+            assessment = nil
+            assessmentPlaceholder = "Не удалось загрузить оценку."
+        }
+    }
+
+    private func fetchGradingRules() async -> AssignmentGradingRulesDto? {
+        do {
+            let rules = try await assignmentsRepository.getGradingRules(assignmentId: assignmentId)
+            gradingRulesPlaceholder = nil
+            return rules
+        } catch let error as NetworkError {
+            if case .serverError(let code, _) = error {
+                if code == 404 {
+                    gradingRulesPlaceholder = "Правила оценивания пока не заданы."
+                } else if code == 403 {
+                    gradingRulesPlaceholder = "Правила оценивания пока недоступны."
+                } else {
+                    gradingRulesPlaceholder = "Не удалось загрузить правила оценивания."
+                }
+            } else {
+                gradingRulesPlaceholder = "Не удалось загрузить правила оценивания."
+            }
+            return nil
+        } catch {
+            gradingRulesPlaceholder = "Не удалось загрузить правила оценивания."
+            return nil
+        }
+    }
+
     private func mimeType(for url: URL) -> String {
         let ext = url.pathExtension
         if let type = UTType(filenameExtension: ext),
@@ -629,6 +817,76 @@ final class AssignmentDetailsViewModel: ObservableObject {
         }
         return nil
     }
+
+    private func mapPeerReviewError(_ error: Error, fallback: String) -> String {
+        guard let networkError = error as? NetworkError else { return fallback }
+
+        if case .unauthorized = networkError {
+            return "Сессия истекла. Войдите снова."
+        }
+
+        guard case let .serverError(code, raw) = networkError else { return fallback }
+        let message = peerReviewServerMessage(from: raw)
+        let lowered = message?.lowercased() ?? ""
+
+        if code == 403 {
+            return "Нет доступа к peer review."
+        }
+        if lowered.contains("not enabled") || lowered.contains("не включ") || lowered.contains("отключ") {
+            return "Peer review для этого задания не включен."
+        }
+        if lowered.contains("not started") || lowered.contains("has not started") || lowered.contains("не нач") {
+            return "Peer review еще не начался."
+        }
+        if lowered.contains("deadline") || lowered.contains("ended") || lowered.contains("expired") || lowered.contains("дедлайн") || lowered.contains("срок") {
+            return "Дедлайн peer review уже прошел."
+        }
+        if lowered.contains("not generated") || lowered.contains("assignments are not generated") || lowered.contains("не сформ") || lowered.contains("не сгенер") {
+            return "Назначения peer review еще не сформированы."
+        }
+        if code == 400 || code == 422 {
+            return message ?? "Проверьте данные peer review."
+        }
+        return message ?? fallback
+    }
+
+    private func peerReviewServerMessage(from raw: String?) -> String? {
+        guard let raw,
+              let data = raw.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            return raw
+        }
+
+        for key in ["message", "detail", "title", "code"] {
+            if let value = obj[key] as? String, !value.isEmpty, value != "null" {
+                return value
+            }
+        }
+
+        if let errors = obj["errors"] as? [String: Any],
+           let first = errors.values.first {
+            if let values = first as? [String], let value = values.first {
+                return value
+            }
+            if let value = first as? String {
+                return value
+            }
+        }
+
+        if let details = obj["details"] as? [String], let value = details.first {
+            return value
+        }
+
+        return nil
+    }
+}
+
+struct CriterionGroupSection: Identifiable, Equatable {
+    let group: CriterionGroupDto
+    let criteria: [CriterionDto]
+
+    var id: String { group.id }
 }
 
 struct PendingSubmissionUploadFile: Identifiable {

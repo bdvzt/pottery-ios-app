@@ -22,7 +22,19 @@ final class GradesViewModel: ObservableObject {
 
         do {
             let response = try await assignmentsNetwork.getMyGrades(id: courseId)
-            grades = response.sorted { ($0.assignmentTitle ?? "") < ($1.assignmentTitle ?? "") }
+            var uniqueByAssignmentId: [String: Grade] = [:]
+            for item in response {
+                if let existing = uniqueByAssignmentId[item.assignmentId] {
+                    if existing.grade == nil, item.grade != nil {
+                        uniqueByAssignmentId[item.assignmentId] = item
+                    }
+                } else {
+                    uniqueByAssignmentId[item.assignmentId] = item
+                }
+            }
+
+            grades = Array(uniqueByAssignmentId.values)
+                .sorted { ($0.assignmentTitle ?? "") < ($1.assignmentTitle ?? "") }
         } catch let error as NetworkError {
             if case .serverError(let code, _) = error, code == 403 {
                 errorMessage = "Нет доступа к оценкам"

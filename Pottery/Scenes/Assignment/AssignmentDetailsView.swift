@@ -77,7 +77,7 @@ struct AssignmentDetailsView: View {
 
                 }
 
-                else if let error = viewModel.errorMessage {
+                else if let error = viewModel.errorMessage, viewModel.assignment == nil {
 
                     errorView(error)
 
@@ -87,9 +87,20 @@ struct AssignmentDetailsView: View {
 
                     assignmentCard(assignment)
 
-                    if let files = assignment.files, !files.isEmpty {
+                    if let accessHint = viewModel.assignmentAccessHint {
+                        limitedAccessCard(accessHint)
+                    }
+
+                    peerReviewSection(assignment)
+
+                    if !viewModel.isLimitedAccessMode,
+                       let files = assignment.files, !files.isEmpty {
                         filesSection(files)
                     }
+
+                    gradingRulesSection
+
+                    criteriaSection
 
                     teamsSection
 
@@ -97,7 +108,11 @@ struct AssignmentDetailsView: View {
                         draftSection
                     }
 
-                    submissionSection
+                    if !viewModel.isLimitedAccessMode {
+                        submissionSection
+                    }
+
+                    myAssessmentSection
                 }
 
             }
@@ -176,20 +191,10 @@ struct AssignmentDetailsView: View {
                 infoChip("Создано \(formatDate(assignment.created))", color: .gray)
             }
 
-            HStack {
-                Text("Оценка")
-                Spacer()
-                if let grade = viewModel.grade?.grade {
-                    Text("\(grade)")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Color.accentColor)
-                } else {
-                    Text("Нет оценки")
-                        .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .font(.caption)
+            gradeSummaryRow(
+                rounded: viewModel.grade?.grade,
+                calculated: viewModel.grade?.calculatedGrade
+            )
 
         }
         .padding()
@@ -198,6 +203,78 @@ struct AssignmentDetailsView: View {
     }
 
     // MARK: - Files
+
+    @ViewBuilder
+    private func peerReviewSection(_ assignment: AssignmentResponse) -> some View {
+        if assignment.isPeerReviewEnabled {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Label("Peer review", systemImage: "person.2.badge.checkmark")
+                        .font(.headline)
+                    Spacer()
+                    if let status = viewModel.peerReviewStatus, status.isCompleted {
+                        infoChip("Готово", color: .green)
+                    }
+                }
+
+                if let starts = assignment.peerReviewStartsAtUtc {
+                    infoRow(title: "Старт", value: formatDate(starts), icon: "play.circle")
+                }
+                if let ends = assignment.peerReviewEndsAtUtc {
+                    infoRow(title: "Дедлайн", value: formatDate(ends), icon: "calendar")
+                }
+                if let required = assignment.peerReviewRequiredReviewsCount {
+                    infoRow(title: "Нужно проверить", value: "\(required)", icon: "number")
+                }
+                if let penalty = assignment.peerReviewPenaltyPercent,
+                   let text = GradeFormatting.calculatedGradeText(penalty) {
+                    infoRow(title: "Штраф", value: "\(text)%", icon: "exclamationmark.triangle")
+                }
+
+                if viewModel.isPeerReviewStatusLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                } else if let status = viewModel.peerReviewStatus {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("Прогресс")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("\(status.completedCount) / \(status.totalCount)")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+
+                        ProgressView(
+                            value: Double(status.completedCount),
+                            total: Double(max(status.totalCount, 1))
+                        )
+
+                        Text("Осталось: \(status.remainingCount)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                } else if let error = viewModel.peerReviewStatusErrorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button {
+                    viewModel.openPeerReview()
+                } label: {
+                    Label("Открыть peer review", systemImage: "arrow.right.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
 
     private func filesSection(_ files: [AssignmentFile]) -> some View {
 
@@ -857,16 +934,44 @@ struct AssignmentDetailsView: View {
     }
 
     private func errorView(_ text: String) -> some View {
-
         VStack(spacing: 10) {
-
-            Text(text)
-                .foregroundStyle(.red)
+            if text == "Задание пока недоступно" {
+                Image(systemName: "clock")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                Text("Задание пока недоступно")
+                    .foregroundStyle(.primary)
+                Text("Оно появится в деталях, когда наступит время доступа.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(text)
+                    .foregroundStyle(.red)
+            }
 
             Button("Обновить") {
                 Task { await viewModel.loadAssignment() }
             }
         }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func limitedAccessCard(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "info.circle")
+                .foregroundStyle(.blue)
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private func selectableSubmissionFileRow(_ file: SubmissionFile) -> some View {
@@ -953,21 +1058,10 @@ struct AssignmentDetailsView: View {
 
     private func submissionFeedbackSection(_ submission: SubmissionResponse) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("Оценка")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                if let grade = submission.grade {
-                    Text("\(grade)")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                } else {
-                    Text("Оценка еще не выставлена")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            gradeSummaryRow(
+                rounded: submission.grade,
+                calculated: submission.calculatedGrade
+            )
 
             if let comment = normalizedTeacherComment(submission.teacherComment) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -1010,4 +1104,3 @@ struct AssignmentDetailsView: View {
         return formatter
     }()
 }
-
