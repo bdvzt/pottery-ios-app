@@ -210,12 +210,25 @@ private extension AppCoordinator {
             assignmentsRepository: assignmentsNetwork,
             usersRepository: usersNetwork,
             submissionsRepository: submissionsRepository,
-            initialAssignment: assignment
+            initialAssignment: assignment,
+            onOpenPeerReview: { [weak self] assignmentId in
+                self?.showPeerReview(assignmentId: assignmentId, navigation: navigation)
+            }
         )
 
         let view = AssignmentDetailsView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
 
+        navigation.pushViewController(controller, animated: true)
+    }
+
+    func showPeerReview(assignmentId: String, navigation: UINavigationController) {
+        let viewModel = PeerReviewViewModel(
+            assignmentId: assignmentId,
+            assignmentsRepository: assignmentsNetwork
+        )
+        let view = PeerReviewView(viewModel: viewModel)
+        let controller = UIHostingController(rootView: view)
         navigation.pushViewController(controller, animated: true)
     }
 

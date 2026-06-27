@@ -91,6 +91,8 @@ struct AssignmentDetailsView: View {
                         limitedAccessCard(accessHint)
                     }
 
+                    peerReviewSection(assignment)
+
                     if !viewModel.isLimitedAccessMode,
                        let files = assignment.files, !files.isEmpty {
                         filesSection(files)
@@ -201,6 +203,78 @@ struct AssignmentDetailsView: View {
     }
 
     // MARK: - Files
+
+    @ViewBuilder
+    private func peerReviewSection(_ assignment: AssignmentResponse) -> some View {
+        if assignment.isPeerReviewEnabled {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Label("Peer review", systemImage: "person.2.badge.checkmark")
+                        .font(.headline)
+                    Spacer()
+                    if let status = viewModel.peerReviewStatus, status.isCompleted {
+                        infoChip("Готово", color: .green)
+                    }
+                }
+
+                if let starts = assignment.peerReviewStartsAtUtc {
+                    infoRow(title: "Старт", value: formatDate(starts), icon: "play.circle")
+                }
+                if let ends = assignment.peerReviewEndsAtUtc {
+                    infoRow(title: "Дедлайн", value: formatDate(ends), icon: "calendar")
+                }
+                if let required = assignment.peerReviewRequiredReviewsCount {
+                    infoRow(title: "Нужно проверить", value: "\(required)", icon: "number")
+                }
+                if let penalty = assignment.peerReviewPenaltyPercent,
+                   let text = GradeFormatting.calculatedGradeText(penalty) {
+                    infoRow(title: "Штраф", value: "\(text)%", icon: "exclamationmark.triangle")
+                }
+
+                if viewModel.isPeerReviewStatusLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                } else if let status = viewModel.peerReviewStatus {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("Прогресс")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("\(status.completedCount) / \(status.totalCount)")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+
+                        ProgressView(
+                            value: Double(status.completedCount),
+                            total: Double(max(status.totalCount, 1))
+                        )
+
+                        Text("Осталось: \(status.remainingCount)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                } else if let error = viewModel.peerReviewStatusErrorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button {
+                    viewModel.openPeerReview()
+                } label: {
+                    Label("Открыть peer review", systemImage: "arrow.right.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
 
     private func filesSection(_ files: [AssignmentFile]) -> some View {
 
@@ -1030,4 +1104,3 @@ struct AssignmentDetailsView: View {
         return formatter
     }()
 }
-
