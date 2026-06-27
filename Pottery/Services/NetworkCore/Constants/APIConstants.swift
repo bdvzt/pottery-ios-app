@@ -87,6 +87,18 @@ enum APIConstants {
         static func criterionGroups(assignmentId: String) -> String {
             "/api/assignments/\(assignmentId)/criterion-groups"
         }
+        static func peerReviewMyStatus(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/peer-review/my-status"
+        }
+        static func peerReviewTeamStatus(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/peer-review/team-status"
+        }
+        static func peerReviewMyForm(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/peer-review/my-form"
+        }
+        static func peerReviewRatings(assignmentId: String) -> String {
+            "/api/assignments/\(assignmentId)/peer-review/ratings"
+        }
     }
 
     // MARK: - Comments
